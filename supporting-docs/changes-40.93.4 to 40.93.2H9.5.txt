@@ -1,0 +1,44 @@
+Major code and system changes between V.40.93.4 and V.40.93.2H9.5
+=================================================================
+
+1. Turfs (and /obj/move objects) have had their heat variables (heat, oheat, theat) changed to temperature variables (temp, otemp, ttemp).
+In the simplified SS13 physics, (temperature of cell) = (total gas in cell) * (heat value of cell).
+This change also involves a few changes to procs related to the exchange of gas between /obj/substance/gas objects and turfs.
+
+The air system originally attempted to equilibrate the heat value of each turf with its neighbours, but this is unphysical and lead to problems with the station temperature becoming unstable. Instead, the simulation now tries to equalize the temperatures of each cell. Rather than convert the heat values to temperatures and back again during each cycle, it's more efficient to store the temperature and calculate heat whenever necessary.
+
+Note: All temperatures are in kelvin, with the normal value being 20degC (293.15 K).
+
+
+
+2. The links between turfs are now cached. Originally /turf/updatecell() called the expensive FindTurfs routine (which returns a list of which turfs have an unobstructed air-link to the current turf) for every turf at every simulation cycle.
+
+In the cached version, each turf maintains four /turf variables, turfN, turfS, turfE, turfW, and four booleans airN, airS, airE, airW, which are set true if there is an air link to the turf in that direction. These variables are updated by calling the turf/buildlinks() proc whenever a link state changes (e.g. when a door opens, when a wall is built or demolished, etc.).
+
+The loops in turf/updatecell() have also been unrolled to prevent the need to use lists. The net effect of the changes is to make the air simulation run about twice as fast as the uncached version.
+
+Air simulation on /obj/move locations (shuttles & airtunnel) are not cached and use the old system.
+
+
+3. The pipeline system has been completely rewritten. The original system (partially implemented) used a sort of propagating-supply method along each pipe object through the receive_gas() proc. The new system (almost totally contained in newpipe.dm) is similar to the turf air simulation in that the gas contents of two linked objects is compared, and some of the gas flows towards the object with the smaller amount of gas in it.
+
+Rather than treat each pipe object as an individual unit, an uninterrupted linked chain of pipe is represented as a single virtual /obj/machinery/pipeline object, in which the gas propagation takes place. This means that long pipes do not take an excessive amount of time for gas that flows into them to flow out the other end. These pipelines are built after map load by /prop/makepipelines() and are referenced through the global "plines" list var.
+
+Each gas-containing pipeline or machine has two instances of /obj/substance/gas, usually the "gas" and "ngas" objects. To prevent conflicts due to the order of processing objects, all calculations for gas movement are done with the "gas" object, but the new values are set in the "ngas" object. When all /obj/machinery/process() procedures are complete, a gas_flow() process is run for all gas-related /obj/machinery by the main processing loop in the /datum/control/cellular/process() proc. 
+
+
+
+4. The power system, which works at two levels. The main system (comprising of /obj/cable and all /obj/machinery/power/ objects), and the area-level system which is mediated by an APC in each area. The power system is contained in the power.dm file.
+
+In the main system, the /obj/cables objects are traced to form a network of linked objects by the /proc/makepowernets proc (initially at map load, then called again whenever major changes to the network occur). Each continuously linked network of cables and power machines is stored as a list in a /datum/powernet object, and each network is stored as a list of these objects in the global var/list/powernets list.
+
+Each /datum/powernet contains a list of all the /obj/cables, a list of all linked /obj/machinery/power/ objects, and "load" and "avail" variables. During each process() cycle, all generator type objects call /ojb/machinery/add_avail() with the amount of power (in watts, nominally) they generate. All power-using objects (at the moment, only APCs & SMESes) use add_load() to add the amount of power they want to use. At the end of the process cycle, this is resolved in the datum/powernet/reset() proc.
+
+SMESes (power storage units) are special in that they can both input and output power. A special restore() proc for each SMES is called in reset(), that calculates the actual amount of power demanded from the SMES, and recharges any unused portion.
+
+At the area level, the /obj/machinery/power/apc object controls the power usage of all machines within each /area. It controls three channels of power per area (lighting, equipment & environmental), and sets these channels depending on how much charge is left in the internal cell. It draws power from the it's linked powernet (using add_load()) to recharge the cell.
+
+Each machine that draws power calls /obj/machinery/use_power(amount, channel) (which in turn calls /area/use_power(amount, channel)), usually inside the machine's process() proc.  This increments the used_* variables in the area containing the machine, defaulting to the equipment channel. The machine can tell if the channel is powered by using the powered(channel) proc. Machines in the area also are informed of power changes by the obj/machinery/proc_change() proc, which is called whenever an area's power status is changed.
+
+Power for lighting in a area is calculated as part of the /obj/machinery/power/apc/process() proc. 
+
