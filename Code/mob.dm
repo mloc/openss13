@@ -3737,20 +3737,16 @@
 
 /mob/human/say(message as text)
 
-	if(config.logsay) world.log << "SAY: [src.name]/[src.key] : [message]"
 	var/alt_name
 	if (src.muted)
 		return
-
 	message = cleanstring(message)
-
 	if ((src.name != src.rname && src.wear_id))
 		alt_name = text(" (as [])", src.wear_id.registered)
 	if (src.stat == 2)
 		for(var/mob/M in world)
 			if (M.stat == 2)
 				M << text("<B>[]</B>[] []: []", src.rname, alt_name, (src.stat > 1 ? "\[<I>dead</I> \]" : ""), message)
-			//Foreach goto(69)
 		return
 	if ((copytext(message, 1, 2) == "*" && !( src.stat )))
 		src.emote(copytext(message, 2, length(message) + 1))
@@ -3814,6 +3810,7 @@
 		if (locate(/obj/move, T))
 			T = locate(/obj/move, T)
 		message = html_encode(message)
+		if(config.logsay) world.log << "SAY: [src.name]/[src.key] : [message]"
 		if (src.stuttering)
 			message = stutter(message)
 		if (italics)
@@ -3824,17 +3821,14 @@
 					M.show_message(text("<B>[]</B>[]: []", src.rname, alt_name, message), 2)
 				else
 					M.show_message(text("The human: []", stars(message)), 2)
-				//Foreach goto(864)
 		for(var/obj/O in view(obj_range, null))
-			spawn( 0 )
+			spawn(0)
 				if (O)
 					O.hear_talk(usr, message)
 				return
-			//Foreach goto(948)
 	for(var/mob/M in world)
 		if (M.stat > 1)
 			M << text("<B>[]</B>[] []: []", src.rname, alt_name, (src.stat > 1 ? "\[<I>dead</I> \]" : ""), message)
-		//Foreach goto(1005)
 	return
 
 /mob/human/UpdateClothing()
@@ -5316,17 +5310,15 @@
 	return
 
 /mob/verb/ooc(msg as text)
-
-	if(config.logooc) world.log << "OOC: [src.name]/[src.key] : [msg]"
 	msg = cleanstring(msg)
 	msg = html_encode(copytext(msg, 1, 128))
-	if (!( msg ))
+	if (!(msg))
 		return
-	if ((ooc_allowed && !( src.muted )))
+	if ((ooc_allowed && !(src.muted)))
+		if(config.logooc) world.log << "OOC: [src.name]/[src.key] : [msg]"
 		for(var/mob/M in world)
 			if ((M.client && M.client.listen_ooc))
 				M << text("<B>OOC: []</B>: []", src.key, msg)
-			//Foreach goto(54)
 	return
 
 /mob/verb/switch_hud()
