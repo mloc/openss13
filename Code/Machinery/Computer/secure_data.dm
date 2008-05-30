@@ -32,7 +32,7 @@ obj/machinery/computer/secure_data
 
 	// AI interact
 	attack_ai(mob/user)
-		return src.attack_ai(user)
+		return src.attack_hand(user)
 
 	// Human interact, display window
 

@@ -102,7 +102,7 @@ obj/machinery/freezer
 	
 	// AI interact
 	attack_ai(mob/user)
-		return src.attack_ai(user)
+		return src.attack_hand(user)
 
 	// Interact by human
 	// Show the interaction window

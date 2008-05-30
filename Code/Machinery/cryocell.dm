@@ -225,7 +225,7 @@ obj/machinery/cryo_cell
 
 	// AI interact
 	attack_ai(mob/user)
-		return src.attack_ai(user)
+		return src.attack_hand(user)
 	
 	// Human interact, show status window of machine and occupant
 	

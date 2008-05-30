@@ -142,7 +142,7 @@ obj/machinery/computer/card
 					d1 = "[stars(modify.name)] :<BR>\n[stars("General Access Level:")] [vo]<BR>\n[stars("Laboratory Access:")] [vl]<BR>\n[stars("Reactor/Engine Access:")] [ve]<BR>\n[stars("Main Systems Access:")] [va]<BR>\n[stars("Registered:")] <A href='?src=\ref[src];reg=1'>[src.modify.registered ? stars(src.modify.registered) : stars("{None: Click to modify}")]</A><BR>\n[stars("Assignment:")] [src.modify.assignment ? "[stars(src.modify.assignment)]" : "None"]<BR>\n[assign]<BR>"
 
 
-			if (istype(user, /mob/human))
+			if (istype(user, /mob/human) || istype(user, /mob/ai))
 				dat = text("<TT><B>Identification Card Modifier</B><BR>\n<I>Please Insert the cards into the slots</I><BR>\nTarget: <A href='?src=\ref[];modify=1'>[]</A><BR>\nConfirm Identity: <A href='?src=\ref[];scan=1'>[]</A><BR>\n-----------------<BR>\n[]<BR>\n<BR>\n<BR>\n<A href='?src=\ref[];mode=1'>Access Crew Manifest</A><BR>\n</TT>", src, (src.modify ? text("[]", src.modify.name) : "----------"), src, (src.scan ? text("[]", src.scan.name) : "----------"), d1, src)
 			else
 				dat = text("<TT><B>[]</B><BR>\n<I>[]</I><BR>\n[] <A href='?src=\ref[];modify=1'>[]</A><BR>\n[] <A href='?src=\ref[];scan=1'>[]</A><BR>\n-----------------<BR>\n[]<BR>\n<BR>\n<BR>\n<A href='?src=\ref[];mode=1'>[]</A><BR>\n</TT>", stars("Identification Card Modifier"), stars("Please Insert the cards into the slots"), stars("Target:"), src, (src.modify ? text("[]", stars(src.modify.name)) : "----------"), stars("Confirm Identity:"), src, (src.scan ? text("[]", stars(src.scan.name)) : "----------"), d1, src, stars("Access Crew Manifest"))
@@ -197,15 +197,16 @@ obj/machinery/computer/card
 						src.scan = I
 				src.authenticated = 0
 
-			if ((!( src.authenticated ) && (src.scan || (istype(usr, /mob/ai))) && (src.modify || src.mode)))
-				if (istype(usr, /mob/ai))
-					src.authenticated = 1
-				else
-					if ((src.scan.assignment == "Captain" || src.scan.assignment == "Head of Personnel"))
+			if (href_list["auth"])
+				if ((!( src.authenticated ) && (src.scan || (istype(usr, /mob/ai))) && (src.modify || src.mode)))
+					if (istype(usr, /mob/ai))
 						src.authenticated = 1
-			else
-				if ((!( src.authenticated ) && (istype(usr, /mob/ai))) && (!src.modify))
-					usr << "You can't modify an ID without an ID inserted to modify. Once one is in the modify slot on the computer, you can log in."
+					else
+						if ((src.scan.assignment == "Captain" || src.scan.assignment == "Head of Personnel"))
+							src.authenticated = 1
+				else if (!href_list["print"])
+					if ((!( src.authenticated ) && (istype(usr, /mob/ai))) && (!src.modify))
+						usr << "You can't modify an ID without an ID inserted to modify. Once one is in the modify slot on the computer, you can log in."
 			
 			if (href_list["vo"])
 				if (src.authenticated)
