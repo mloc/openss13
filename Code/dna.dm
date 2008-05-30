@@ -10,6 +10,9 @@
 	return t
 	return
 
+/obj/machinery/computer/dna/attack_ai(mob/user as mob)
+	return src.attack_hand(user)
+
 /obj/machinery/computer/dna/attack_paw(mob/user as mob)
 
 	return src.attack_hand(user)
@@ -21,7 +24,7 @@
 		return
 
 	user.machine = src
-	if (istype(user, /mob/human))
+	if (istype(user, /mob/human) || istype(user, /mob/ai))
 		var/dat = text("<I>Please Insert the cards into the slots</I><BR>\n\t\t\t\tFunction Disk: <A href='?src=\ref[];scan=1'>[]</A><BR>\n\t\t\t\tTarget Disk: <A href='?src=\ref[];modify=1'>[]</A><BR>\n\t\t\t\tAux. Data Disk: <A href='?src=\ref[];modify2=1'>[]</A><BR>\n\t\t\t\t\t(Not always used!)<BR>\n\t\t\t\t[]", src, (src.scan ? text("[]", src.scan.name) : "----------"), src, (src.modify ? text("[]", src.modify.name) : "----------"), src, (src.modify2 ? text("[]", src.modify2.name) : "----------"), (src.scan ? text("<A href='?src=\ref[];execute=1'>Execute Function</A>", src) : "No function disk inserted!"))
 		if (src.temp)
 			dat = text("[]<BR><BR><A href='?src=\ref[];clear=1'>Clear Message</A>", src.temp, src)
@@ -36,11 +39,12 @@
 /obj/machinery/computer/dna/Topic(href, href_list)
 	..()
 	if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-		usr << "\red You don't have the dexterity to do this!"
-		return
+		if (!istype(usr, /mob/ai))
+			usr << "\red You don't have the dexterity to do this!"
+			return
 	if ((usr.stat || usr.restrained()))
 		return
-	if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+	if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 		usr.machine = src
 		if (href_list["modify"])
 			if (src.modify)
@@ -200,10 +204,8 @@
 			else
 				src.temp = "System Failure: Cannot read disk function!"
 		src.add_fingerprint(usr)
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
-			//Foreach goto(1764)
+		src.updateDialog()
+
 	return
 
 /obj/machinery/computer/dna/ex_act(severity)
@@ -608,16 +610,16 @@
 				else
 					src.status = null
 					src.temp = "Unknown system error."
-	for(var/mob/O in viewers(1, src))
-		if ((O.client && O.machine == src))
-			src.attack_hand(O)
-		//Foreach goto(1755)
+	src.updateDialog()
 	return
 
 /obj/machinery/scan_console/attack_paw(user as mob)
 
 	return src.attack_hand(user)
 	return
+
+/obj/machinery/scan_console/attack_ai(user as mob)
+	return src.attack_hand(user)
 
 /obj/machinery/scan_console/attack_hand(user as mob)
 
@@ -658,11 +660,12 @@
 /obj/machinery/scan_console/Topic(href, href_list)
 	..()
 	if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-		usr << "\red You don't have the dexterity to do this!"
-		return
+		if (!istype(usr, /mob/ai))		
+			usr << "\red You don't have the dexterity to do this!"
+			return
 	if ((usr.stat || usr.restrained()))
 		return
-	if ((usr.contents.Find(src) || get_dist(src, usr) <= 1 && istype(src.loc, /turf)))
+	if ((usr.contents.Find(src) || get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai)))
 		usr.machine = src
 		if (href_list["locked"])
 			if ((src.connected && src.connected.occupant))
@@ -702,9 +705,8 @@
 				src.status = "load"
 				src.temp = "Loading..."
 		src.add_fingerprint(usr)
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
+
 			//Foreach goto(484)
 	return
 

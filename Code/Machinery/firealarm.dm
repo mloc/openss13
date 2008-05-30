@@ -58,9 +58,7 @@ obj/machinery/firealarm
 				src.time = 0
 				src.timing = 0
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
+			src.updateDialog()
 		return
 
 
@@ -74,6 +72,11 @@ obj/machinery/firealarm
 			spawn(rand(0,15))
 				stat |= NOPOWER
 				icon_state = "firealarm-p"
+
+	// AI interact same as human
+
+	attack_ai(mob/user)
+		return src.attack_hand(user)
 
 	// Monkey interact same as human
 
@@ -92,7 +95,7 @@ obj/machinery/firealarm
 		var/area/A = src.loc
 		var/d1
 		var/d2
-		if (istype(user, /mob/human))
+		if (istype(user, /mob/human) || istype(user, /mob/ai))
 			A = A.loc
 
 			if (A.fire)
@@ -131,7 +134,7 @@ obj/machinery/firealarm
 		if (usr.stat || stat&NOPOWER)
 			return
 
-		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 			usr.machine = src
 
 			if (href_list["reset"])
@@ -148,9 +151,7 @@ obj/machinery/firealarm
 				src.time += tp
 				src.time = min(max(round(src.time), 0), 120)
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
+			src.updateDialog()
 			src.add_fingerprint(usr)
 		else
 			usr << browse(null, "window=firealarm")

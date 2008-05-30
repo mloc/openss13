@@ -3,7 +3,6 @@
 
 	return !( src.density )
 
-
 /obj/move/attack_paw(user as mob)
 
 	return src.attack_hand(user)
@@ -65,7 +64,7 @@
 	return
 
 /obj/move/proc/unburn()
-
+	src.luminosity = 0
 	src.icon_state = initial(src.icon_state)
 	return
 
@@ -227,6 +226,7 @@
 				src.firelevel = src.oxygen + src.poison
 			if (src.firelevel >= 900000.0)
 				src.icon_state = "burning"
+				src.luminosity = 2
 				if (src.oxygen > 5000)
 					src.co2 += 2500
 					src.oxygen -= 5000
@@ -304,6 +304,7 @@
 				src.firelevel = src.oxygen + src.poison
 			if (src.firelevel >= 900000.0)
 				src.icon_state = "burning"
+				src.luminosity = 2
 				if (src.oxygen > 5000)
 					src.co2 += 2500
 					src.oxygen -= 5000
@@ -530,6 +531,7 @@
 
 /turf/proc/unburn()
 
+	src.luminosity = 0
 	src.icon_state = initial(src.icon_state)
 	return
 
@@ -722,7 +724,6 @@
 			condW += val
 
 /turf/buildlinks()				// call this one to update a cell and neighbours (on cell state change)
-
 	updatelinks()
 
 	for(var/dir in cardinal)
@@ -1034,6 +1035,7 @@ turf/proc/tot_old_gas()
 				src.firelevel = src.oxygen + src.poison
 			if (src.firelevel >= 900000.0)
 				src.icon_state = "burning"
+				src.luminosity = 2
 				if (src.oxygen > 5000)
 					src.co2 += 2500
 					src.oxygen -= 5000
@@ -1181,6 +1183,7 @@ turf/proc/tot_old_gas()
 				src.firelevel = src.oxygen + src.poison
 			if (src.firelevel >= 900000.0)
 				src.icon_state = "burning"
+				src.luminosity = 2
 				if (src.oxygen > 5000)
 					src.co2 += 2500
 					src.oxygen -= 5000

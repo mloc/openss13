@@ -74,7 +74,13 @@ obj/machinery/computer/pod
 
 	attack_paw(mob/user)
 		return src.attack_hand(user)
+	
+	// AI interact
+	
+	attack_ai(mob/user)
+		return src.attack_hand(user)
 
+	
 
 	// Human interact, show window
 
@@ -122,14 +128,18 @@ Time Left: [(minute ? "[minute]:" : null)][second] <A href='?src=\ref[src];tp=-3
 			usr << browse(null, "window=computer")
 			return
 
-		if(usr.restrained() || usr.lying) return
+		if (usr.restrained() || usr.lying)
+			if (!istype(usr, /mob/ai))
+				return
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))		
+				usr << "\red You don't have the dexterity to do this!"
+				return
 		if ((usr.stat || usr.restrained()))
-			return
-		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+			if (!istype(usr, /mob/ai))
+				return
+		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 			usr.machine = src
 			if (href_list["power"])
 				var/t = text2num(href_list["power"])
@@ -157,11 +167,7 @@ Time Left: [(minute ? "[minute]:" : null)][second] <A href='?src=\ref[src];tp=-3
 								return
 
 			src.add_fingerprint(usr)
-
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
-				//Foreach goto(394)
+			src.updateDialog()
 		return
 
 
@@ -181,9 +187,7 @@ Time Left: [(minute ? "[minute]:" : null)][second] <A href='?src=\ref[src];tp=-3
 				src.time = 0
 				src.timing = 0
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
+			src.updateDialog()
 
 
 

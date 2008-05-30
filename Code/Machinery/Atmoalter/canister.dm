@@ -114,9 +114,7 @@ obj/machinery/atmoalter/canister
 		// Transfer for pipe valve is handled by /obj/machinery/connector process() proc
 
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 		src.update_icon()
 		return
 
@@ -195,6 +193,11 @@ obj/machinery/atmoalter/canister
 			if (src.t_status == 2)
 				src.t_status = 3
 		return
+
+	// AI interact same as human
+
+	attack_ai(var/mob/user)
+		return src.attack_hand(user)
 
 
 	// Monkey interact same as human
@@ -298,9 +301,7 @@ Pipe Valve Status: [ct]<BR>
 					if (src.t_status == 2)
 						src.t_status = 3
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
+			src.updateDialog()
 			src.add_fingerprint(usr)
 			update_icon()
 

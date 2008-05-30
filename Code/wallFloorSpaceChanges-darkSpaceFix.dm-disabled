@@ -1,0 +1,66 @@
+// You can have one wallFloorSpaceChanges-[something].dm file enabled in dream maker.
+// The purpose of this was to make it so that areas which turned to space from, say, explosions, did not end up with dark space. They were taken out of their area when they became space, and if a floor was built on them, they were put back into their area. I also tried having this be done for walls, but it was more likely to cause problems, since someone could light up all of space with fire alarms or drain massive power by simply building a wall on a fire alarm or APC's (respectively) real tile. (The code for doing that to walls is in here, but commented out)
+// The main problem with this is that it's still technically possible to have something like a fire alarm or APC wind up in /area if a set of explosion rolls (or something similar) remove the floor without removing the fire alarm or APC (or their power). That may seem unlikely, especially if they need to be powered still, but it has been reported to have happened at least once so far, IIRC.
+
+/turf/proc/ReplaceWithFloor()
+	var/turf/station/floor/W
+	var/area/A
+	//if (istype(src, /turf/space) || istype(src, /turf/station/wall) || istype(src, /turf/station/r_wall))
+	if (istype(src, /turf/space))
+		var/area/oldArea = src:previousArea
+		if (oldArea!=null)
+			A = oldArea
+		else
+			A = src.loc
+		W = new /turf/station/floor( locate(src.x, src.y, src.z) )
+	else
+		A = src.loc
+		W = new /turf/station/floor( locate(src.x, src.y, src.z) )
+	if (istype(A, /area))
+		if (A!=world.area)
+			A.contents -= W
+			A.contents += W
+	return W
+
+/turf/proc/ReplaceWithSpace()
+	var oldAreaArea = src.loc
+	var/turf/space/S = new /turf/space( locate(src.x, src.y, src.z) )
+	if (oldAreaArea==world.area)
+		if (istype(src, /turf/station/wall) || istype(src, /turf/station/r_wall) || istype(src, /turf/space))
+			S.previousArea = src:previousArea
+		else
+			S.previousArea = null
+	else
+		S.previousArea = oldAreaArea
+	new /area( locate(src.x, src.y, src.z) )
+	return S
+
+/turf/proc/ReplaceWithWall()
+	//var oldAreaArea = src.loc
+	var/turf/station/wall/S = new /turf/station/wall( locate(src.x, src.y, src.z) )
+	/*
+	if (oldAreaArea==world.area)
+		if (istype(src, /turf/station/wall) || istype(src, /turf/station/r_wall) || istype(src, /turf/space))
+			S.previousArea = src:previousArea
+		else
+			S.previousArea = null
+	else
+		S.previousArea = oldAreaArea
+	new /area( locate(src.x, src.y, src.z) )
+	*/
+	return S
+
+/turf/proc/ReplaceWithRWall()
+	//var oldAreaArea = src.loc
+	var/turf/station/r_wall/S = new /turf/station/r_wall( locate(src.x, src.y, src.z) )
+	/*
+	if (oldAreaArea==world.area)
+		if (istype(src, /turf/station/wall) || istype(src, /turf/station/r_wall) || istype(src, /turf/space))
+			S.previousArea = src:previousArea
+		else
+			S.previousArea = null
+	else
+		S.previousArea = oldAreaArea
+	new /area( locate(src.x, src.y, src.z) )
+	*/
+	return S

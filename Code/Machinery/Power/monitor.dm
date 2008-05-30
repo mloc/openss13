@@ -15,6 +15,14 @@ obj/machinery/power/monitor
 		access = "4000/2030/3004"		// ID card access levels needed to enable remote control
 		allowed = "Systems"				// ID card job assignment needed to enable remote control
 
+	//Attack by AI, show report window
+	
+	attack_ai(mob/user)
+		add_fingerprint(user)
+
+		if(stat & (BROKEN|NOPOWER))
+			return
+		interact(user)
 
 	// Attack with hand, show report window
 
@@ -48,9 +56,10 @@ obj/machinery/power/monitor
 	proc/interact(mob/user)
 
 		if ( (get_dist(src, user) > 1 ) || (stat & (BROKEN|NOPOWER)) )
-			user.machine = null
-			user << browse(null, "window=powcomp")
-			return
+			if (!istype(user, /mob/ai))	
+				user.machine = null
+				user << browse(null, "window=powcomp")
+				return
 
 
 		user.machine = src
@@ -107,10 +116,11 @@ obj/machinery/power/monitor
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))
+				usr << "\red You don't have the dexterity to do this!"
+				return
 
-		if (( (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+		if (( (get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai))))
 			usr.machine = src
 			if (href_list["breaker"])
 				var/obj/machinery/power/apc/APC = locate(href_list["apc"])
@@ -136,9 +146,7 @@ obj/machinery/power/monitor
 			use_power(250)
 
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.interact(M)
+		src.updateDialog()
 
 
 	// Power changed in location area - update icon to unpowered state, set stat

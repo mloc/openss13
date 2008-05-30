@@ -17,7 +17,7 @@
 		src.brute_dam += brute
 		src.burn_dam += burn
 	else
-		var/can_inflict = src.max_damage - (src.brute_dam + src.burn_dam)
+		var/can_inflict = (src.max_damage+1) - (src.brute_dam + src.burn_dam)
 		if (can_inflict)
 			if ((brute > 0 && burn > 0))
 				var/ratio = brute / (brute + burn)
@@ -744,7 +744,8 @@ heat is conserved between exchanges
 			M.eye_blurry += volume * 15
 		else
 			M.paralysis += volume * 12
-			M.stat = 1
+			if (M.stat == 0)
+				M.stat = 1
 	return
 
 /datum/chemical/epil/injected(var/mob/M as mob, zone)

@@ -24,6 +24,11 @@ obj/machinery/dispenser
 		use_power(5)
 
 
+	// attack by AI same as attack by human
+
+	attack_ai(mob/user as mob)
+		return src.attack_hand(user)
+
 	// attack by monkey same as attack by human
 
 	attack_paw(mob/user)
@@ -45,7 +50,10 @@ obj/machinery/dispenser
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
+			if (!istype(usr, /mob/ai))
+				usr << "\red You don't have the dexterity to do this!"
+			else
+				usr << "\red You are unable to dispense anything, since the controls are physical levers which don't go through any other kind of input."
 			return
 		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
 			usr.machine = src

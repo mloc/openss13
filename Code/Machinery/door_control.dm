@@ -25,6 +25,11 @@ obj/machinery/door_control
 	attackby(nothing, mob/user)
 		return src.attack_hand(user)
 
+	// attack by AI, same as human
+
+	attack_ai(mob/user)
+		return src.attack_hand(user)
+
 	// attack by hand, toggle all poddoors with same id
 
 	attack_hand(mob/user)

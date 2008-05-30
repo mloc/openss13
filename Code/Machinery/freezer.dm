@@ -99,7 +99,10 @@ obj/machinery/freezer
 
 	attack_paw(mob/user)
 		return src.attack_hand(user)
-
+	
+	// AI interact
+	attack_ai(mob/user)
+		return src.attack_ai(user)
 
 	// Interact by human
 	// Show the interaction window
@@ -108,7 +111,7 @@ obj/machinery/freezer
 
 		user.machine = src
 
-		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
+		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))) && (!istype(usr, /mob/ai)))
 			var/d1
 			if (locate(/obj/item/weapon/flasks, src))
 				var/counter = 1
@@ -174,10 +177,12 @@ obj/machinery/freezer
 	Topic(href, href_list)
 		..()
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))		
+				usr << "\red You don't have the dexterity to do this!"
+				return
 		if ((usr.stat || usr.restrained()))
-			return
+			if (!istype(usr, /mob/ai))		
+				return
 		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
 			usr.machine = src
 			if (href_list["cp"])
@@ -381,9 +386,7 @@ obj/machinery/freezer
 
 					return
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 		return
 
 

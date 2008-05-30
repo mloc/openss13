@@ -184,7 +184,7 @@
 			//world << "Returning mode [M]"
 			return M
 
-	//world << "Failed to pick gamemode in config/pickmode()"
+	world << "Failed to pick gamemode in config/pickmode()"
 
 	return null
 

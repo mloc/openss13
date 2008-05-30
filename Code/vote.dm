@@ -41,7 +41,8 @@
 
 	for(var/mob/M in world)
 		if(M.client && M.client.inactivity < 1200)		// clients inactive for 2 minutes don't count
-			L[M.client.vote] += 1
+			if (M.client.vote != "none")
+				L[M.client.vote] += 1
 
 
 	return L

@@ -22,6 +22,11 @@ obj/machinery/door/false_wall
 
 		usr << "It looks like a regular wall"
 
+	// AI can't use secret doors
+
+	attack_ai(mob/user as mob)
+		return
+		
 	// Monkey interact - if in monkey mode, same as human
 
 	attack_paw(mob/user)

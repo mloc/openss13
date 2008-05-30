@@ -35,13 +35,17 @@
 /area/crew_quarters
 	name = "crew quarters"
 /area/decontamination
-	name = "decon"
+	name = "decontamination"
+
 /area/dummy
+	name = "dummy"
 
 /area/engine
 	name = "engine"
 /area/engine_access
 	name = "engine access"
+/area/north_solar
+	name = "north solar"
 /area/escapezone
 	name = "escape zone"
 /area/hallways
@@ -58,6 +62,8 @@
 	name = "lounge"
 /area/medical
 	name = "medical bay"
+/area/medicalresearch
+	name = "medical research"
 /area/medicalstorage
 	name = "medical storage"
 /area/oxygen_storage
@@ -73,6 +79,10 @@
 /area/shuttle_prison
 	name = "prison shuttle"
 	requires_power = 0
+/area/arrival/start
+	name = "arrival area"
+/area/arrival/shuttle
+	name = "arrival shuttle"
 /area/sleep_area
 	name = "sleep area"
 /area/solar_con
@@ -109,6 +119,10 @@
 	name = "sleep area annexe"
 /area/south_access
 	name = "southern access corridor"
+/area/turret_protected/ai_upload
+	name = "AI upload room"
+/area/turret_protected/ai_upload_foyer
+	name = "AI upload foyer"
 /area/transport_tube
 	name = "transport tube"
 /area/shuttle_docking_arm
@@ -135,6 +149,9 @@
 	name = "engine control"
 /area/engine/engine_mon
 	name = "engine monitoring"
+/area/engine/prototype_engine
+	name = "prototype engine"
+
 /area/station_teleport
 	name = "SS13 teleporter"
 /area/chapel
@@ -164,7 +181,7 @@
 
 /area/prison
 	name = "prison"
-	requires_power = 0
+	requires_power = 1
 
 /area/control_station
 	name = "control station"
@@ -173,7 +190,11 @@
 /area/brig
 	name = "brig"
 
+/area/syndicate_station
+	name = "syndicate mini-station"
 
+/area/turret_protected/computer_core
+	name = "Computer Core"
 
 /area/New()
 
@@ -229,25 +250,22 @@
 
 
 /area/proc/updateicon()
-
-	if( fire || eject )
-		if(power_environ)
-			if(fire && !eject)
-				icon_state = "blue"
-			else if(!fire && eject)
-				icon_state = "red"
-			else
-				icon_state = "blue-red"
+	if ((fire || eject) && power_environ)
+		if(fire && !eject)
+			icon_state = "blue"
+		else if(!fire && eject)
+			icon_state = "red"
 		else
-			if(lightswitch && power_light)
-				icon_state = null
-			else
-				icon_state = "dark"
+			icon_state = "blue-red"
 	else
 		if(lightswitch && power_light)
 			icon_state = null
 		else
-			icon_state = "dark"
+			icon_state = "dark128"
+	if(lightswitch && power_light)
+		luminosity = 1;
+	else
+		luminosity = 0;
 
 /*
 #define EQUIP 1

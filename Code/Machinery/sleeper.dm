@@ -241,6 +241,10 @@ obj/machinery/computer/sleep_console
 
 	attack_paw(mob/user)
 		return src.attack_hand(user)
+	
+	// AI interact
+	attack_ai(mob/user)
+		return src.attack_ai(user)
 
 	// Human interact
 	// Show the interaction window
@@ -276,27 +280,22 @@ obj/machinery/computer/sleep_console
 	Topic(href, href_list)
 		..()
 		if ((usr.stat || usr.restrained()))
-			return
+			if (!istype(usr, /mob/ai))
+				return
 		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
 			usr.machine = src
 			if (href_list["rejuv"])
 				if (src.connected)
 					src.connected.inject(usr)
-			if (href_list["refresh"])
-				for(var/mob/M in viewers(1, src))
-					if ((M.client && M.machine == src))
-						src.attack_hand(M)
-					//Foreach goto(123)
-			src.add_fingerprint(usr)
+		if (href_list["refresh"])
+			src.updateDialog()
+		src.add_fingerprint(usr)
 
 
 	// Timed process - just update interaction window for those viewing
 
 	process()
-
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 
 
 	// Called when area power state changes

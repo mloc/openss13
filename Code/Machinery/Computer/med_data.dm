@@ -30,6 +30,9 @@ obj/machinery/computer/med_data
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
+	// AI interact
+	attack_ai(mob/user)
+		return src.attack_ai(user)
 
 	// Human interact
 	// Show interaction window
@@ -124,9 +127,9 @@ Important Notes:<BR>
 		if (!( data_core.medical.Find(src.active2) ))
 			src.active2 = null
 		if ((usr.stat || usr.restrained()))
-			return
-		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
-
+			if (!istype(usr, /mob/ai))
+				return
+		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 			usr.machine = src
 			if (href_list["temp"])
 				src.temp = null				// close the temporary display
@@ -394,6 +397,4 @@ Important Notes:<BR>
 
 		src.add_fingerprint(usr)
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()

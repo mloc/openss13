@@ -48,6 +48,10 @@ obj/machinery/sec_lock
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
+	// attack by AI, same as human
+
+	attack_ai(mob/user)
+		return src.attack_hand(user)
 
 	// Interact, show window
 
@@ -57,7 +61,7 @@ obj/machinery/sec_lock
 			return
 		use_power(10)
 
-		if (src.loc == user.loc)
+		if ((src.loc == user.loc) || (istype(user, /mob/ai)))
 			var/dat = {"<B>Security Pad:</B><BR>
 Keycard: [src.scan ? "<A href='?src=\ref[src];card=1'>[src.scan.name]</A>" : "<A href='?src=\ref[src];card=1'>-----</A>"]<BR>
 <A href='?src=\ref[src];door1=1'>Toggle Outer Door</A><BR>
@@ -84,77 +88,77 @@ Keycard: [src.scan ? "<A href='?src=\ref[src];card=1'>[src.scan.name]</A>" : "<A
 
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))
+				usr << "\red You don't have the dexterity to do this!"
+				return
 		if ((usr.stat || usr.restrained()))
 			return
 		if ((!( src.d1 ) || !( src.d2 )))
 			usr << "\red Error: Cannot interface with door security!"
 			return
-		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai))))
 			usr.machine = src
 			if (href_list["card"])				// clicked card link
 				if (src.scan)					// if card already present, remove the card
 					src.scan.loc = src.loc
 					src.scan = null
 				else													// otherwise
-					var/obj/item/weapon/card/id/I = usr.equipped()		// check to see if an ID card is equipped
-					if (istype(I, /obj/item/weapon/card/id))
-						usr.drop_item()
-						I.loc = src
-						src.scan = I									// and insert the ID card
+					if (!istype(usr, /mob/ai))
+						var/obj/item/weapon/card/id/I = usr.equipped()		// check to see if an ID card is equipped
+						if (istype(I, /obj/item/weapon/card/id))
+							usr.drop_item()
+							I.loc = src
+							src.scan = I									// and insert the ID card
+			var/valid = 0
+			if (istype(usr, /mob/ai))
+				valid = 1
+			else if (src.scan)
+				if (scan.check_access(access, allowed))
+					valid = 1
 			if (href_list["door1"])
-				if (src.scan)
-					if (scan.check_access(access, allowed))
-						if (src.d1.density)
-							spawn( 0 )
-								src.d1.open()
-								return
-						else
-							spawn( 0 )
-								src.d1.close()
-								return
-			if (href_list["door2"])
-				if (src.scan)
-					if (scan.check_access(access, allowed))
-						if (src.d2.density)
-							spawn( 0 )
-								src.d2.open()
-								return
-						else
-							spawn( 0 )
-								src.d2.close()
-								return
-			if (href_list["em_cl"])
-				if (src.scan)
-					if (scan.check_access(access, allowed))
-						if (!( src.d1.density ))
+				if (valid)
+					if (src.d1.density)
+						spawn( 0 )
+							src.d1.open()
+							return
+					else
+						spawn( 0 )
 							src.d1.close()
 							return
-						sleep(1)
+			if (href_list["door2"])
+				if (valid)
+					if (src.d2.density)
 						spawn( 0 )
-							if (!( src.d2.density ))
-								src.d2.close()
+							src.d2.open()
 							return
+					else
+						spawn( 0 )
+							src.d2.close()
+							return
+			if (href_list["em_cl"])
+				if (valid)
+					if (!( src.d1.density ))
+						src.d1.close()
+						return
+					sleep(1)
+					spawn( 0 )
+						if (!( src.d2.density ))
+							src.d2.close()
+						return
 			if (href_list["em_op"])
-				if (src.scan)
-					if (scan.check_access(access, allowed))
-						spawn( 0 )
-							if (src.d1.density)
-								src.d1.open()
-							return
-						sleep(1)
-						spawn( 0 )
-							if (src.d2.density)
-								src.d2.open()
-							return
+				if (valid)
+					spawn( 0 )
+						if (src.d1.density)
+							src.d1.open()
+						return
+					sleep(1)
+					spawn( 0 )
+						if (src.d2.density)
+							src.d2.open()
+						return
 			src.add_fingerprint(usr)
 
-			for(var/mob/M in src.loc)
-				if ((M.client && M.machine == src))
-					spawn( 0 )
-						src.attack_hand(M)
-						return
+			src.updateDialog()
 		return
 
 

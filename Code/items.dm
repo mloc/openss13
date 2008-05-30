@@ -459,7 +459,7 @@
 		O.show_message(text("\red <B>[] has been attacked with [][] </B>", M, src, (user ? text(" by [].", user) : ".")), 1)
 		//Foreach goto(20)
 	var/power = src.force
-	if (M.health >= -10.0)
+	if ((M.health >= -10.0) && (M.stat < 2))
 		if (istype(M, /mob/human))
 			var/mob/human/H = M
 			var/obj/item/weapon/organ/external/affecting = H.organs["chest"]
@@ -1264,10 +1264,11 @@
 		src.force = 75
 		..()
 		src.force = 60
-		M.stat = 1
-		for(var/mob/O in viewers(M, null))
-			O.show_message(text("\red <B>[] has been shot point-blank by []!</B>", M, user), 1, "\red You hear someone fall", 2)
-			//Foreach goto(192)
+		if (M.stat<2)
+			M.stat = 1
+			for(var/mob/O in viewers(M, null))
+				O.show_message(text("\red <B>[] has been shot point-blank by []!</B>", M, user), 1, "\red You hear someone fall", 2)
+				//Foreach goto(192)
 	else
 		if (prob(50))
 			if (M.paralysis < 60)
@@ -1277,11 +1278,12 @@
 				M.weakened = 60
 		src.force = 30
 		..()
-		M.stat = 1
-		for(var/mob/O in viewers(M, null))
-			if ((O.client && !( O.blinded )))
-				O.show_message(text("\red <B>[] has been pistol whipped []!</B>", M, user), 1, "\red You hear someone fall", 2)
-			//Foreach goto(315)
+		if (M.stat<2)
+			M.stat = 1
+			for(var/mob/O in viewers(M, null))
+				if ((O.client && !( O.blinded )))
+					O.show_message(text("\red <B>[] has been pistol whipped []!</B>", M, user), 1, "\red You hear someone fall", 2)
+				//Foreach goto(315)
 	return
 
 /obj/item/weapon/gun/energy/proc/update_icon()
@@ -1356,7 +1358,7 @@
 
 /obj/item/weapon/gun/energy/taser_gun/update_icon()
 
-	var/ratio = src.charges / 10
+	var/ratio = src.charges / maximum_charges
 	ratio = round(ratio, 0.25) * 100
 	src.icon_state = text("t_gun[]", ratio)
 	return
@@ -1407,35 +1409,40 @@
 	if ((istype(H, /mob/human) && istype(H, /obj/item/weapon/clothing/head) && H.flags & 8 && prob(80)))
 		M << "\red The helmet protects you from being hit hard in the head!"
 		return
-	if (user.a_intent == "hurt")
-		if (prob(20))
-			if (M.paralysis < 10)
-				M.paralysis = 10
-		else
-			if (M.weakened < 10)
+	if (src.charges >= 1)
+		if (user.a_intent == "hurt")
+			if (prob(20))
+				if (M.paralysis < 10)
+					M.paralysis = 10
+			else if (M.weakened < 10)
 				M.weakened = 10
-		if (M.stuttering < 10)
-			M.stuttering = 10
-		..()
-		M.stat = 1
-		for(var/mob/O in viewers(M, null))
-			O.show_message(text("\red <B>[] has been knocked unconscious!</B>", M), 1, "\red You hear someone fall", 2)
-			//Foreach goto(182)
-	else
-		if (prob(50))
-			if (M.paralysis < 60)
-				M.paralysis = 60
+			if (M.stuttering < 10)
+				M.stuttering = 10
+			..()
+			if (M.stat<2)
+				M.stat = 1
+				for(var/mob/O in viewers(M, null))
+					O.show_message(text("\red <B>[] has been knocked unconscious!</B>", M), 1, "\red You hear someone fall", 2)
+					//Foreach goto(182)
 		else
-			if (M.weakened < 60)
-				M.weakened = 60
-		if (M.stuttering < 60)
-			M.stuttering = 60
-		M.stat = 1
-		for(var/mob/O in viewers(M, null))
-			if ((O.client && !( O.blinded )))
-				O.show_message(text("\red <B>[] has been stunned with the taser gun by []!</B>", M, user), 1, "\red You hear someone fall", 2)
-			//Foreach goto(309)
-	return
+			if (prob(50))
+				if (M.paralysis < 60)
+					M.paralysis = 60
+			else
+				if (M.weakened < 60)
+					M.weakened = 60
+			if (M.stuttering < 60)
+				M.stuttering = 60
+			if (M.stat<2)
+				M.stat = 1
+				for(var/mob/O in viewers(M, null))
+					if ((O.client && !( O.blinded )))
+						O.show_message(text("\red <B>[] has been stunned with the taser gun by []!</B>", M, user), 1, "\red You hear someone fall", 2)
+					//Foreach goto(309)
+		src.charges--
+		update_icon()
+	else // no charges in the gun, so they just wallop the target with it
+		..()
 
 /obj/item/weapon/pill_canister/New()
 
@@ -2110,7 +2117,9 @@
 				var/turf/F = get_step(usr, usr.dir)
 				if (!( istype(F, /turf/station/floor) ))
 					return
-				var/turf/station/wall/W = new /turf/station/wall( locate(F.x, F.y, F.z) )
+				//var/turf/station/wall/W = new /turf/station/wall( locate(F.x, F.y, F.z) )
+				var/turf/station/wall/W = F.ReplaceWithWall()
+
 				W.icon_state = "girder"
 				W.updatecell = 1
 				W.opacity = 0
@@ -2842,7 +2851,7 @@
 	return
 
 /obj/item/weapon/paper/examine()
-	set src in view()
+	set src in view(usr.client)
 
 	..()
 	if (!( istype(usr, /mob/human) ))
@@ -2942,12 +2951,13 @@
 /obj/item/weapon/f_card/add_fingerprint()
 
 	..()
-	if (src.fingerprints)
-		if (src.amount > 1)
-			var/obj/item/weapon/f_card/F = new /obj/item/weapon/f_card( (ismob(src.loc) ? src.loc.loc : src.loc) )
-			F.amount = --src.amount
-			src.amount = 1
-		src.icon_state = "f_print_card1"
+	if (!istype(usr, /mob/ai))
+		if (src.fingerprints)
+			if (src.amount > 1)
+				var/obj/item/weapon/f_card/F = new /obj/item/weapon/f_card( (ismob(src.loc) ? src.loc.loc : src.loc) )
+				F.amount = --src.amount
+				src.amount = 1
+			src.icon_state = "f_print_card1"
 	return
 
 /obj/item/weapon/f_print_scanner/attackby(obj/item/weapon/f_card/W, mob/user)
@@ -3027,17 +3037,26 @@
 	if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 		user << "\red You don't have the dexterity to do this!"
 		return
-	for(var/mob/O in viewers(M, null))
-		O.show_message(text("\red [] has analyzed []'s vitals!", user, M), 1)
-		//Foreach goto(67)
-	user.show_message(text("\blue Analyzing Results for []:\n\t Overall Status: []", M, (M.stat > 1 ? "dead" : text("[]% healthy", M.health))), 1)
-	user.show_message(text("\blue \t Damage Specifics: []-[]-[]-[]", M.oxyloss, M.toxloss, M.fireloss, M.bruteloss), 1)
+	
+	for (var/mob/O in viewers(M, null))
+		O.show_message("\red [user] has analyzed [M]'s vitals!", 1)
+	
+	user.show_message("\blue Analyzing Results for [M]:\n\t Overall Status: [M.stat > 1 ? "dead" : "[M.health]% healthy"]", 1)
+	user.show_message("\blue \t Damage Specifics: [M.oxyloss]-[M.toxloss]-[M.fireloss]-[M.bruteloss]", 1)
 	user.show_message("\blue Key: Suffocation/Toxin/Burns/Brute", 1)
+	
 	if (M.rejuv)
-		user.show_message(text("\blue Bloodstream Analysis located [] units of rejuvenation chemicals.", M.rejuv), 1)
+		user.show_message("\blue Bloodstream Analysis located [M.rejuv] units of rejuvenation chemicals.", 1)
+	if (M.antitoxs)
+		user.show_message("\blue Bloodstream Analysis located [M.antitoxs] units of antitoxin chemicals.", 1)
+	if (M.plasma)
+		user.show_message("\blue Bloodstream Analysis located [M.antitoxs] units of toxic plasma chemicals.", 1)
+	// Not checked: r_epil, r_ch_cou, r_tourette
+	
+	if (!M.client)
+		user.show_message("\blue [M] has a vacant look in \his eyes.", 1)
+	
 	src.add_fingerprint(user)
-	return
-	return
 
 /obj/item/weapon/analyzer/attack_self(mob/user)
 
@@ -3135,7 +3154,6 @@
 	return
 
 /obj/item/weapon/storage/proc/orient_objs(tx, ty, mx, my)
-
 	var/cx = tx
 	var/cy = ty
 	src.boxes.screen_loc = text("[],[] to [],[]", tx, ty, mx, my)
@@ -3553,12 +3571,8 @@
 	return
 
 /obj/item/weapon/tile/proc/build(turf/S)
+	var/turf/station/floor/W = S.ReplaceWithFloor()
 
-	var/area/A = S.loc
-	var/turf/station/floor/W = new /turf/station/floor( locate(S.x, S.y, S.z) )
-	if (istype(A, /area))
-		A.contents -= W
-		A.contents += W
 	W.burnt = 1
 	W.intact = 0
 	W.oxygen = 0
@@ -3808,7 +3822,7 @@
 	return
 
 /obj/item/weapon/radio/electropack/Topic(href, href_list)
-	..()
+	//..() //Was causing double frequency changes -shadowlord13
 	if (usr.stat || usr.restrained())
 		return
 	if (((istype(usr, /mob/human) && ((!( ticker ) || (ticker && ticker.mode != "monkey")) && usr.contents.Find(src))) || (usr.contents.Find(src.master) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf)))))
@@ -4055,7 +4069,7 @@
 	return
 
 /obj/item/weapon/radio/signaler/Topic(href, href_list)
-	..()
+	//..() //Was causing double frequency changes -shadowlord13
 	if (usr.stat)
 		return
 	if ((usr.contents.Find(src) || (usr.contents.Find(src.master) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf)))))
@@ -4128,6 +4142,14 @@
 		return
 	return
 
+/obj/item/weapon/radio/intercom/attack_ai(mob/user)
+
+	src.add_fingerprint(user)
+	spawn( 0 )
+		attack_self(user)
+		return
+	return
+
 /obj/item/weapon/radio/intercom/attack_paw(mob/user)
 
 	if ((ticker && ticker.mode == "monkey"))
@@ -4167,10 +4189,10 @@
 	return
 
 /obj/item/weapon/radio/Topic(href, href_list)
-	..()
+	//..() //Was causing double frequency changes -shadowlord13
 	if (usr.stat)
 		return
-	if ((usr.contents.Find(src) || get_dist(src, usr) <= 1 && istype(src.loc, /turf)))
+	if ((usr.contents.Find(src) || get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai)))
 		usr.machine = src
 		if (href_list["freq"])
 			src.freq += text2num(href_list["freq"])
@@ -4210,18 +4232,12 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				for(var/mob/M in viewers(1, src))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(390)
+				src.updateDialog()
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				for(var/mob/M in viewers(1, src.master))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(466)
+				src.updateDialog()
 		src.add_fingerprint(usr)
 	else
 		usr << browse(null, "window=radio")
@@ -4251,16 +4267,16 @@
 	for(var/mob/O in crackle)
 		O.show_message(text("\icon[] <I>Crackle,Crackle</I>", src), 2)
 		//Foreach goto(233)
-	if (istype(M, /mob/human))
+	if (istype(M, /mob/human) || (istype(M, /mob/ai)))
 		for(var/mob/O in receive)
-			if (istype(O, /mob/human))
+			if (istype(O, /mob/human) || (istype(O, /mob/ai)))
 				O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts</B>: <I>[]</I>", M.rname, src, src.freq, msg), 2)
 			else
 				O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts</B>: <I>[]</I>", M.rname, src, src.freq, stars(msg)), 2)
 			//Foreach goto(284)
 		if (src.freq == 5)
 			for(var/mob/O in receive)
-				if (istype(O, /mob/human))
+				if (istype(O, /mob/human) || (istype(O, /mob/ai)))
 					O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts (over PA)</B>: <I>[]</I>", M.rname, src, src.freq, msg), 2)
 				else
 					O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts (over PA)</B>: <I>[]</I>", M.rname, src, src.freq, stars(msg)), 2)
@@ -5216,7 +5232,8 @@
 	return
 
 /obj/table/attackby(obj/item/weapon/W, mob/user)
-
+	if (istype(W, /obj/item/weapon/grab))
+		return
 	if (istype(W, /obj/item/weapon/wrench))
 		new /obj/item/weapon/table_parts( src.loc )
 		//SN src = null
@@ -5271,7 +5288,8 @@
 	return
 
 /obj/rack/attackby(obj/item/weapon/W, mob/user)
-
+	if (istype(W, /obj/item/weapon/grab))
+		return
 	if (istype(W, /obj/item/weapon/wrench))
 		new /obj/item/weapon/rack_parts( src.loc )
 		//SN src = null
@@ -5527,19 +5545,21 @@
 	return
 
 /atom/proc/attack_paw(mob/user)
-
 	return
 
+/atom/proc/attack_ai(mob/user)
+	return
+	
 /atom/proc/hand_h(mob/user)
-
 	return
 
 /atom/proc/hand_p(mob/user)
+	return
 
+/atom/proc/hand_a(mob/user)
 	return
 
 /atom/proc/hitby(obj/item/weapon/W)
-
 	return
 
 /atom/proc/attackby(obj/item/weapon/W, mob/user)
@@ -5585,19 +5605,34 @@
 	..()
 	return
 
+/atom/Click()
+	//world << "atom.Click() on [src] by [usr] : src.type is [src.type]"
+	if (!usr.disable_one_click)
+		return DblClick()
+
 /atom/DblClick()
+	if (world.time <= usr:lastDblClick+2)
+		//world << "BLOCKED atom.DblClick() on [src] by [usr] : src.type is [src.type]"
+		return
+	else
+		//world << "atom.DblClick() on [src] by [usr] : src.type is [src.type]"
+		usr:lastDblClick = world.time
+
 	..()
 	var/obj/item/weapon/W = usr.equipped()
 	if ((W == src && usr.stat == 0))
 		spawn(0) W.attack_self(usr)
 		return
-	if (!(usr.canmove) || usr.stat != 0)
+	if (((!usr.canmove) && (!istype(usr, /mob/ai))) || usr.stat != 0)
+
 		return
 	/* This line broke my mental parser. --Stephen001 */
 	if ((!(src in usr.contents) && (((!(isturf(src)) && (!(isturf(src.loc)) && (src.loc && !(isturf(src.loc.loc))))) || !(isturf(usr.loc))) && (src.loc != usr.loc && (!(istype(src, /obj/screen)) && !(usr.contents.Find(src.loc)))))))
 		return
 	/* Surely src.loc == usr is redundant? --Stephen001 */
 	var/t5 = (get_dist(src, usr) <= 1 || src.loc == usr)
+	if (istype(usr, /mob/ai))
+		t5 = 1
 	if ((istype(src, /obj/item/weapon/organ) && src in usr.contents))
 		var/mob/human/H = usr
 		usr << "Betchya think you're really smart trying to remove your own body parts aren't ya!"
@@ -5611,6 +5646,7 @@
 	/* Seems like a pretty important expression. Dare I fathom what it checks? --Stephen001 */
 	if (((t5 || (W && (W.flags & 16))) && !(istype(src, /obj/screen))))
 		if (usr.next_move < world.time)
+			usr.prev_move = usr.next_move
 			usr.next_move = world.time + 10
 		else
 			return
@@ -5704,14 +5740,22 @@
 				else
 					if (istype(usr, /mob/monkey))
 						src.attack_paw(usr, usr.hand)
+					else
+						if (istype(usr, /mob/ai))
+							src.attack_ai(usr, usr.hand)
 		else
 			if (istype(usr, /mob/human))
 				src.hand_h(usr, usr.hand)
 			else
 				if (istype(usr, /mob/monkey))
 					src.hand_p(usr, usr.hand)
+				else
+					if (istype(usr, /mob/ai))
+						src.hand_a(usr, usr.hand)
+
 	else
 		if (istype(src, /obj/screen))
+			usr.prev_move = usr.next_move
 			if (usr.next_move < world.time)
 				usr.next_move = world.time + 10
 			else
@@ -5735,3 +5779,21 @@
 					if (istype(usr, /mob/monkey))
 						src.hand_p(usr, usr.hand)
 	return
+
+
+/obj/proc/updateUsrDialog()
+	var/list/nearby = viewers(1, src)
+	for(var/mob/M in nearby)
+		if ((M.client && M.machine == src))
+			src.attack_hand(M)
+	if (istype(usr, /mob/ai))
+		if (!(usr in nearby))
+			if (usr.client && usr.machine==src) // && M.machine == src is omitted because if we triggered this by using the dialog, it doesn't matter if our machine changed in between triggering it and this - the dialog is probably still supposed to refresh.
+				src.attack_ai(usr)
+
+/obj/proc/updateDialog()
+	var/list/nearby = viewers(1, src)
+	for(var/mob/M in nearby)
+		if ((M.client && M.machine == src))
+			src.attack_hand(M)
+	AutoUpdateAI(src)

@@ -87,10 +87,8 @@
 		return
 	var/mob/human/M = usr
 	var/list/start_loc = list(  )
-	if ((M.key in list( "Thief jack", "Link43130", "Hutchy2k1", "Easty", "Exadv1" )))
-		start_loc["Supply Station"] = locate(77, 40, 7)
 
-	var/area/A = locate(/area/sleep_area)
+	var/area/A = locate(/area/arrival/start)
 	var/list/L = list(  )
 	for(var/turf/T in A)
 		if(T.isempty())
@@ -106,6 +104,8 @@
 				start_loc[text("[]", S.desc)] = S
 			//Foreach goto(295)
 	var/option = input(M, "Where should you start?", "Start Selector", null) in start_loc
+	if (usr==null)
+		return
 	if ((!( usr.start ) || !( istype(usr, /mob/human) ) || usr.loc != src.loc))
 		return
 	if (ticker)

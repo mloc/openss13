@@ -142,28 +142,36 @@ obj/machinery/power/turbine
 		lastgen = ((compressor.rpm / TURBGENQ)**TURBGENG) *TURBGENQ
 		add_avail(lastgen)
 
-		if(compressor.gas.temperature > (T20C+50))
-			var/newrpm = ((compressor.gas.temperature-T20C-50) * compressor.gas.tot_gas() / TURBPRES)*30000
-			newrpm = max(0, newrpm)
+		//if(compressor.gas.temperature > (T20C+50))
+		var/newrpm = ((compressor.gas.temperature-T20C-50) * compressor.gas.tot_gas() / TURBPRES)*30000
+		newrpm = max(0, newrpm)
 
-			if(!compressor.starter || newrpm > 1000)
-				compressor.rpmtarget = newrpm
+		if(!compressor.starter || newrpm > 1000)
+			compressor.rpmtarget = newrpm
 
-		var/oamount = min(compressor.gas.tot_gas(), compressor.rpm/32000*compressor.capacity)
+		if(compressor.gas.tot_gas()>0)
+			var/oamount = min(compressor.gas.tot_gas(), (compressor.rpm+100)/35000*compressor.capacity)
 
-		compressor.gas.turf_add(outturf, oamount)
+			compressor.gas.turf_add(outturf, oamount)
 
-		outturf.firelevel = outturf.poison
+			outturf.firelevel = outturf.poison
 
 		if(lastgen > 100)
 			overlays += image('pipes.dmi', "turb-o", FLY_LAYER)
 
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.interact(M)
+		src.updateDialog()
 
+	// Attack by AI, do user interaction
 
+	attack_ai(mob/user)
+
+		add_fingerprint(user)
+
+		if(stat & (BROKEN | NOPOWER)) return
+
+		interact(user)
+		
 	// Attack hand, do user interaction
 
 	attack_hand(mob/user)
@@ -179,7 +187,7 @@ obj/machinery/power/turbine
 
 	proc/interact(mob/user)
 
-		if ( (get_dist(src, user) > 1 ) || (stat & (NOPOWER|BROKEN)) )
+		if ( (get_dist(src, user) > 1 ) || (stat & (NOPOWER|BROKEN)) && (!istype(user, /mob/ai)) )
 			user.machine = null
 			user << browse(null, "window=turbine")
 			return
@@ -214,10 +222,11 @@ obj/machinery/power/turbine
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))		
+				usr << "\red You don't have the dexterity to do this!"
+				return
 
-		if (( usr.machine==src && (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+		if (( usr.machine==src && (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 
 
 			if( href_list["close"] )
@@ -229,9 +238,7 @@ obj/machinery/power/turbine
 				compressor.starter = !compressor.starter
 
 			spawn(0)
-				for(var/mob/M in viewers(1, src))
-					if ((M.client && M.machine == src))
-						src.interact(M)
+				src.updateDialog()
 
 		else
 			usr << browse(null, "window=turbine")

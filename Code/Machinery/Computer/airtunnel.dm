@@ -52,9 +52,7 @@ obj/machinery/computer/airtunnel
 			return
 		use_power(250)
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 
 
 
@@ -63,7 +61,12 @@ obj/machinery/computer/airtunnel
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
+	// AI interact
+	
+	attack_ai(mob/user)
+		return src.attack_hand(user)
 
+	
 	// Human interact
 	// Show airtunnel status and interaction window
 
@@ -119,11 +122,13 @@ obj/machinery/computer/airtunnel
 		..()
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))
+				usr << "\red You don't have the dexterity to do this!"
+				return
 		if ((usr.stat || usr.restrained()))
-			return
-		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+			if (!istype(usr, /mob/ai))
+				return
+		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai))))
 			usr.machine = src
 
 			if (href_list["retract"])
@@ -149,8 +154,6 @@ obj/machinery/computer/airtunnel
 
 			src.add_fingerprint(usr)
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
+			src.updateDialog()
 
 

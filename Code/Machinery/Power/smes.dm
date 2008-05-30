@@ -11,9 +11,9 @@
  * TODO: See note a proc/restore() below
  */
 
-#define SMESMAXCHARGELEVEL 60000		// This is the maximum rate at which you can charge the SMES
+#define SMESMAXCHARGELEVEL 200000		// This is the maximum rate at which you can charge the SMES
 
-#define SMESMAXOUTPUT 60000				// This is the maxmium output power of the SMES
+#define SMESMAXOUTPUT 200000				// This is the maxmium output power of the SMES
 
 #define SMESRATE 0.05					// rate of internal charge to external power output
 
@@ -147,10 +147,7 @@
 		if(last_disp != chargedisplay() || last_chrg != charging || last_onln != online)
 			updateicon()
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.interact(M)
-
+		src.updateDialog()
 
 
 	// A special routine for SMES
@@ -194,7 +191,16 @@
 		if(terminal && terminal.powernet)
 			terminal.powernet.newload += amount
 
+	// Attack to open interaction window
+	
+	attack_ai(mob/user)
 
+		add_fingerprint(user)
+
+		if(stat & BROKEN) return
+
+		interact(user)
+	
 	// Attack to open interaction window
 
 	attack_hand(mob/user)
@@ -211,9 +217,10 @@
 	proc/interact(mob/user)
 
 		if ( (get_dist(src, user) > 1 ))
-			user.machine = null
-			user << browse(null, "window=smes")
-			return
+			if (!istype(user, /mob/ai))
+				user.machine = null
+				user << browse(null, "window=smes")
+				return
 
 		user.machine = src
 
@@ -250,12 +257,13 @@
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))		
+				usr << "\red You don't have the dexterity to do this!"
+				return
 
 		//world << "[href] ; [href_list[href]]"
 
-		if (( usr.machine==src && (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+		if (( usr.machine==src && (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 
 
 			if( href_list["close"] )
@@ -327,10 +335,7 @@
 				output = max(0, min(SMESMAXOUTPUT, output))	// clamp to range
 
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.interact(M)
-				//Foreach goto(275)
+			src.updateDialog()
 		else
 			usr << browse(null, "window=smes")
 			usr.machine = null

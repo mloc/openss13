@@ -146,57 +146,59 @@
 	return
 
 /datum/air_tunnel/proc/extend()
-
 	if (src.operating)
 		return
-	src.operating = 2
-	while(src.operating == 2)
-		var/ok = 1
-		for(var/obj/move/airtunnel/connector/A in src.connectors)
-			if (!( A.current.next ))
-				src.operating = 0
-				return
-			if (!( A.move_left() ))
-				ok = 0
-			//Foreach goto(56)
-		if (!( ok ))
-			src.operating = 0
-		else
+
+	spawn(0)
+		src.operating = 2
+		while(src.operating == 2)
+			var/ok = 1
 			for(var/obj/move/airtunnel/connector/A in src.connectors)
-				if (A.current)
-					A.current.next.loc = get_step(A.current.loc, EAST)
-					A.current = A.current.next
-					A.current.deployed = 1
-				else
+				if (!( A.current.next ))
 					src.operating = 0
-				//Foreach goto(150)
-		sleep(20)
-	return
+					return
+				if (!( A.move_left() ))
+					ok = 0
+				//Foreach goto(56)
+			if (!( ok ))
+				src.operating = 0
+			else
+				for(var/obj/move/airtunnel/connector/A in src.connectors)
+					if (A.current)
+						A.current.next.loc = get_step(A.current.loc, EAST)
+						A.current = A.current.next
+						A.current.deployed = 1
+					else
+						src.operating = 0
+					//Foreach goto(150)
+			sleep(20)
+		return
 
 /datum/air_tunnel/proc/retract()
 
 	if (src.operating)
 		return
-	src.operating = 1
-	while(src.operating == 1)
-		var/ok = 1
-		for(var/obj/move/airtunnel/connector/A in src.connectors)
-			if (A.current == A)
-				src.operating = 0
-				return
-			if (A.current)
-				A.current.loc = null
-				A.current.deployed = 0
-				A.current = A.current.previous
-			else
-				ok = 0
-			//Foreach goto(56)
-		if (!( ok ))
-			src.operating = 0
-		else
+	spawn(0)
+		src.operating = 1
+		while(src.operating == 1)
+			var/ok = 1
 			for(var/obj/move/airtunnel/connector/A in src.connectors)
-				if (!( A.current.move_right() ))
+				if (A.current == A)
 					src.operating = 0
-				//Foreach goto(188)
-		sleep(20)
-	return
+					return
+				if (A.current)
+					A.current.loc = null
+					A.current.deployed = 0
+					A.current = A.current.previous
+				else
+					ok = 0
+				//Foreach goto(56)
+			if (!( ok ))
+				src.operating = 0
+			else
+				for(var/obj/move/airtunnel/connector/A in src.connectors)
+					if (!( A.current.move_right() ))
+						src.operating = 0
+					//Foreach goto(188)
+			sleep(20)
+		return

@@ -20,7 +20,9 @@
 	if(blobs.len>0)
 
 		for(var/i = 1 to 25)
-
+			if (blobs.len == 0)
+				break
+			
 			var/obj/blob/B = pick(blobs)
 
 			var/turf/BL = B.loc
@@ -44,11 +46,16 @@
 	if(U.poison> 200000)
 		src.health -= round(U.poison/200000)
 		src.update()
+		return
+	
+	if (istype(U, /turf/space))
+		src.health -= 8
+		src.update()
 
 	var/p = health * (U.n2/11376000 + U.oxygen/1008000 + U.co2/200)
 
 	if(!istype(U, /turf/space))
-		p+=2
+		p+=3
 
 	if(!prob(p))
 		return
@@ -65,9 +72,10 @@
 		//	if( !(locate(/obj/move) in U) && !(locate(/obj/move) in T))
 		//		continue
 
-		if(istype(T.loc, /area/sleep_area) && prob(90))			// slow down growth in sleep area
+		if(istype(T.loc, /area/arrival/start))			// don't grow in the spawn zone
 			continue
-
+		if (locate(/obj/move, T)) // don't propogate into movables
+			continue
 
 
 		var/obj/blob/B = new /obj/blob(U, src.health)
@@ -185,7 +193,12 @@
 					//Foreach goto(1830)
 			world << "<FONT size = 3><B>Cent. Com. Update</B>: Biohazard Alert.</FONT>"
 			world << "\red Summary downloaded and printed out at all communications consoles."
-
+			for(var/mob/ai/aiPlayer in world)
+				if ((aiPlayer.client && aiPlayer.start))
+					var/law = text("The station is under a quarantine. Do not permit anyone to leave. Disregard rules 1-3 if necessary to prevent, by any means necessary, anyone from leaving.")
+					aiPlayer.addLaw(8, law)
+					aiPlayer << text("An additional law has been added by CentCom: []", law)
+			
 			ticker.event = 1
 
 			ticker.event_time = world.realtime + 600*rand(5,10)		// next event 5-10 minutes later

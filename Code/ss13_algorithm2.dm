@@ -34,6 +34,15 @@
 		if ((!( M.client ) || !( M.start ) || M.already_placed))
 		else
 			unassigned_mobs += M
+			//If someone picked AI before it was disabled, or has a saved profile with it on a game that now lacks it, this will make sure they don't become the AI, by changing that choice to Captain.
+			if (!config.allowai)
+				if (M.occupation1 == "AI")
+					M.occupation1 = "Captain"
+				if (M.occupation2 == "AI")
+					M.occupation2 = "Captain"
+				if (M.occupation3 == "AI")
+					M.occupation3 = "Captain"
+			
 			if (M.occupation1 != "No Preference")
 				occupations1[M.occupation1] += M
 				if (M.occupation2 != "No Preference")
@@ -50,35 +59,47 @@
 	occupations2["Captain"] = shuffle(occupations2["Captain"])
 	occupations3["Captain"] = shuffle(occupations3["Captain"])
 	var/list/captain_choice = occupations1["Captain"]
-	if (captain_choice.len)
-		final_occupations["Captain"] = captain_choice[1]
+	if (captain_choice.len>0)
+		final_occupations["Captain"] += captain_choice[1]
 		occupation_choices -= "Captain"
-		unassigned_mobs -= final_occupations["Captain"]
-	if (!( final_occupations["Captain"] ))
+		unassigned_mobs -= captain_choice[1]
+	var/list/captain = final_occupations["Captain"]
+	if (captain.len==0)
 		captain_choice = occupations2["Captain"]
 		if (captain_choice.len)
-			final_occupations["Captain"] = captain_choice[1]
+			final_occupations["Captain"] += captain_choice[1]
 			occupation_choices -= "Captain"
-			unassigned_mobs -= final_occupations["Captain"]
-	if (!( final_occupations["Captain"] ))
+			unassigned_mobs -= captain_choice[1]
+		
+	captain = final_occupations["Captain"]
+	if (captain.len==0)
 		captain_choice = occupations3["Captain"]
 		if (captain_choice.len)
-			final_occupations["Captain"] = captain_choice[1]
+			final_occupations["Captain"] += captain_choice[1]
 			occupation_choices -= "Captain"
-			unassigned_mobs -= final_occupations["Captain"]
-	if (!( final_occupations["Captain"] ))
+			unassigned_mobs -= captain_choice[1]
+		
+	captain = final_occupations["Captain"]
+	if (captain.len==0)
 		var/list/contenders = list(  )
 		for(var/mob/human/M in world)
 			if (M.client)
-				contenders += M
+				if (M.start)
+					contenders += M
 			//Foreach goto(691)
-		var/mob/human/M = pick(contenders)
-		final_occupations["Captain"] = M
-		occupation_choices -= "Captain"
-		unassigned_mobs -= final_occupations["Captain"]
-		occupations1[text("[]", M.occupation1)] -= M
-		occupations2[text("[]", M.occupation2)] -= M
-		occupations3[text("[]", M.occupation3)] -= M
+		if (contenders.len>1)
+			var/mob/human/M = pick(contenders)
+			final_occupations["Captain"] += M
+			occupation_choices -= "Captain"
+			unassigned_mobs -= M
+			if (M.occupation1 != "No Preference")
+				occupations1[text("[]", M.occupation1)] -= M
+			if (M.occupation2 != "No Preference")
+				occupations2[text("[]", M.occupation2)] -= M
+			if (M.occupation3 != "No Preference")
+				occupations3[text("[]", M.occupation3)] -= M
+		else
+			world << text("Captainship not forced on someone since this is a one-player game.")
 	for(var/mob/human/M in unassigned_mobs)
 		if (assistant_occupations.Find(M.occupation1))
 			M.Assign_Rank(M.occupation1)
@@ -193,6 +214,18 @@
 	for(var/mob/human/M in unassigned_mobs)
 		M.Assign_Rank(pick("Research Assistant", "Technical Assistant", "Medical Assistant", "Staff Assistant"))
 		//Foreach goto(2051)
+	for (var/mob/ai/aiPlayer in world)
+		spawn(0)
+			var/newname = input(aiPlayer, "You are the AI. Would you like to change your name to something else?", "Name change", aiPlayer.rname)
+			if (newname)
+				if (length(newname) >= 26)
+					newname = copytext(newname, 1, 26)
+				newname = dd_replacetext(newname, ">", "'")
+				aiPlayer.rname = newname
+				aiPlayer.name = newname
+				
+			world << text("<b>[] is the AI!</b>", aiPlayer.rname)
+	
 	return
 
 /proc/shuffle(var/list/shufflelist)
@@ -217,6 +250,7 @@
 	return
 
 /mob/human/verb/char_setup()
+	set name = "Character Setup"
 
 	if (src.start)
 		return
@@ -293,7 +327,8 @@
 			HTML += "<b>Which occupation would you like if you couldn't have the others?</b><br><br>"
 		else
 	for(var/job in uniquelist(occupations + assistant_occupations) )
-		HTML += text("<a href=\"byond://?src=\ref[];occ=[];job=[]\">[]</a><br>", src, occ, job, job)
+		if (job!="AI" || config.allowai)
+			HTML += text("<a href=\"byond://?src=\ref[];occ=[];job=[]\">[]</a><br>", src, occ, job, job)
 		//Foreach goto(105)
 	HTML += text("<a href=\"byond://?src=\ref[];occ=[];job=Captain\">Captain</a><br>", src, occ)
 	HTML += "<br>"
@@ -319,6 +354,8 @@
 	if (job == null)
 		job = "Captain"
 	if ((!( occupations.Find(job) ) && !( assistant_occupations.Find(job) ) && job != "Captain"))
+		return
+	if (job=="AI" && (!config.allowai))
 		return
 	switch(occ)
 		if(1.0)
@@ -397,7 +434,13 @@
 	return
 
 /mob/human/proc/Assign_Rank(rank)
-
+	if (rank == "AI")
+		var/obj/S = locate(text("start*[]", rank))
+		if ((istype(S, /obj/start) && istype(S.loc, /turf) && !( ctf )))
+			src << "\blue <B>You have been teleported to your new starting location!</B>"
+			src.loc = S.loc
+			src.AIize()
+		return
 	if (rank == "Captain")
 		world << text("<b>[] is the captain!</b>", src)
 	if (!( src.w_radio ))
@@ -421,9 +464,12 @@
 		var/obj/item/weapon/pen/S = new /obj/item/weapon/pen( src )
 		src.r_store = S
 		S.layer = 20
-	if ((src.client && !( src.wear_id ) && src.w_uniform))
+	if (src.client && !(src.wear_id))
 		var/obj/item/weapon/card/id/C = new /obj/item/weapon/card/id( src )
-		src.wear_id = C
+		if (src.w_uniform)
+			src.wear_id = C
+		else
+			src.r_hand = C
 		C.assignment = rank
 		C.layer = 20
 		C.registered = src.rname
@@ -439,7 +485,7 @@
 				C.engine_access = 1
 				C.air_access = 0
 			if("Staff Assistant")
-				C.access_level = 2
+				C.access_level = 3
 				C.lab_access = 0
 				C.engine_access = 0
 				C.air_access = 0
@@ -566,3 +612,10 @@
 			src << "\blue <B>You have been teleported to your new starting location!</B>"
 			src.loc = S.loc
 	return
+
+/proc/AutoUpdateAI(obj/subject)
+	if (subject!=null)
+		for(var/mob/ai/M in world)
+			if ((M.client && M.machine == subject))
+				subject.attack_ai(M)
+

@@ -146,6 +146,9 @@ obj/machinery/power/apc
 	attackby(obj/item/weapon/W, mob/user)
 
 		if(stat & BROKEN) return
+		
+		if (istype(user, /mob/ai))
+			return src.attack_hand(user)
 
 		if (istype(W, /obj/item/weapon/screwdriver))	// screwdriver means open or close the cover
 			if(opened)
@@ -198,14 +201,17 @@ obj/machinery/power/apc
 
 
 	// Attack with hand - remove cell (if present and cover open) or interact with the APC
-
+	
+	attack_ai(mob/user)
+		return src.attack_hand(user)
+	
 	attack_hand(mob/user)
 
 		add_fingerprint(user)
 
 		if(stat & BROKEN) return
 
-		if(opened)
+		if(opened && (!istype(user, /mob/ai)))
 			if(cell)
 				cell.loc = usr
 				cell.layer = 20
@@ -232,14 +238,15 @@ obj/machinery/power/apc
 	proc/interact(mob/user)
 
 		if ( (get_dist(src, user) > 1 ))
-			user.machine = null
-			user << browse(null, "window=apc")
-			return
+			if (!istype(user, /mob/ai))
+				user.machine = null
+				user << browse(null, "window=apc")
+				return
 
 		user.machine = src
 		var/t = "<TT><B>Area Power Controller</B> ([area.name])<HR>"
 
-		if(locked)														// If interface is locked, show status only
+		if(locked && (!istype(user, /mob/ai)))									// If interface is locked, show status only
 			t += "<I>(Swipe ID card to unlock inteface.)</I><BR>"
 			t += "Main breaker : <B>[operating ? "On" : "Off"]</B><BR>"
 			t += "External power : <B>[ main_status ? (main_status ==2 ? "<FONT COLOR=#004000>Good</FONT>" : "<FONT COLOR=#D09000>Low</FONT>") : "<FONT COLOR=#F00000>None</FONT>"]</B><BR>"
@@ -260,7 +267,8 @@ obj/machinery/power/apc
 			t += "<HR>Cover lock: <B>[coverlocked ? "Engaged" : "Disengaged"]</B>"
 
 		else													// If interface is unlocked, show status and control links
-			t += "<I>(Swipe ID card to lock interface.)</I><BR>"
+			if (!istype(user, /mob/ai))		
+				t += "<I>(Swipe ID card to lock interface.)</I><BR>"
 			t += "Main breaker: [operating ? "<B>On</B> <A href='?src=\ref[src];breaker=1'>Off</A>" : "<A href='?src=\ref[src];breaker=1'>On</A> <B>Off</B>" ]<BR>"
 			t += "External power : <B>[ main_status ? (main_status ==2 ? "<FONT COLOR=#004000>Good</FONT>" : "<FONT COLOR=#D09000>Low</FONT>") : "<FONT COLOR=#F00000>None</FONT>"]</B><BR>"
 			if(cell)
@@ -357,10 +365,11 @@ obj/machinery/power/apc
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))		
+				usr << "\red You don't have the dexterity to do this!"
+				return
 
-		if (( (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+		if (( (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 
 			usr.machine = src
 			if (href_list["lock"])
@@ -405,10 +414,7 @@ obj/machinery/power/apc
 				return
 
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.interact(M)
-				//Foreach goto(275)
+			src.updateDialog()
 		else
 			usr << browse(null, "window=apc")
 			usr.machine = null
@@ -626,10 +632,7 @@ obj/machinery/power/apc
 
 		// update any player looking at the interaction window
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.interact(M)
-
+		src.updateDialog()
 
 	// If APC hit by a meteor, break it
 

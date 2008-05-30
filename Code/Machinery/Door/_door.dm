@@ -76,6 +76,10 @@ obj/machinery/door
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
+	// AI attack same as human, for most doors
+
+	attack_ai(mob/user)
+		return src.attack_hand(user)
 
 	// Attack with hand. If human and wearing an ID, same as attacking with the ID
 
@@ -84,7 +88,13 @@ obj/machinery/door
 			var/mob/human/H = user
 			if(H.wear_id)
 				attackby(H.wear_id, user)
+		else if(istype(user, /mob/ai))
+			attackby(user, user)
 
+	// Does it accept IDs?
+
+	proc/acceptsIDs()
+		return 1
 
 	// Attack with an item
 	// If an emag card, open the door if closed. Note: Door cannot be reclosed with an emag.
@@ -96,6 +106,18 @@ obj/machinery/door
 		if (src.operating)
 			return
 		src.add_fingerprint(user)
+		if (!src.acceptsIDs())
+			if (istype(user, /mob/ai))
+				if (src.density)
+					open()
+				else
+					close()
+			else
+				if (src.density)
+					flick("door_deny", src)
+				else
+					close()
+			return
 		if ((src.density && istype(I, /obj/item/weapon/card/emag)))
 			src.operating = 1
 			flick("door_spark", src)
@@ -111,7 +133,14 @@ obj/machinery/door
 			card = I
 		else
 			if (!( istype(card, /obj/item/weapon/card/id) ))
-				return 0
+				if ((istype(user, /mob/ai)))
+					if (src.density)
+						open()
+					else
+						close()
+					return
+				else
+					return 0
 		if (card.check_access(access, allowed))
 			if (src.density)
 				open()

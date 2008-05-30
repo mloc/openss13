@@ -124,20 +124,25 @@
 
 /obj/cable/proc/shock(mob/user, prb)
 
+	if(!netnum)		// unconnected cable is unpowered
+		return 0
+
+	return src.electrocute(user, prb, netnum)
+
+
+atom/proc/electrocute(mob/user, prb, netnum)
+
 	if(!prob(prb))
-		return
+		return 0
 
 	if(!netnum)		// unconnected cable is unpowered
-		return
+		return 0
 
 	var/datum/powernet/PN			// find the powernet
 	if(powernets && powernets.len >= netnum)
 		PN = powernets[netnum]
 
 	if(PN && PN.avail > 0)		// is it powered?
-
-
-
 		var/prot = 0
 
 		if(istype(user, /mob/human))
@@ -146,9 +151,11 @@
 				var/obj/item/weapon/clothing/gloves/G = H.gloves
 
 				prot = G.elec_protect
-
+		else if (istype(user, /mob/ai))
+			return 0
+		
 		if(prot == 10)		// elec insulted gloves protect completely
-			return
+			return 0
 
 		prot++
 
@@ -170,12 +177,11 @@
 			if(M == user)
 				continue
 			if (!( M.blinded ))
-				M << "\red [user.name] was shocked by the cable!"
+				M << text("\red [user.name] was shocked by the [src.name]!")
 			else
 				M << "\red You hear a heavy electrical crack."
-
-
-
+		return 1
+	return 0
 
 
 /obj/cable/ex_act(severity)

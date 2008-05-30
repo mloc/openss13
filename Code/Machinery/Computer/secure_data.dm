@@ -30,6 +30,9 @@ obj/machinery/computer/secure_data
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
+	// AI interact
+	attack_ai(mob/user)
+		return src.attack_ai(user)
 
 	// Human interact, display window
 
@@ -90,8 +93,9 @@ obj/machinery/computer/secure_data
 		if (!( data_core.security.Find(src.active2) ))
 			src.active2 = null
 		if ((usr.stat || usr.restrained()))
-			return
-		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+			if (!istype(usr, /mob/ai))
+				return
+		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 			usr.machine = src
 			if (href_list["temp"])
 				src.temp = null
@@ -113,6 +117,12 @@ obj/machinery/computer/secure_data
 					src.active2 = null
 				else
 					if (href_list["login"])
+						if (istype(usr, /mob/ai))
+							src.active1 = null
+							src.active2 = null
+							src.authenticated = 1
+							src.rank = "AI"
+							src.screen = 1
 						if (istype(src.scan, /obj/item/weapon/card/id))
 							src.active1 = null
 							src.active2 = null
@@ -419,7 +429,5 @@ obj/machinery/computer/secure_data
 																									P.name = "paper- 'Security Record'"
 																									src.printing = null
 		src.add_fingerprint(usr)
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 

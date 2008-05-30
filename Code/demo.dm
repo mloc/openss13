@@ -98,7 +98,7 @@
 	return
 
 /obj/item/weapon/tank/attack(mob/M as mob, mob/user as mob)
-
+	
 	..()
 	if ((prob(30) && M.stat < 2))
 		var/mob/human/H = M
@@ -201,7 +201,8 @@
 /obj/item/weapon/tank/anesthetic/New()
 
 	..()
-	src.gas.sl_gas = 1000
+	src.gas.sl_gas = 700000
+	src.gas.oxygen = 1000000
 	return
 
 /obj/item/weapon/tank/plasmatank/proc/release()
@@ -228,9 +229,9 @@
 
 /obj/item/weapon/tank/plasmatank/proc/ignite()
 
-
-	if ((src.gas.plasma < 1600000.0 || src.gas.temperature < 773))		//500degC
-
+	var/strength = ((src.gas.plasma + src.gas.oxygen/2.0) / 1600000.0) * src.gas.temperature
+	//if ((src.gas.plasma < 1600000.0 || src.gas.temperature < 773))		//500degC
+	if (strength < 773.0)
 		var/turf/T = get_turf(src.loc)
 		T.poison += src.gas.plasma
 		T.firelevel = T.poison
@@ -239,7 +240,8 @@
 		if(src.master)
 			src.master.loc = null
 
-		if ((src.gas.temperature > (450+T0C) && src.gas.plasma == 1600000.0))
+		//if ((src.gas.temperature > (450+T0C) && src.gas.plasma == 1600000.0))
+		if (strength > (450+T0C))
 			var/turf/sw = locate(max(T.x - 4, 1), max(T.y - 4, 1), T.z)
 			var/turf/ne = locate(min(T.x + 4, world.maxx), min(T.y + 4, world.maxy), T.z)
 			defer_powernet_rebuild = 1
@@ -260,8 +262,8 @@
 			makepowernets()
 
 		else
-			if ((src.gas.temperature > (300+T0C) && src.gas.plasma == 1600000.0))
-
+			//if ((src.gas.temperature > (300+T0C) && src.gas.plasma == 1600000.0))
+			if (strength > (300+T0C))
 				var/turf/sw = locate(max(T.x - 4, 1), max(T.y - 4, 1), T.z)
 				var/turf/ne = locate(min(T.x + 4, world.maxx), min(T.y + 4, world.maxy), T.z)
 				defer_powernet_rebuild = 1
@@ -296,37 +298,65 @@
 		flick("flash", M.flash)
 		//Foreach goto(732)
 	var/m_range = 2
+	var/extended_range = round(strength / 387)
+	if (extended_range < 2)
+		extended_range = 2
+	if (config.bombtemp_determines_range)
+		m_range = extended_range
 	for(var/obj/machinery/atmoalter/canister/C in range(2, T))
 		if (!( C.destroyed ))
 			if (C.gas.plasma >= 35000)
 				C.destroyed = 1
 				m_range++
 		//Foreach goto(776)
-	var/min = m_range
-	var/med = m_range * 2
-	var/max = m_range * 3
+	var/min = extended_range
+	var/med = extended_range * 2
+	var/max = extended_range * 3
 	var/u_max = m_range * 4
-
+	
 	var/turf/sw = locate(max(T.x - u_max, 1), max(T.y - u_max, 1), T.z)
 	var/turf/ne = locate(min(T.x + u_max, world.maxx), min(T.y + u_max, world.maxy), T.z)
 
 	defer_powernet_rebuild = 1
-
+	
+	//If m_range is <= 12, then we are going to calculate the squared distance between tiles and ground zero. To avoid complicating comparisons in the for loop with additional if statements, we are going to square max, med, and min. You wouldn't be able to subtract tileRange (squared) from max, med, or min and get a useful distance, but this works fine for comparing the range to max, med, or min, without caring about how far between them it is. -Trafalgar
+	
+	if (m_range<=12)
+		max *= max
+		med *= med
+		min *= min
+		u_max *= u_max
+	
 	for(var/turf/U in block(sw, ne))
-
-
+		var tileRange = 0
 		var/zone = 4
-		if ((U.y <= (T.y + max) && U.y >= (T.y - max) && U.x <= (T.x + max) && U.x >= (T.x - max) ))
-			zone = 3
-		if ((U.y <= (T.y + med) && U.y >= (T.y - med) && U.x <= (T.x + med) && U.x >= (T.x - med) ))
-			zone = 2
-		if ((U.y <= (T.y + min) && U.y >= (T.y - min) && U.x <= (T.x + min) && U.x >= (T.x - min) ))
-			zone = 1
-		for(var/atom/A in U)
-			A.ex_act(zone)
-			//Foreach goto(1217)
-		U.ex_act(zone)
-		U.buildlinks()
+		//If this if-else were outside the for loop, this would (assuming BYOND doesn't optimize this already) help improve performance more, but the only way I see to do that would be to have two copies of the for loop, one for m_range <= 12 and one for m_range > 12. -Trafalgar
+		if (m_range<=12)
+			tileRange = (U.y-T.y)*(U.y-T.y) + (U.x-T.x)*(U.x-T.x)
+		else
+			tileRange = max(abs(U.y-T.y), abs(U.x-T.x))
+			
+
+		if (tileRange <= u_max)
+			//If this were, say, c++, then this would be faster than the commented out code (for one it isn't doing calculations 3 times over for no reason, for two it's an if-elseif-elseif instead of three ifs which all would get evaluated. It might be slightly faster if we did if (tileRange>max) first, then else if (tileRange > med), then else if (tileRange > min), then else (due to performance increases from having if/elseif/elses's ordered with the choices sorted from most likely at the top to least likely at the end, but who knows if this even applies to BYOND games since the performance benefit is the result of how the CPU processes comparisons and branching and such). -Trafalgar
+			if (tileRange <= min)
+				zone = 1
+			else if (tileRange <= med)
+				zone = 2
+			else if (tileRange <= max)
+				zone = 3
+			/*if ((U.y <= (T.y + max) && U.y >= (T.y - max) && U.x <= (T.x + max) && U.x >= (T.x - max) ))
+				zone = 3
+			if ((U.y <= (T.y + med) && U.y >= (T.y - med) && U.x <= (T.x + med) && U.x >= (T.x - med) ))
+				zone = 2
+			if ((U.y <= (T.y + min) && U.y >= (T.y - min) && U.x <= (T.x + min) && U.x >= (T.x - min) ))
+				zone = 1
+			*/
+			for(var/atom/A in U)
+				A.ex_act(zone)
+				//Foreach goto(1217)
+			U.ex_act(zone)
+			U.buildlinks()
 		//U.mark(zone)
 
 		//Foreach goto(961)
@@ -560,8 +590,11 @@
 /obj/secloset/personal/attackby(obj/item/weapon/W as obj, mob/user as mob)
 
 	if (src.opened)
-		user.drop_item()
-		W.loc = src.loc
+		if (istype(W, /obj/item/weapon/grab))
+			src.MouseDrop_T(W:affecting, user)	//act like they were dragged onto the closet
+		else:
+			user.drop_item()
+			W.loc = src.loc
 	else
 		if (istype(W, /obj/item/weapon/card/id))
 			var/obj/item/weapon/card/id/I = W
@@ -762,8 +795,11 @@
 /obj/secloset/attackby(obj/item/weapon/W as obj, mob/user as mob)
 
 	if (src.opened)
-		user.drop_item()
-		W.loc = src.loc
+		if (istype(W, /obj/item/weapon/grab))
+			src.MouseDrop_T(W:affecting, user)	//act like they were dragged onto the closet
+		else:
+			user.drop_item()
+			W.loc = src.loc
 	else
 		if (istype(W, /obj/item/weapon/card/id))
 			var/obj/item/weapon/card/id/I = W
@@ -1010,6 +1046,19 @@
 	var/obj/item/weapon/syndicate_uplink/U = new /obj/item/weapon/syndicate_uplink( src )
 	U.uses = 5
 	return
+	
+/obj/closet/syndicate/personal/New()
+
+	..()
+	sleep(2)
+	new /obj/item/weapon/tank/jetpack(src)
+	new /obj/item/weapon/clothing/mask/m_mask(src)
+	new /obj/item/weapon/clothing/head/s_helmet(src)
+	new /obj/item/weapon/clothing/suit/sp_suit(src)
+	new /obj/item/weapon/crowbar(src)
+	new /obj/item/weapon/cell(src)
+	new /obj/item/weapon/card/id/syndicate(src)
+	new /obj/item/weapon/multitool(src)
 
 /obj/closet/emcloset/New()
 
@@ -1240,10 +1289,12 @@
 	return
 
 /obj/closet/attackby(obj/item/weapon/W as obj, mob/user as mob)
-
 	if ((src.opened || W.damtype != "fire" || !( istype(W, /obj/item/weapon/weldingtool) )))
-		user.drop_item()
-		W.loc = src.loc
+		if (istype(W, /obj/item/weapon/grab))
+			src.MouseDrop_T(W:affecting, user)	//act like they were dragged onto the closet
+		else:
+			user.drop_item()
+			W.loc = src.loc
 	else
 		src.welded = !( src.welded )
 		for(var/mob/M in viewers(user, null))
@@ -1276,6 +1327,7 @@
 	return
 
 /obj/closet/MouseDrop_T(atom/movable/O as mob|obj, mob/user as mob)
+
 	if ((user.restrained() || user.stat))
 		return
 	if ((!( istype(O, /atom/movable) ) || O.anchored || get_dist(user, src) > 1 || get_dist(user, O) > 1 || user.contents.Find(src)))
@@ -1296,6 +1348,7 @@
 			M << text("\red [] stuffs [] into []!", user, O, src)
 		//Foreach goto(104)
 	src.add_fingerprint(user)
+	return
 
 /obj/closet/attack_paw(mob/user as mob)
 
@@ -1545,7 +1598,9 @@
 	return
 
 /obj/stool/chair/MouseDrop_T(mob/M as mob, mob/user as mob)
-
+	if (!ticker)
+		user << "You can't buckle anyone in before the game starts."
+		return
 	if ((!( istype(M, /mob) ) || get_dist(src, user) > 1 || M.loc != src.loc || user.restrained() || usr.stat))
 		return
 	if (M == usr)
@@ -1710,49 +1765,7 @@
 	if(!net)		// cable is unpowered
 		return 0
 
-	var/datum/powernet/PN			// find the powernet
-	if(powernets && powernets.len >= net)
-		PN = powernets[net]
-
-	if(PN && PN.avail > 0)		// is it powered?
-
-		var/prot = 0
-
-		if(istype(user, /mob/human))
-			var/mob/human/H = user
-			if(H.gloves)
-				var/obj/item/weapon/clothing/gloves/G = H.gloves
-
-				prot = G.elec_protect
-
-		if(prot == 10)		// elec insulted gloves protect completely
-			return 0
-
-		prot++
-
-		var/obj/effects/sparks/O = new /obj/effects/sparks( src.loc )
-		O.dir = pick(NORTH, SOUTH, EAST, WEST)
-		spawn( 0 )
-			O.Life()
-
-		if(PN.avail > 10000)
-			user.burn(8e7/prot)
-
-		user << "\red <B>You feel a powerful shock course through your body!</B>"
-		sleep(1)
-
-		user.stunned = 120/prot
-		user.weakened = 20/prot
-		//Foreach goto(72)
-		for(var/mob/M in hearers(src, null))
-			if(M == user)
-				continue
-			if (!( M.blinded ))
-				M << "\red [user.name] was shocked by the grille!"
-			else
-				M << "\red You hear a heavy electrical crack."
-
-		return 1
+	return src.electrocute(user, prb, net)
 
 /obj/window/las_act(flag)
 
@@ -2101,6 +2114,7 @@
 
 /turf/station/r_wall/unburn()
 
+	src.luminosity = 0
 	src.update()
 	return
 
@@ -2115,7 +2129,8 @@
 		else
 			if ((prob(20) && src.state == 1))
 				src.state = 0
-				var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				var/turf/station/floor/F = src.ReplaceWithFloor()
 				F.oxygen = O2STANDARD
 				new /obj/item/weapon/sheet/metal( F )
 				new /obj/item/weapon/sheet/metal( F )
@@ -2128,7 +2143,7 @@
 	switch(severity)
 		if(1.0)
 			//SN src = null
-			var/turf/space/S = new /turf/space( locate(src.x, src.y, src.z) )
+			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 
 			//del(src)
@@ -2145,7 +2160,8 @@
 				new /obj/item/weapon/sheet/metal( src )
 			else
 				src.state = 0
-				var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				var/turf/station/floor/F = src.ReplaceWithFloor()
 				F.burnt = 1
 				F.health = 30
 				F.icon_state = "Floor1"
@@ -2173,7 +2189,8 @@
 	if(prob(10))
 		if(!intact)
 			src.state = 0
-			var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+			//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+			var/turf/station/floor/F = src.ReplaceWithFloor()
 			F.burnt = 1
 			F.health = 30
 			F.icon_state = "Floor1"
@@ -2205,6 +2222,8 @@
 				var/turf/T = user.loc
 				user << "\blue Cutting support rods."
 				sleep(40)
+				if (!( istype(src, /turf/station/r_wall) ))
+					return
 				if ((user.loc == T && user.equipped() == W && !( user.stat )))
 					src.d_state = 5
 		else
@@ -2218,6 +2237,8 @@
 						var/turf/T = user.loc
 						user << "\blue Slicing metal cover."
 						sleep(60)
+						if (!( istype(src, /turf/station/r_wall) ))
+							return
 						if ((user.loc == T && user.equipped() == W && !( user.stat )))
 							src.d_state = 3
 					else
@@ -2225,6 +2246,9 @@
 							var/turf/T = user.loc
 							user << "\blue Removing support rods."
 							sleep(100)
+							if (!( istype(src, /turf/station/r_wall) ))
+								return
+
 							if ((user.loc == T && user.equipped() == W && !( user.stat )))
 								src.d_state = 6
 								new /obj/item/weapon/rods( src )
@@ -2234,6 +2258,8 @@
 							var/turf/T = user.loc
 							user << "\blue Removing support lines."
 							sleep(40)
+							if (!( istype(src, /turf/station/r_wall) ))
+								return
 							if ((user.loc == T && user.equipped() == W && !( user.stat )))
 								src.d_state = 2
 					else
@@ -2242,6 +2268,8 @@
 								var/turf/T = user.loc
 								user << "\blue Prying cover off."
 								sleep(100)
+								if (!( istype(src, /turf/station/r_wall) ))
+									return
 								if ((user.loc == T && user.equipped() == W && !( user.stat )))
 									src.d_state = 4
 							else
@@ -2249,6 +2277,8 @@
 									var/turf/T = user.loc
 									user << "\blue Prying outer sheath off."
 									sleep(100)
+									if (!( istype(src, /turf/station/r_wall) ))
+										return
 									if ((user.loc == T && user.equipped() == W && !( user.stat )))
 										src.d_state = 7
 										new /obj/item/weapon/sheet/metal( src )
@@ -2257,6 +2287,8 @@
 								var/turf/T = user.loc
 								user << "\blue Repairing wall."
 								sleep(100)
+								if (!( istype(src, /turf/station/r_wall) ))
+									return
 								if ((user.loc == T && user.equipped() == W && !( user.stat ) && src.state == 2))
 									src.d_state = 0
 									if (W:amount > 1)
@@ -2269,9 +2301,12 @@
 			user << "\blue Now dismantling girders."
 			var/turf/T = user.loc
 			sleep(100)
+			if (!( istype(src, /turf/station/r_wall) ))
+				return
 			if ((user.loc == T && user.equipped() == W && !( user.stat )))
 				src.state = 0
-				var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				var/turf/station/floor/F = src.ReplaceWithFloor()
 				F.oxygen = O2STANDARD
 				new /obj/item/weapon/sheet/metal( F )
 				new /obj/item/weapon/sheet/metal( F )
@@ -2314,7 +2349,7 @@
 	switch(severity)
 		if(1.0)
 			//SN src = null
-			var/turf/space/S = new /turf/space( locate(src.x, src.y, src.z) )
+			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 			del(src)
 			return
@@ -2331,7 +2366,8 @@
 				src.icon_state = "girder"
 			else
 				src.state = 0
-				var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				var/turf/station/floor/F = src.ReplaceWithFloor()
 				F.burnt = 1
 				F.health = 30
 				F.icon_state = "Floor1"
@@ -2358,7 +2394,8 @@
 	if(prob(20))
 		if(!intact)
 			src.state = 0
-			var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+			//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+			var/turf/station/floor/F = src.ReplaceWithFloor()
 			F.burnt = 1
 			F.health = 30
 			F.icon_state = "Floor1"
@@ -2380,6 +2417,7 @@
 
 /turf/station/wall/unburn()
 
+	src.luminosity = 0
 	if (src.state == 1)
 		src.icon_state = "girder"
 	else
@@ -2413,7 +2451,8 @@
 			return
 		if ((user.loc == T && src.state == 1 && user.equipped() == W))
 			src.state = 0
-			var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+			//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+			var/turf/station/floor/F = src.ReplaceWithFloor()
 			F.oxygen = O2STANDARD
 			new /obj/item/weapon/sheet/metal( F )
 			new /obj/item/weapon/sheet/metal( F )
@@ -2430,7 +2469,9 @@
 				return
 			if ((user.loc == T && src.state == 1 && user.equipped() == W))
 				src.state = 0
-				var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				var/turf/station/floor/F = src.ReplaceWithFloor()
+
 				F.oxygen = O2STANDARD
 				new /obj/d_girders( F )
 				new /obj/item/weapon/sheet/metal( F )
@@ -2446,7 +2487,8 @@
 					return
 				if ((user.loc == T && src.state == 1 && user.equipped() == W))
 					src.state = 0
-					var/turf/station/r_wall/F = new /turf/station/r_wall( locate(src.x, src.y, src.z) )
+					//var/turf/station/r_wall/F = new /turf/station/r_wall( locate(src.x, src.y, src.z) )
+					var/turf/station/r_wall/F = src.ReplaceWithRWall()
 					F.oxygen = O2STANDARD
 					F.icon_state = "r_girder"
 					F.state = 1
@@ -2493,7 +2535,8 @@
 		else
 			if ((prob(20) && src.state == 1))
 				src.state = 0
-				var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				//var/turf/station/floor/F = new /turf/station/floor( locate(src.x, src.y, src.z) )
+				var/turf/station/floor/F = src.ReplaceWithFloor()
 				F.oxygen = O2STANDARD
 				new /obj/item/weapon/sheet/metal( F )
 				new /obj/item/weapon/sheet/metal( F )
@@ -2510,25 +2553,26 @@
 	return
 
 /turf/station/floor/ex_act(severity)
+	set src in oview(1)
 
 	switch(severity)
 		if(1.0)
-			var/turf/space/S = new /turf/space( locate(src.x, src.y, src.z) )
+			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 			levelupdate()
-			//SN src = null
-			del(src)
+			//del(src)	//deleting it makes this method silently stop executing and erases the saved area somehow (SL)
 			return
 		if(2.0)
 			if (prob(50))
 				//SN src = null
-				var/turf/space/S = new /turf/space( locate(src.x, src.y, src.z) )
+				var/turf/space/S = src.ReplaceWithSpace()
 				S.buildlinks()
 				levelupdate()
-				del(src)
+				//del(src)	//deleting it makes this method silently stop executing and erases the saved area somehow (SL)
 				return
 			else
 				src.icon_state = "burning"
+				src.luminosity = 2
 				src.burnt = 1
 				src.health = 30
 				src.intact = 0
@@ -2586,6 +2630,7 @@
 			src.burnt = 0
 			if (src.firelevel >= 900000.0)
 				src.icon_state = "burning"
+				src.luminosity = 2
 			else
 				src.icon_state = "Floor"
 			var/obj/item/weapon/tile/T = C
@@ -2599,6 +2644,7 @@
 
 /turf/station/floor/unburn()
 
+	src.luminosity = 0
 	src.icon_state = text("Floor[]", (src.burnt ? "1" : ""))
 	return
 

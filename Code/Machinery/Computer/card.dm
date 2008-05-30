@@ -32,6 +32,10 @@ obj/machinery/computer/card
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
+	// AI interact
+	
+	attack_ai(mob/user)
+		return src.attack_hand(user)
 
 	// Human interact.
 	// Show interaction window
@@ -116,7 +120,7 @@ obj/machinery/computer/card
 
 				var/list/L = list( "Research Assistant", "Staff Assistant", "Medical Assistant", "Technical Assistant", "Engineer", "Forensic Technician", "Research Technician", "Medical Doctor", "Captain", "Security Officer", "Medical Researcher", "Toxin Researcher", "Head of Research", "Head of Personnel", "Station Technician", "Atmospheric Technician", "Unassigned", "Systems", "Custom" )
 				var/assign = ""
-				if (istype(user, /mob/human))
+				if (istype(user, /mob/human) || istype(user, /mob/ai))
 					var/counter = 1
 					for(var/t in L)
 						assign += "<A href='?src=\ref[src];assign=[t]'>[t]</A>  "
@@ -154,15 +158,19 @@ obj/machinery/computer/card
 			usr << browse(null, "window=id_com")
 			return
 
-		if(usr.restrained() || usr.lying) return
+		if(usr.restrained() || usr.lying)
+			if (!istype(usr, /mob/ai))
+				return
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))		
+				usr << "\red You don't have the dexterity to do this!"
+				return
 		if ((usr.stat || usr.restrained()))
-			return
+			if (!istype(usr, /mob/ai))
+				return
 
-		if ((get_dist(src, usr) <= 1 && istype(src.loc, /turf)))
+		if ((get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai)))
 			usr.machine = src
 			if (href_list["modify"])
 				if (src.modify)
@@ -189,11 +197,16 @@ obj/machinery/computer/card
 						src.scan = I
 				src.authenticated = 0
 
-			if (href_list["auth"])
-				if ((!( src.authenticated ) && src.scan && (src.modify || src.mode)))
+			if ((!( src.authenticated ) && (src.scan || (istype(usr, /mob/ai))) && (src.modify || src.mode)))
+				if (istype(usr, /mob/ai))
+					src.authenticated = 1
+				else
 					if ((src.scan.assignment == "Captain" || src.scan.assignment == "Head of Personnel"))
 						src.authenticated = 1
-
+			else
+				if ((!( src.authenticated ) && (istype(usr, /mob/ai))) && (!src.modify))
+					usr << "You can't modify an ID without an ID inserted to modify. Once one is in the modify slot on the computer, you can log in."
+			
 			if (href_list["vo"])
 				if (src.authenticated)
 					var/t1 = text2num(href_list["vo"])

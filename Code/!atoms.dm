@@ -218,7 +218,12 @@
 		var/votenodead = 0		// dead people can't vote (tbi)
 		var/list/modes = list("extended", "traitor", "meteor", "monkey", "blob", "nuclear")		// modes to choose between
 		var/list/pickprob = list()		// relative probability of each mode
-
+		var/allowai = 1 // allow ai job
+		var/bombtemp_determines_range = 0
+		var/crowbars_close_depowered_doors = 0
+		var/ai_can_call_shuttle = 0
+		var/ai_can_uncall_shuttle = 0
+		var/alternate_ai_laws = 0
 
 /datum/vote
 	var/voting = 0		// true if currently voting
@@ -270,6 +275,7 @@
 	var/atom/movable/pulling = null
 	var/stat = 0.0
 	var/next_move = null
+	var/prev_move = null
 	var/monkeyizing = null
 	var/other = 0.0
 	var/hand = null
@@ -309,6 +315,9 @@
 	var/a_intent = "disarm"
 	var/m_int = null
 	var/m_intent = "run"
+	var/lastDblClick = 0
+	var/lastKnownIP = null
+	var/lastKnownCKey = null
 	var/obj/stool/chair/buckled = null
 	var/obj/dna/primary = null
 	var/obj/item/weapon/handcuffs/handcuffed = null
@@ -335,6 +344,8 @@
 	var/obj/screen/zone_sel/zone_sel = null
 	var/obj/hud/hud_used = null
 	var/start = null
+	var/disable_one_click = 0
+	var/favorite_hud = 0
 
 	var/list/organs = list(  )
 	var/list/grabbed_by = list(  )
@@ -394,6 +405,7 @@
 	var/image/face2 = null
 	var/h_style_r = "hair_a"
 	weight = 2500000.0
+	var/cameraFollow = null
 
 	var/list/body_standing = list(  )
 	var/list/body_lying = list(  )
@@ -409,6 +421,7 @@
 	var/t_n2 = null
 	var/now_pushing = null
 	flags = 258.0
+	var/cameraFollow = null
 
 /mob/megamonkey
 		name = "mutant monkey"
@@ -541,7 +554,10 @@
 	name = "Syndicate Weapons Closet"
 	icon_state = "syndicate0"
 	original = "syndicate0"
+/obj/closet/syndicate/personal
+	desc = "Gear preparation closet."
 /obj/closet/syndicate/nuclear
+	desc = "Nuclear preparation closet."
 /obj/closet/wardrobe
 	desc = "A bulky (yet mobile) wardrobe closet. Comes prestocked with 6 changes of clothes."
 	name = "Wardrobe"
@@ -675,7 +691,14 @@
 	anchored = 1.0
 	flags = 64.0
 	weight = 500000	// added
-
+/obj/securearea
+	desc = "A warning sign which reads 'SECURE AREA'"
+	name = "SECURE AREA"
+	icon = 'Icons.dmi'
+	icon_state = "securearea"
+	anchored = 1.0
+	opacity = 0
+	density = 1
 
 /obj/hud
 	name = "hud"
@@ -689,6 +712,7 @@
 	var/obj/screen/g_dither = null
 	var/obj/screen/blurry = null
 	var/h_type = /obj/screen
+	var/list/darkMask = null
 /obj/hud/hud2
 	name = "hud2"
 	h_type = /obj/screen/screen2
@@ -905,6 +929,9 @@
 	var/air_access = null
 	var/registered = null
 	var/assignment = null
+/obj/item/weapon/card/id/syndicate
+	name = "Syndicate Card"
+
 /obj/item/weapon/card/id/captains_spare
 	name = "Captain's spare ID"
 	icon_state = "card-id"
@@ -1375,6 +1402,7 @@ obj/item/weapon/clothing/suit/labcoat
 	w_class = 2
 	s_istate = "flight"
 	var/image/img
+	var/lastHolder = null
 
 /obj/item/weapon/game_kit
 	name = "Gaming Kit"
@@ -1413,6 +1441,7 @@ obj/item/weapon/clothing/suit/labcoat
 /obj/item/weapon/gun/energy
 	name = "energy"
 	var/charges = 10.0
+	var/maximum_charges = 10.0
 /obj/item/weapon/gun/energy/laser_gun
 	name = "laser gun"
 	icon_state = "gun"
@@ -1880,6 +1909,7 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	name = "Station Intercom (Radio)"
 	icon_state = "intercom"
 	anchored = 1.0
+	var/number = 0
 /obj/item/weapon/radio/signaler
 	name = "Remote Signaling Device"
 	icon_state = "signaler"
@@ -2687,6 +2717,7 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 /turf/space
 	name = "space"
 	icon_state = "space"
+	var/previousArea = null
 	updatecell = 1.0
 	oxygen = 0.0
 	n2 = 0.0
@@ -2738,6 +2769,7 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	name = "r wall"
 	icon = 'wall.dmi'
 	icon_state = "r_wall"
+	var/previousArea = null
 	opacity = 1
 	density = 1
 	var/state = 2.0
@@ -2759,6 +2791,7 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 /turf/station/wall
 	name = "wall"
 	icon = 'wall.dmi'
+	var/previousArea = null
 	opacity = 1
 	density = 1
 	var/state = 2.0

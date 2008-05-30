@@ -73,32 +73,34 @@ obj/machinery/power/generator
 			var/th = circ2.gas2.temperature
 			var/deltat = th-tc
 
-			var/eta = (1-tc/th)*0.65		// efficiency 65% of Carnot
+			if (th>0)
+				var/eta = (1-tc/th)*0.65		// efficiency 65% of Carnot
 
-			if(gc > 0 && deltat >0)		// require some cold gas (for sink) and a positive temp gradient
-				var/ghoc = gh/gc
+				if(gc > 0 && deltat >0)		// require some cold gas (for sink) and a positive temp gradient
+					var/ghoc = gh/gc
 
-				//var/qc = gc*tc
-				//var/qh = gh*th
+					//var/qc = gc*tc
+					//var/qh = gh*th
 
-				var/fdt = 1/( (1-eta)*ghoc + 1)	// min timestep
+					var/fdt = 1/( (1-eta)*ghoc + 1)	// min timestep
 
-				fdt = min(fdt, 0.1)	// max timestep
+					fdt = min(fdt, 0.1)	// max timestep
 
-				var/q = fdt*eta*gh*(deltat)	// heat generated
+					var/q = fdt*eta*gh*(deltat)	// heat generated
 
-				var/thp = th - fdt * deltat
-				var/tcp = tc + fdt * (1 - eta) * (ghoc) * deltat
+					var/thp = th - fdt * deltat
+					var/tcp = tc + fdt * (1 - eta) * (ghoc) * deltat
 
-				lastgen = q * GENRATE
-				add_avail(lastgen)
+					lastgen = q * GENRATE
+					add_avail(lastgen)
 
-				circ1.ngas2.temperature = tcp
-				circ2.ngas2.temperature = thp
+					circ1.ngas2.temperature = tcp
+					circ2.ngas2.temperature = thp
 
+				else
+					lastgen = 0
 			else
 				lastgen = 0
-
 
 		// update icon overlays only if displayed level has changed
 
@@ -107,13 +109,16 @@ obj/machinery/power/generator
 			lastgenlev = genlev
 			updateicon()
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.interact(M)
-
+		src.updateDialog()
 
 	// Attack with hand, open interaction window
 
+	
+	attack_ai(mob/user)
+		if(stat & (BROKEN|NOPOWER)) return
+
+		interact(user)
+		
 	attack_hand(mob/user)
 
 		add_fingerprint(user)
@@ -127,7 +132,7 @@ obj/machinery/power/generator
 
 	proc/interact(mob/user)
 
-		if ( (get_dist(src, user) > 1 ))
+		if ( (get_dist(src, user) > 1 ) && (!istype(user, /mob/ai)))
 			user.machine = null
 			user << browse(null, "window=teg")
 			return
@@ -165,12 +170,13 @@ obj/machinery/power/generator
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))		
+				usr << "\red You don't have the dexterity to do this!"
+				return
 
 		//world << "[href] ; [href_list[href]]"
 
-		if (( usr.machine==src && (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
+		if (( usr.machine==src && (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
 
 
 			if( href_list["close"] )
@@ -239,10 +245,7 @@ obj/machinery/power/generator
 				circ2.control(c2on, c2rate)
 				updateicon()
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.interact(M)
-				//Foreach goto(275)
+			src.updateDialog()
 		else
 			usr << browse(null, "window=teg")
 			usr.machine = null

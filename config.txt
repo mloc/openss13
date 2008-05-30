@@ -46,10 +46,10 @@ PROB_NUCLEAR 1
 # voting control
 #
 # allow players to initiate a restart vote
-ALLOWVOTERESTART
+#ALLOWVOTERESTART
 #
 # allow players to initate a mode-change start
-ALLOWVOTEMODE
+#ALLOWVOTEMODE
 #
 # min delay (seconds) between voting sessions (default 10 minutes)
 VOTEDELAY 600
@@ -61,4 +61,21 @@ VOTEPERIOD 60
 NODEADVOTE
 #
 # players' votes default to "No vote" (otherwise,  default to "No change")
-DEFAULTNOVOTE
+#DEFAULTNOVOTE
+
+#####
+#
+# added features
+#
+# Comment this out if you don't want the AI job to be available, or if you're using a map which doesn't have an AI spawnpoint.
+ALLOWAI
+# Comment this out if you don't want higher-temperature (than 500) bombs to have extended range
+#BOMBTEMP_DETERMINES_RANGE
+# Comment this out if you don't want crowbars to be able to close depowered doors.
+CROWBARS_CLOSE_DEPOWERED_DOORS
+# Comment this out if you don't want the AI to be able to call the shuttle
+AI_CAN_CALL_SHUTTLE
+# Comment this out if you don't want the AI to be able to send the shuttle back
+#AI_CAN_UNCALL_SHUTTLE
+# Comment this out to get the original Asimov-based Laws instead
+ALTERNATE_AI_LAWS

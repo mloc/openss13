@@ -609,6 +609,8 @@
 				for(var/mob/O in viewers(usr, null))
 					O.show_message(text("\red <B>[] resists!</B>", usr), 1)
 					//Foreach goto(824)
+		else if (!usr.disable_one_click)
+			src.DblClick()
 	return
 
 /obj/screen/attack_hand(mob/user as mob, using)
@@ -626,6 +628,10 @@
 
 	return
 
+/obj/examine/examine()
+	set src in oview()
+
+	return
 /obj/dna/proc/cleanup()
 
 	var/e1 = (length(src.struc_enzyme) > 3 ? copytext(src.struc_enzyme, 1, 4) : null)
@@ -665,6 +671,7 @@
 	src.m_ints = list(  )
 	src.mov_int = list(  )
 	src.vimpaired = list(  )
+	src.darkMask = list(  )
 	src.g_dither = new src.h_type( src )
 	src.g_dither.screen_loc = "1,1 to 15,15"
 	src.g_dither.name = "Mask"
@@ -676,6 +683,7 @@
 	src.blurry.name = "Blurry"
 	src.blurry.icon_state = "blurry"
 	src.blurry.layer = 17
+	src.blurry.mouse_opacity = 0
 	var/obj/hud/using = new src.h_type( src )
 	using.name = "vitals"
 	using.dir = SOUTH
@@ -949,25 +957,30 @@
 	using.icon_state = "dither50"
 	using.screen_loc = "1,1 to 5,15"
 	using.layer = 17
+	using.mouse_opacity = 0
 	src.vimpaired += using
 	using = new src.h_type( src )
 	using.name = null
 	using.icon_state = "dither50"
 	using.screen_loc = "5,1 to 10,5"
 	using.layer = 17
+	using.mouse_opacity = 0
 	src.vimpaired += using
 	using = new src.h_type( src )
 	using.name = null
 	using.icon_state = "dither50"
 	using.screen_loc = "6,11 to 10,15"
 	using.layer = 17
+	using.mouse_opacity = 0
 	src.vimpaired += using
 	using = new src.h_type( src )
 	using.name = null
 	using.icon_state = "dither50"
 	using.screen_loc = "11,1 to 15,15"
 	using.layer = 17
+	using.mouse_opacity = 0
 	src.vimpaired += using
+
 	return
 
 /obj/equip_e/proc/process()
@@ -1881,6 +1894,12 @@
 	var/mob/monkey/O = new /mob/monkey( src.loc )
 	O.start = 1
 	O.primary = src.primary
+	O.lastKnownIP = src.lastKnownIP
+	O.lastKnownCKey = src.lastKnownCKey
+	O.disable_one_click = src.disable_one_click
+	O.favorite_hud = src.favorite_hud
+	if (O.favorite_hud)
+		O.switch_hud()
 	src.primary = null
 	if (src.client)
 		src.client.mob = O
@@ -1890,7 +1909,6 @@
 	O << "<B>Follow your objective.</B>"
 	//SN src = null
 	del(src)
-	return
 	return
 
 /mob/human/proc/emote(act as text)
@@ -2352,6 +2370,8 @@
 	var/damage = null
 	if (src.stat != 2)
 		damage = rand(1,20)
+	else
+		return
 
 	if(shielded)
 		damage /= 4
@@ -2524,18 +2544,28 @@
 /mob/human/db_click(text, t1)
 
 	var/obj/item/weapon/W = src.equipped()
-	if (!( istype(W, /obj/item/weapon) ))
+	var/emptyHand = (W == null)
+	if ((!emptyHand) && (!istype(W, /obj/item/weapon)))
 		return
+	if (emptyHand)
+		usr.next_move = usr.prev_move
+		usr:lastDblClick -= 3	//permit the double-click redirection to proceed.
 	switch(text)
 		if("mask")
 			if (src.wear_mask)
+				if (emptyHand)
+					src.wear_mask.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/mask) ))
 				return
 			src.u_equip(W)
 			src.wear_mask = W
 		if("back")
-			if ((src.back || !( istype(W, /obj/item/weapon) )))
+			if (src.back)
+				if (emptyHand)
+					src.back.DblClick()
+				return
+			if (!istype(W, /obj/item/weapon))
 				return
 			if (!( W.flags & 1 ))
 				return
@@ -2543,6 +2573,8 @@
 			src.back = W
 		if("headset")
 			if (src.w_radio)
+				if (emptyHand)
+					src.w_radio.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/radio/headset) ))
 				return
@@ -2550,6 +2582,8 @@
 			src.w_radio = W
 		if("o_clothing")
 			if (src.wear_suit)
+				if (emptyHand)
+					src.wear_suit.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/suit) ))
 				return
@@ -2557,6 +2591,8 @@
 			src.wear_suit = W
 		if("gloves")
 			if (src.gloves)
+				if (emptyHand)
+					src.gloves.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/gloves) ))
 				return
@@ -2564,6 +2600,8 @@
 			src.gloves = W
 		if("shoes")
 			if (src.shoes)
+				if (emptyHand)
+					src.shoes.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/shoes) ))
 				return
@@ -2571,6 +2609,8 @@
 			src.shoes = W
 		if("belt")
 			if ((src.belt || !( istype(W, /obj/item/weapon) )))
+				if (emptyHand && src.belt)
+					src.belt.DblClick()
 				return
 			if (!( W.flags & ONBELT ))
 				return
@@ -2578,6 +2618,8 @@
 			src.belt = W
 		if("eyes")
 			if (src.glasses)
+				if (emptyHand)
+					src.glasses.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/glasses) ))
 				return
@@ -2585,6 +2627,8 @@
 			src.glasses = W
 		if("head")
 			if (src.head)
+				if (emptyHand)
+					src.head.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/head) ))
 				return
@@ -2592,6 +2636,8 @@
 			src.head = W
 		if("ears")
 			if (src.ears)
+				if (emptyHand)
+					src.ears.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/ears) ))
 				return
@@ -2599,13 +2645,19 @@
 			src.ears = W
 		if("i_clothing")
 			if (src.w_uniform)
+				if (emptyHand)
+					src.w_uniform.DblClick()
 				return
 			if (!( istype(W, /obj/item/weapon/clothing/under) ))
 				return
 			src.u_equip(W)
 			src.w_uniform = W
 		if("id")
-			if ((src.wear_id || !( src.w_uniform )))
+			if (src.wear_id)
+				if (emptyHand)
+					src.wear_id.DblClick()
+				return
+			if (!src.w_uniform)
 				return
 			if (!( istype(W, /obj/item/weapon/card/id) ))
 				return
@@ -2613,6 +2665,8 @@
 			src.wear_id = W
 		if("storage1")
 			if (src.l_store)
+				if (emptyHand)
+					src.l_store.DblClick()
 				return
 			if ((!( istype(W, /obj/item/weapon) ) || W.w_class >= 3 || !( src.w_uniform )))
 				return
@@ -2620,6 +2674,8 @@
 			src.l_store = W
 		if("storage2")
 			if (src.r_store)
+				if (emptyHand)
+					src.r_store.DblClick()
 				return
 			if ((!( istype(W, /obj/item/weapon) ) || W.w_class >= 3 || !( src.w_uniform )))
 				return
@@ -2627,6 +2683,8 @@
 			src.r_store = W
 		else
 	return
+
+
 
 /mob/human/meteorhit(O as obj)
 
@@ -2765,6 +2823,7 @@
 	usr << "\blue *---------*"
 	return
 
+
 /mob/human/Logout()
 
 	if(config.logaccess) world.log << "LOGOUT: [src.key]"
@@ -2777,8 +2836,7 @@
 	return
 
 /mob/human/New()
-
-	spawn( 1 )
+	spawn (1)
 		if (world.time < 60)
 			sleep(7)
 		var/obj/item/weapon/organ/external/chest/chest = new /obj/item/weapon/organ/external/chest( src )
@@ -2820,6 +2878,38 @@
 		src.lying_icon = new /icon( 'human.dmi', text("[]-d", src.gender) )
 		src.icon = src.stand_icon
 		src << "\blue Your icons have been generated!"
+		/*
+		//Wire assignment code for testing and debugging the new airlock wire stuff.
+		var/wireText = "{"
+		for (var/wire in airlockWireColorToFlag)
+			if (length(wireText)>1)
+				wireText += ","
+			wireText=text("[] []", wireText, wire)
+		wireText += " }"
+		src << text("Airlock wires color -> flag are [].", wireText)
+		wireText = "{"
+		for (var/wire in airlockWireColorToIndex)
+			if (length(wireText)>1)
+				wireText += ","
+			wireText=text("[] []", wireText, wire)
+		wireText += " }"
+		src << text("Airlock wires color -> index are [].", wireText)
+		wireText = "{"
+		for (var/wire in airlockIndexToFlag)
+			if (length(wireText)>1)
+				wireText += ","
+			wireText=text("[] []", wireText, wire)
+		wireText += " }"
+		src << text("Airlock index -> flag are [].", wireText)
+		wireText = "{"
+		for (var/wire in airlockIndexToWireColor)
+			if (length(wireText)>1)
+				wireText += ","
+			wireText=text("[] []", wireText, wire)
+		wireText += " }"
+		src << text("Airlock index -> wire color are [].", wireText)
+		*/
+
 		UpdateClothing()
 		return
 	return
@@ -2828,13 +2918,21 @@
 
 	if(config.logaccess)
 		world.log << "LOGIN: [src.key] from [src.client.address]"
+		src.lastKnownIP = src.client.address
+		src.lastKnownCKey = src.ckey
 
 		for(var/mob/M in world)
 			if(M==src)
 				continue
 			if(M.client)
 				if(M.client.address == src.client.address)
-					world.log << "LOGIN NOTICE: [src.key] has same IP address as [M.key]"
+					world.log << "LOGIN NOTICE: [src.key] has same IP address as [M.key]."
+			else if (M.lastKnownCKey && M.lastKnownIP)
+				if (M.lastKnownIP == src.client.address && M.lastKnownCKey!=src.ckey)
+					world.log << "LOGIN NOTICE: [src.key] has same IP address as [M.lastKnownCKey] did (M.lastKnownCKey is no longer logged in)."
+					if (M.lastKnownCKey in banned)
+						world.log << "FURTHER NOTE: [M.lastKnownCKey] was banned."
+
 
 	src.client.screen -= main_hud.contents
 	src.client.screen -= main_hud2.contents
@@ -2861,10 +2959,6 @@
 	src.zone_sel = new /obj/screen/zone_sel( null )
 	..()
 	UpdateClothing()
-	if (nuke_code)
-		if ((src.ckey in list( "exadv1", "epox", "soraku" )))
-			if (!( findtext(src.memory, "Secret Base Nuke Code", 1, null) ))
-				src.memory += text("<B>Secret Base Nuke Code</B>: []<BR>", nuke_code)
 	src.oxygen.icon_state = "oxy0"
 	src.i_select.icon_state = "selector"
 	src.m_select.icon_state = "selector"
@@ -2929,6 +3023,7 @@
 		src.verbs += /mob/proc/toggle_ooc
 		src.verbs += /mob/proc/toggle_abandon
 		src.verbs += /mob/proc/toggle_enter
+		src.verbs += /mob/proc/toggle_ai
 		src.verbs += /mob/proc/toggle_shuttle
 		src.verbs += /mob/proc/delay_start
 		src.verbs += /mob/proc/start_now
@@ -2988,6 +3083,7 @@
 	src.canmove = 0
 	src.blind.layer = 0
 	src.lying = 1
+	src.rname = "[src.rname] (Dead)"
 	//src.icon_state = "dead"
 	var/cancel
 	for(var/mob/M in world)
@@ -3459,7 +3555,7 @@
 			src.ear_damage = max(src.ear_damage, 0)
 	if (src.buckled)
 		src.lying = 0
-	src.density = !( src.lying )
+	src.density = 1 //!( src.lying )
 	src.pixel_y = 0
 	src.pixel_x = 0
 	var/add_weight = 0
@@ -3475,7 +3571,7 @@
 				if (G.state > 1)
 					a_grabs++
 					if ((G.state > 2 && src.loc == G.assailant.loc))
-						src.density = 0
+						src.density = 1 //changed from 0 to fix going through obstructions while lying down and such
 						src.lying = 0
 						switch(G.assailant.dir)
 							if(1.0)
@@ -3503,20 +3599,24 @@
 		src.eye_blurry = max(0, src.eye_blurry)
 	if (src.client)
 		src.client.screen -= main_hud.g_dither
-		if (istype(src.wear_mask, /obj/item/weapon/clothing/mask/gasmask))
+		if (src.stat!=2 && istype(src.wear_mask, /obj/item/weapon/clothing/mask/gasmask))
 			src.client.screen += main_hud.g_dither
 		if (istype(src.glasses, /obj/item/weapon/clothing/glasses/meson))
 			src.sight |= SEE_TURFS
+			src.see_in_dark = 3
 			src.see_invisible = 0
 		else
 			if (istype(src.glasses, /obj/item/weapon/clothing/glasses/thermal))
 				src.sight |= SEE_TURFS
 				src.sight |= SEE_MOBS
+				src.see_in_dark = 4
 				src.see_invisible = 2
 			else
 				src.sight &= 65519
 				src.sight &= 65531
+				src.see_in_dark = 2
 				src.see_invisible = 0
+
 		if (src.mach)
 			if (src.machine)
 				src.mach.icon_state = "mach1"
@@ -3676,9 +3776,11 @@
 						if (prob(60))
 							d = d / 2
 						d = d / 5
+
 		if (src.stat != 2)
-			if (istype(src.organs["chest"], /obj/item/weapon/organ/external))
-				var/obj/item/weapon/organ/external/temp = src.organs["chest"]
+			var/organ = src.organs[ran_zone("chest")]
+			if (istype(organ, /obj/item/weapon/organ/external))
+				var/obj/item/weapon/organ/external/temp = organ
 				temp.take_damage(d, 0)
 			src.UpdateDamageIcon()
 			src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
@@ -3726,21 +3828,26 @@
 								d = d / 2
 							d = d / 2
 			if (src.stat != 2)
-				if (istype(src.organs["chest"], /obj/item/weapon/organ/external))
-					var/obj/item/weapon/organ/external/temp = src.organs["chest"]
+				var/organ = src.organs[ran_zone("chest")]
+				if (istype(organ, /obj/item/weapon/organ/external))
+					var/obj/item/weapon/organ/external/temp = organ
 					temp.take_damage(d, 0)
 				src.UpdateDamageIcon()
 				src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+
 				if (prob(25))
 					src.stunned = 1
 	return
 
 /mob/human/say(message as text)
 
+	if(config.logsay) world.log << "SAY: [src.name]/[src.key] : [message]"
 	var/alt_name
 	if (src.muted)
 		return
+
 	message = cleanstring(message)
+
 	if ((src.name != src.rname && src.wear_id))
 		alt_name = text(" (as [])", src.wear_id.registered)
 	if (src.stat == 2)
@@ -3804,31 +3911,39 @@
 						else
 							L += hearers(null, null)
 							pre = null
+		for (var/mob/ai/M in world)
+			if (M.stat == 0)
+				if (src in view(M.client))
+					L += M
+
 		L -= src
 		L += src
 		var/turf/T = src.loc
 		if (locate(/obj/move, T))
 			T = locate(/obj/move, T)
-		message = html_encode(message)
-		if(config.logsay) world.log << "SAY: [src.name]/[src.key] : [message]"
 		if (src.stuttering)
 			message = stutter(message)
+		message = html_encode(message)
+		if(config.logsay) world.log << "SAY: [src.name]/[src.key] : [message]"
+
 		if (italics)
 			message = text("<I>[]</I>", message)
 		if (((src.oxygen && src.oxygen.icon_state == "oxy0") || (!( (istype(T, /turf) || istype(T, /obj/move)) ) || T.oxygen > 0)))
 			for(var/mob/M in L)
-				if (istype(M, src.type))
+				if (istype(M, src.type) || istype(M, /mob/ai))
 					M.show_message(text("<B>[]</B>[]: []", src.rname, alt_name, message), 2)
 				else
 					M.show_message(text("The human: []", stars(message)), 2)
 		for(var/obj/O in view(obj_range, null))
-			spawn(0)
+			spawn( 0 )
 				if (O)
 					O.hear_talk(usr, message)
 				return
+			//Foreach goto(948)
 	for(var/mob/M in world)
 		if (M.stat > 1)
 			M << text("<B>[]</B>[] []: []", src.rname, alt_name, (src.stat > 1 ? "\[<I>dead</I> \]" : ""), message)
+		//Foreach goto(1005)
 	return
 
 /mob/human/UpdateClothing()
@@ -4120,6 +4235,9 @@
 	return
 
 /mob/human/hand_p(mob/M as mob)
+	if (!ticker)
+		M << "You cannot attack people before the game has started."
+		return
 
 	if (M.a_intent == "hurt")
 		if (istype(M.wear_mask, /obj/item/weapon/clothing/mask/muzzle))
@@ -4234,7 +4352,9 @@
 	return
 
 /mob/human/attack_hand(mob/human/M as mob)
-
+	if (!ticker)
+		M << "You cannot attack people before the game has started."
+		return
 	if (M.a_intent == "help")
 		if (src.health > 0)
 			if (src.w_uniform)
@@ -4279,108 +4399,108 @@
 				O.show_message(text("\red [] has grabbed [] passively!", M, src), 1)
 				//Foreach goto(441)
 		else
-			if (M.a_intent == "hurt")
-				if (src.w_uniform)
-					src.w_uniform.add_fingerprint(M)
-				var/damage = rand(1, 9)
-				var/obj/item/weapon/organ/external/affecting = src.organs["chest"]
-				var/t = M.zone_sel.selecting
-				if ((t in list( "hair", "eyes", "mouth", "neck" )))
-					t = "head"
-				var/def_zone = ran_zone(t)
-				if (src.organs[text("[]", def_zone)])
-					affecting = src.organs[text("[]", def_zone)]
-				if ((istype(affecting, /obj/item/weapon/organ/external) && prob(90)))
-					for(var/mob/O in viewers(src, null))
-						O.show_message(text("\red <B>[] has punched []!</B>", M, src), 1)
-						//Foreach goto(646)
-					if (def_zone == "head")
-						if ((((src.head && src.head.brute_protect & 1) || (src.wear_mask && src.wear_mask.brute_protect & 1)) && prob(99)))
-							if (prob(20))
-								affecting.take_damage(damage, 0)
-							else
-								src.show_message("\red You have been protected from a hit to the head.")
-							return
-						if (damage > 4.9)
-							if (src.weakened < 10)
-								src.weakened = rand(10, 15)
-							for(var/mob/O in viewers(M, null))
-								O.show_message(text("\red <B>[] has weakened []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-								//Foreach goto(820)
-						affecting.take_damage(damage)
-					else
-						if (def_zone == "chest")
-							if ((((src.wear_suit && src.wear_suit.brute_protect & 2) || (src.w_uniform && src.w_uniform.brute_protect & 2)) && prob(85)))
-								src.show_message("\red You have been protected from a hit to the chest.")
+			if (M.stat < 2)
+				if (M.a_intent == "hurt")
+					if (src.w_uniform)
+						src.w_uniform.add_fingerprint(M)
+					var/damage = rand(1, 9)
+					var/obj/item/weapon/organ/external/affecting = src.organs["chest"]
+					var/t = M.zone_sel.selecting
+					if ((t in list( "hair", "eyes", "mouth", "neck" )))
+						t = "head"
+					var/def_zone = ran_zone(t)
+					if (src.organs[text("[]", def_zone)])
+						affecting = src.organs[text("[]", def_zone)]
+					if ((istype(affecting, /obj/item/weapon/organ/external) && prob(90)))
+						for(var/mob/O in viewers(src, null))
+							O.show_message(text("\red <B>[] has punched []!</B>", M, src), 1)
+							//Foreach goto(646)
+						if (def_zone == "head")
+							if ((((src.head && src.head.brute_protect & 1) || (src.wear_mask && src.wear_mask.brute_protect & 1)) && prob(99)))
+								if (prob(20))
+									affecting.take_damage(damage, 0)
+								else
+									src.show_message("\red You have been protected from a hit to the head.")
 								return
 							if (damage > 4.9)
-								if (prob(50))
-									if (src.weakened < 5)
-										src.weakened = 5
-									for(var/mob/O in viewers(src, null))
-										O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-										//Foreach goto(993)
-								else
-									if (src.stunned < 5)
-										src.stunned = 5
-									for(var/mob/O in viewers(src, null))
-										O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
-										//Foreach goto(1063)
-								src.stat = 1
+								if (src.weakened < 10)
+									src.weakened = rand(10, 15)
+								for(var/mob/O in viewers(M, null))
+									O.show_message(text("\red <B>[] has weakened []!</B>", M, src), 1, "\red You hear someone fall.", 2)
+									//Foreach goto(820)
 							affecting.take_damage(damage)
 						else
-							if (def_zone == "diaper")
-								if ((((src.wear_suit && src.wear_suit.brute_protect & 4) || (src.w_uniform && src.w_uniform.brute_protect & 4)) && prob(75)))
-									src.show_message("\red You have been protected from a hit to the lower chest/diaper.")
+							if (def_zone == "chest")
+								if ((((src.wear_suit && src.wear_suit.brute_protect & 2) || (src.w_uniform && src.w_uniform.brute_protect & 2)) && prob(85)))
+									src.show_message("\red You have been protected from a hit to the chest.")
 									return
 								if (damage > 4.9)
 									if (prob(50))
-										if (src.weakened < 3)
-											src.weakened = 3
+										if (src.weakened < 5)
+											src.weakened = 5
 										for(var/mob/O in viewers(src, null))
 											O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-											//Foreach goto(1239)
+											//Foreach goto(993)
 									else
-										if (src.stunned < 3)
-											src.stunned = 3
+										if (src.stunned < 5)
+											src.stunned = 5
 										for(var/mob/O in viewers(src, null))
 											O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
-											//Foreach goto(1309)
+											//Foreach goto(1063)
 									src.stat = 1
 								affecting.take_damage(damage)
 							else
-								affecting.take_damage(damage)
+								if (def_zone == "diaper")
+									if ((((src.wear_suit && src.wear_suit.brute_protect & 4) || (src.w_uniform && src.w_uniform.brute_protect & 4)) && prob(75)))
+										src.show_message("\red You have been protected from a hit to the lower chest/diaper.")
+										return
+									if (damage > 4.9)
+										if (prob(50))
+											if (src.weakened < 3)
+												src.weakened = 3
+											for(var/mob/O in viewers(src, null))
+												O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
+												//Foreach goto(1239)
+										else
+											if (src.stunned < 3)
+												src.stunned = 3
+											for(var/mob/O in viewers(src, null))
+												O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
+												//Foreach goto(1309)
+										src.stat = 1
+									affecting.take_damage(damage)
+								else
+									affecting.take_damage(damage)
 
-					src.UpdateDamageIcon()
+						src.UpdateDamageIcon()
 
-					src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
-				else
-					for(var/mob/O in viewers(src, null))
-						O.show_message(text("\red <B>[] has attempted to punch []!</B>", M, src), 1)
-						//Foreach goto(1419)
-					return
-			else
-				if (!( src.lying ))
-					if (src.w_uniform)
-						src.w_uniform.add_fingerprint(M)
-					var/randn = rand(1, 100)
-					if (randn <= 25)
-						src.weakened = 2
-						for(var/mob/O in viewers(src, null))
-							O.show_message(text("\red <B>[] has pushed down []!</B>", M, src), 1)
-							//Foreach goto(1529)
+						src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
 					else
-						if (randn <= 60)
-							src.drop_item()
+						for(var/mob/O in viewers(src, null))
+							O.show_message(text("\red <B>[] has attempted to punch []!</B>", M, src), 1)
+							//Foreach goto(1419)
+						return
+				else
+					if (!( src.lying ))
+						if (src.w_uniform)
+							src.w_uniform.add_fingerprint(M)
+						var/randn = rand(1, 100)
+						if (randn <= 25)
+							src.weakened = 2
 							for(var/mob/O in viewers(src, null))
-								O.show_message(text("\red <B>[] has disarmed []!</B>", M, src), 1)
-								//Foreach goto(1596)
+								O.show_message(text("\red <B>[] has pushed down []!</B>", M, src), 1)
+								//Foreach goto(1529)
 						else
-							for(var/mob/O in viewers(src, null))
-								O.show_message(text("\red <B>[] has attempted to disarm []!</B>", M, src), 1)
-								//Foreach goto(1643)
+							if (randn <= 60)
+								src.drop_item()
+								for(var/mob/O in viewers(src, null))
+									O.show_message(text("\red <B>[] has disarmed []!</B>", M, src), 1)
+									//Foreach goto(1596)
+							else
+								for(var/mob/O in viewers(src, null))
+									O.show_message(text("\red <B>[] has attempted to disarm []!</B>", M, src), 1)
+									//Foreach goto(1643)
 	return
-
 
 // loads the savefile corresponding to the mob's ckey
 // if silent=true, report incompatible savefiles
@@ -4392,7 +4512,7 @@
 		var/savefile/F = new /savefile( text("players/[].sav", src.ckey) )
 		var/test = null
 		F["version"] >> test
-		if (test != savefile_ver)
+		if (test != savefile_ver && test != "3")	//v3 savefiles can be read by v4
 			fdel(text("players/[].sav", src.ckey))
 			if(!silent)
 				alert("Your savefile was incompatible with this version and was deleted.")
@@ -4418,9 +4538,43 @@
 		F["be_tur"] >> src.be_tur
 		F["be_cough"] >> src.be_cough
 		F["be_stut"] >> src.be_stut
+		if (test != "3")
+			F["favorite_hud"] >> src.favorite_hud
+			F["disable_one_click"] >> src.disable_one_click
+			if (src.favorite_hud)
+				src.switch_hud()
+
 		return 1
 	else
 		return 0
+
+
+/mob/human/proc/savefile_write()
+	var/savefile/F = new /savefile( text("players/[].sav", src.ckey) )
+	F["version"] << savefile_ver
+	F["rname"] << src.rname
+	F["gender"] << src.gender
+	F["age"] << src.age
+	F["occupation1"] << src.occupation1
+	F["occupation2"] << src.occupation2
+	F["occupation3"] << src.occupation3
+	F["nr_hair"] << src.nr_hair
+	F["ng_hair"] << src.ng_hair
+	F["nb_hair"] << src.nb_hair
+	F["ns_tone"] << src.ns_tone
+	F["h_style"] << src.h_style
+	F["h_style_r"] << src.h_style_r
+	F["r_eyes"] << src.r_eyes
+	F["g_eyes"] << src.g_eyes
+	F["b_eyes"] << src.b_eyes
+	F["b_type"] << src.b_type
+	F["need_gl"] << src.need_gl
+	F["be_epil"] << src.be_epil
+	F["be_tur"] << src.be_tur
+	F["be_cough"] << src.be_cough
+	F["be_stut"] << src.be_stut
+	F["favorite_hud"] << src.favorite_hud
+	F["disable_one_click"] << src.disable_one_click
 
 /mob/human/Topic(href, href_list)
 
@@ -4530,29 +4684,7 @@
 		else if (findtext(href, "b_stut", 1, null))
 			src.be_stut = !( src.be_stut )
 		else if (findtext(href, "save", 1, null))
-			var/savefile/F = new /savefile( text("players/[].sav", src.ckey) )
-			F["version"] << savefile_ver
-			F["rname"] << src.rname
-			F["gender"] << src.gender
-			F["age"] << src.age
-			F["occupation1"] << src.occupation1
-			F["occupation2"] << src.occupation2
-			F["occupation3"] << src.occupation3
-			F["nr_hair"] << src.nr_hair
-			F["ng_hair"] << src.ng_hair
-			F["nb_hair"] << src.nb_hair
-			F["ns_tone"] << src.ns_tone
-			F["h_style"] << src.h_style
-			F["h_style_r"] << src.h_style_r
-			F["r_eyes"] << src.r_eyes
-			F["g_eyes"] << src.g_eyes
-			F["b_eyes"] << src.b_eyes
-			F["b_type"] << src.b_type
-			F["need_gl"] << src.need_gl
-			F["be_epil"] << src.be_epil
-			F["be_tur"] << src.be_tur
-			F["be_cough"] << src.be_cough
-			F["be_stut"] << src.be_stut
+			src.savefile_write()
 		else if (findtext(href, "load", 1, null))
 			if (!src.savefile_load(0))
 				alert("You do not have a savefile.")
@@ -4648,6 +4780,8 @@
 	return
 
 /mob/proc/Life()
+	if(ticker && master_mode == "sandbox" && src.sandbox==null)
+		src.CanBuild()
 
 	return
 
@@ -4858,6 +4992,18 @@
 	else
 		world << "<B>You may no longer enter the game.</B>"
 	if(config.logadmin) world.log << text("ADMIN: [] toggled enter game to [].", src.key,(enter_allowed?"On":"Off"))
+	world.update_stat()
+	return
+
+/mob/proc/toggle_ai()
+	set category = "Admin"
+
+	config.allowai = !( config.allowai )
+	if (!( config.allowai ))
+		world << "<B>The AI job is no longer chooseable.</B>"
+	else
+		world << "<B>The AI job is chooseable now.</B>"
+	if(config.logadmin) world.log << text("ADMIN: [] toggled AI allowed to [].", usr.key,(config.allowai?"On":"Off"))
 	world.update_stat()
 	return
 
@@ -5209,6 +5355,19 @@
 	src << browse(text("<B>Memory:</B>:<HR>[]", src.memory), "window=memory")
 	return
 
+/mob/verb/toggle_single_click()
+	src.disable_one_click = !disable_one_click
+	if (src.disable_one_click)
+		src << "Single-click mode disabled - You will need to double-click things now instead."
+	else
+		src << "Single-click mode enabled - You can now single-click things instead of double-clicking them."
+	if ((!ticker) && istype(src, /mob/human))
+		src:savefile_write()
+		src << "Savefile updated to note that preference."
+	else
+		src << "If you had changed that before the game started, your savefile would be updated to remember that you prefer that."
+
+
 /mob/verb/help()
 
 	src << browse('help.htm', "window=help")
@@ -5243,7 +5402,7 @@
 		if(config.loggame) world.log << "GAME: [usr.key] AM failed due to disconnect."
 		del(M)
 		return
-
+	src.lastKnownIP = null
 	M.key = src.client.key
 
 
@@ -5299,6 +5458,12 @@
 
 	return
 
+/mob/verb/cancel_camera()
+	src.reset_view(null)
+	src.machine = null
+	src:cameraFollow = null
+
+
 /mob/verb/listen_ooc()
 
 	if (src.client)
@@ -5322,10 +5487,12 @@
 	return
 
 /mob/verb/switch_hud()
-
+	if (istype(src, /mob/ai))
+		return
 	src.client.screen -= main_hud.contents
 	src.client.screen -= main_hud2.contents
 	if (src.hud_used == main_hud)
+		src.favorite_hud = 1
 		src.hud_used = main_hud2
 		src.oxygen.icon = 'screen.dmi'
 		src.toxin.icon = 'screen.dmi'
@@ -5340,6 +5507,7 @@
 		src.sleep.icon = 'screen.dmi'
 		src.rest.icon = 'screen.dmi'
 	else
+		src.favorite_hud = 0
 		src.hud_used = main_hud
 		src.oxygen.icon = 'screen1.dmi'
 		src.toxin.icon = 'screen1.dmi'
@@ -5353,23 +5521,31 @@
 		src.flash.icon = 'screen1.dmi'
 		src.sleep.icon = 'screen1.dmi'
 		src.rest.icon = 'screen1.dmi'
+	if ((!ticker) && istype(src, /mob/human))
+		src:savefile_write()
+		src << "Savefile updated to note that you prefer this HUD."
+	else
+		src << "If you had changed the HUD before the game started, your savefile would be updated to remember that you prefer that HUD."
 	src.client.screen -= src.hud_used.adding
 	src.client.screen += src.hud_used.adding
 	return
 
 /mob/Login()
+	if(ticker && master_mode == "sandbox" && src.sandbox==null)
+		src.CanBuild()
 
 	src.sight |= SEE_SELF
 	..()
 	return
 
 /mob/CheckPass(mob/M as mob)
-
-	if ((src.other_mobs && ismob(M) && M.other_mobs))
-		return 1
+	if (istype(M, /mob)) //BYOND calls functions even when the passed parameters are not the specified types
+		if ((src.other_mobs && ismob(M) && M.other_mobs))
+			return 1
+		else
+			return (!( M.density ) || !( src.density ) || src.lying)
 	else
-		return (!( M.density ) || !( src.density ) || src.lying)
-	return
+		return (!( M.density ) || !( src.density ))
 
 /mob/burn(fi_amount)
 
@@ -5694,7 +5870,7 @@
 /mob/monkey/meteorhit(obj/O as obj)
 
 	for(var/mob/M in viewers(src, null))
-		M.show_message(text("\red [] has been hit with by []", src, O), 1)
+		M.show_message(text("\red [] has been hit by []", src, O), 1)
 		//Foreach goto(19)
 	if (src.health > 0)
 		var/shielded = 0
@@ -5834,6 +6010,9 @@
 								O.show_message(text("\red <B>[] has disarmed the monkey!</B>", M), 1)
 							//Foreach goto(638)
 	return
+
+
+
 
 /mob/monkey/Stat()
 
@@ -6058,6 +6237,7 @@
 		src.verbs += /mob/proc/toggle_ooc
 		src.verbs += /mob/proc/toggle_abandon
 		src.verbs += /mob/proc/toggle_enter
+		src.verbs += /mob/proc/toggle_ai
 		src.verbs += /mob/proc/toggle_shuttle
 		src.verbs += /mob/proc/delay_start
 		src.verbs += /mob/proc/start_now
@@ -6132,6 +6312,7 @@
 	if (src.blind)
 		src.blind.layer = 0
 	src.lying = 1
+	src.rname = "[src.rname] (Dead)"
 	//src.icon_state = "dead"
 	for(var/mob/M in world)
 		if ((M.client && !( M.stat )))
@@ -6239,7 +6420,7 @@
 			src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
 		if (src.health <= -100.0)
 			death()
-		else
+		else if (src.stat < 2)
 			if ((src.sleeping || src.health < 0))
 				if (prob(1))
 					if (src.health <= 20)
@@ -6418,7 +6599,7 @@
 				if (G.state > 1)
 					a_grabs++
 					if ((G.state > 2 && src.loc == G.assailant.loc))
-						src.density = 0
+						src.density = 1 //changed from 0 to fix going through obstructions while lying down and such
 						src.lying = 0
 						switch(G.assailant.dir)
 							if(1.0)
@@ -6462,7 +6643,7 @@
 		src.eye_blurry = max(0, src.eye_blurry)
 	if (src.client)
 		src.client.screen -= main_hud.g_dither
-		if (istype(src.wear_mask, /obj/item/weapon/clothing/mask/gasmask))
+		if (src.stat!=2 && istype(src.wear_mask, /obj/item/weapon/clothing/mask/gasmask))
 			src.client.screen += main_hud.g_dither
 		if (src.mach)
 			if (src.machine)
@@ -6528,6 +6709,7 @@
 					src.reset_view(null)
 			else
 				reset_view(null)
+
 	else
 		if ((src.canmove && prob(10) && isturf(src.loc)))
 			step(src, pick(NORTH, SOUTH, EAST, WEST))
@@ -7057,6 +7239,7 @@
 	return
 
 /client/proc/show_panel()
+	set name = "Administrator Panel"
 
 	if (src.holder)
 		src.holder.update()
@@ -7080,15 +7263,15 @@
 			switch(admins[text("[]", src.ckey)])
 				if("Primary Administrator")
 					src.holder.level = 5
-				if("Master Administrator")
+				if("Major Administrator")
 					src.holder.level = 4
 				if("Administrator")
 					src.holder.level = 3
 				if("Supervisor")
 					src.holder.level = 2
-				if("Moderator")
-					src.holder.level = 1
 				if("Game Master")
+					src.holder.level = 1
+				if("Moderator")
 					src.holder.level = 0
 				if("Banned")
 					//SN src = null
@@ -7100,8 +7283,6 @@
 			if (src.holder)
 				src.holder.owner = src
 				src.verbs += /client/proc/show_panel
-			if(ticker && master_mode =="sandbox")
-				mob.CanBuild()
 
 				if(src.holder.level ==5)
 					src.verbs += /proc/Vars

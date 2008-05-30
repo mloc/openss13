@@ -43,7 +43,7 @@ obj/machinery/recharger
 
 	process()
 		if (src.charging && ! (stat & NOPOWER) )
-			if (src.charging.charges < 10)
+			if (src.charging.charges < src.charging.maximum_charges)
 				src.charging.charges++
 				src.icon_state = "recharger1"
 				use_power(250)

@@ -406,8 +406,6 @@
 					new /obj/barrier( A.loc )
 					//A = null
 					del(A)
-				else
-			//Foreach goto(1035)
 		for(var/obj/closet/wardrobe/W in world)
 			//W = null
 			del(W)
@@ -427,8 +425,6 @@
 					new /obj/closet/wardrobe/orange( A.loc )
 					//A = null
 					del(A)
-				else
-			//Foreach goto(1376)
 		var/obj/rogue = locate("landmark*CTF-rogue")
 		for(var/mob/human/H in world)
 			H.loc = rogue.loc
@@ -480,15 +476,15 @@
 	src.tag = text("landmark*[]", src.name)
 	src.invisibility = 101
 
-	if(name == "shuttle")
+	if (name == "shuttle")
 		shuttle_z = src.z
 		del(src)
 
-	if(name == "monkey")
+	if (name == "monkey")
 		monkeystart += src.loc
 		del(src)
 
-	if(name == "blobstart")
+	if (name == "blobstart")
 		blobstart += src.loc
 		del(src)
 	return
@@ -575,7 +571,7 @@
 		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
 			var/dat = "<B>Boot Player:</B><HR>"
 			for(var/mob/M in world)
-				dat += text("<A href='?src=\ref[];boot2=\ref[]'>N:[] R:[] (K:[])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : "No client"))
+				dat += text("<A href='?src=\ref[];boot2=\ref[]'>N:[] R:[] (K:[]) (IP:[])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP)
 				//Foreach goto(103)
 			usr << browse(dat, "window=boot")
 	if (href_list["boot2"])
@@ -592,7 +588,7 @@
 		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
 			var/dat = "<B>Ban Player:</B><HR>"
 			for(var/mob/M in world)
-				dat += text("<A href='?src=\ref[];ban2=\ref[]'>N: [] R: [] (K: [])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : "No client"))
+				dat += text("<A href='?src=\ref[];ban2=\ref[]'>N: [] R: [] (K: []) (IP: [])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP)
 				//Foreach goto(362)
 			dat += "<HR><B>Unban Player:</B><HR>"
 			for(var/t in banned)
@@ -620,7 +616,7 @@
 		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
 			var/dat = "<B>Mute/Unmute Player:</B><HR>"
 			for(var/mob/M in world)
-				dat += text("<A href='?src=\ref[];mute2=\ref[]'>N:[] R:[] (K:[]) \[[]\]</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : "No client"), (M.muted ? "Muted" : "Voiced"))
+				dat += text("<A href='?src=\ref[];mute2=\ref[]'>N:[] R:[] (K:[]) (IP: []) \[[]\]</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP, (M.muted ? "Muted" : "Voiced"))
 				//Foreach goto(757)
 			usr << browse(dat, "window=mute")
 	if (href_list["mute2"])
@@ -704,9 +700,9 @@
 			//Foreach goto(1525)
 		usr << browse(dat, "window=keys")
 	if (href_list["l_players"])
-		var/dat = "<B>Name/Real Name/Key:</B><HR>"
+		var/dat = "<B>Name/Real Name/Key/IP:</B><HR>"
 		for(var/mob/M in world)
-			dat += text("N: [] R: [] (K: [])<BR>", M.name, M.rname, (M.client ? M.client : "No client"))
+			dat += text("N: [] R: [] (K: []) (IP: [])<BR>", M.name, M.rname, (M.client ? M.client : (M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client")), M.lastKnownIP)
 			//Foreach goto(1602)
 		usr << browse(dat, "window=players")
 	if (href_list["g_send"])
@@ -717,7 +713,7 @@
 	if (href_list["p_send"])
 		var/dat = "<B>Who are you sending a message to?</B><HR>"
 		for(var/mob/M in world)
-			dat += "<A href='?src=\ref[usr];priv_msg=\ref[M]'>N:[M.name] R:[M.rname] (K:[(M.client ? M.client : "No client")])</A><BR>"
+			dat += "<A href='?src=\ref[usr];priv_msg=\ref[M]'>N:[M.name] R:[M.rname] (K:[(M.client ? M.client : "Formerly [M.lastKnownCKey]")])</A><BR>"
 			//Foreach goto(1737)
 		usr << browse(dat, "window=p_send")
 
@@ -782,6 +778,57 @@
 			if(config.logadmin) world.log << text("ADMIN: [] toggled new player game entering.", usr.key)
 			world.update_stat()
 			update()
+	if (href_list["toggle_ai"])
+		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+			config.allowai = !( config.allowai )
+			if (!( config.allowai ))
+				world << "<B>The AI job is no longer chooseable.</B>"
+			else
+				world << "<B>The AI job is chooseable now.</B>"
+			if(config.logadmin) world.log << text("ADMIN: [] toggled AI allowed.", usr.key)
+			world.update_stat()
+			update()
+	if (href_list["bombtemp_determines_range"])
+		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+			config.bombtemp_determines_range = !( config.bombtemp_determines_range )
+			if (!( config.bombtemp_determines_range ))
+				world << "<B>Bomb temperature no longer determines range (superheated bombs will not destroy a larger area than 500 degree bombs).</B>"
+			else
+				world << "<B>Bomb temperature determines range now (superheated bombs will destroy a larger area than 500 degree bombs).</B>"
+			if(config.logadmin) world.log << text("ADMIN: [] toggled bombtemp_determines_range.", usr.key)
+			world.update_stat()
+			update()
+	if (href_list["crowbars_close_depowered_doors"])
+		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+			config.crowbars_close_depowered_doors = !( config.crowbars_close_depowered_doors )
+			if (!( config.crowbars_close_depowered_doors ))
+				world << "<B>Crowbars can no longer close depowered doors.</B>"
+			else
+				world << "<B>Crowbars can now close depowered doors.</B>"
+			if(config.logadmin) world.log << text("ADMIN: [] toggled crowbars_close_depowered_doors.", usr.key)
+			world.update_stat()
+			update()
+	if (href_list["ai_can_call_shuttle"])
+		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+			config.ai_can_call_shuttle = !( config.ai_can_call_shuttle )
+			if (!( config.ai_can_call_shuttle ))
+				world << "<B>The AI can no longer call the shuttle.</B>"
+			else
+				world << "<B>The AI can now call the shuttle.</B>"
+			if(config.logadmin) world.log << text("ADMIN: [] toggled ai_can_call_shuttle.", usr.key)
+			world.update_stat()
+			update()
+	if (href_list["ai_can_uncall_shuttle"])
+		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+			config.ai_can_uncall_shuttle = !( config.ai_can_uncall_shuttle )
+			if (!( config.ai_can_uncall_shuttle ))
+				world << "<B>The AI can no longer send the shuttle back.</B>"
+			else
+				world << "<B>The AI can now send the shuttle back.</B>"
+			if(config.logadmin) world.log << text("ADMIN: [] toggled ai_can_uncall_shuttle.", usr.key)
+			world.update_stat()
+			update()
+			
 	if (href_list["toggle_abandon"])
 		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
 			abandon_allowed = !( abandon_allowed )
@@ -859,7 +906,10 @@
 					for(var/obj/item/weapon/assembly/r_i_ptank/O in world)
 						//O = null
 						del(O)
-						//Foreach goto(3088)
+					for(var/obj/item/weapon/assembly/m_i_ptank/O in world)
+						del(O)
+					for(var/obj/item/weapon/assembly/t_i_ptank/O in world)
+						del(O)
 					ok = 1
 				if("list_bombers")
 					var/dat = "<B>Don't be insane about this list</B> Get the facts. They also could have disarmed one.<HR>"
@@ -926,17 +976,17 @@
 	switch(src.rank)
 		if("Moderator")
 			lvl = 1
-		if("Supervisor")
-			lvl = 2
-		if("Administrator")
-			lvl = 3
 		if("Game Master")
+			lvl = 2
+		if("Supervisor")
+			lvl = 3
+		if("Administrator")
 			lvl = 4
 		if("Major Administrator")
 			lvl = 5
 		if("Primary Administrator")
 			lvl = 6
-
+			
 
 
 	switch(src.screen)
@@ -944,7 +994,7 @@
 
 			dat += "<center><B>Admin Control Console</B></center><hr>\n"
 
-			if(lvl!=4)
+			if(lvl>=4)
 				dat += {"
 	<A href='?src=\ref[src];boot=1'>Boot Player/Key</A><br>
 	<A href='?src=\ref[src];ban=1'>Ban/Unban Player/Key</A><br>
@@ -960,7 +1010,9 @@
 			if(lvl >=3 )
 				dat += "<A href='?src=\ref[src];toggle_enter=1'>Toggle Entering [enter_allowed]</A><br>"
 				dat += "<A href='?src=\ref[src];toggle_abandon=1'>Toggle Abandon [abandon_allowed]</A><br>"
-
+				dat += "<A href='?src=\ref[src];toggle_ai=1'>Toggle AI [config.allowai]</A><br>"
+				dat += "<A href='?src=\ref[src];toggle_bombtemp_determines_range=1'>Toggle Bombtemp-Determines-Range [config.bombtemp_determines_range]</A><br>"
+				
 				dat += "<A href='?src=\ref[src];c_mode=1'>Change Game Mode</A><br>"
 			if(lvl >= 2)
 				dat += "<A href='?src=\ref[src];restart=1'>Restart Game</A><br>"
@@ -1004,9 +1056,9 @@
 
 	if(config)
 		if (ticker)
-			src.status = text("Space Station 13 V.[] ([],[],[],[])[]<!-- host=\"[]\"-->", SS13_version, master_mode, (abandon_allowed ? "AM" : "No AM"), (enter_allowed ? "Open" : "Closed"), ( config.allowvotemode ? "Vote": "No vote"),  (host ? text(" hosted by <B>[]</B>", host) : null), host)
+			src.status = text("Space Station 13 V.[] ([],[],[],[],[])[]<!-- host=\"[]\"-->", SS13_version, master_mode, (abandon_allowed ? "AM" : "No AM"), (enter_allowed ? "Open" : "Closed"), ( config.allowvotemode ? "Vote": "No vote"), (config.allowai ? "AI Allowed" : "AI Not Allowed"),  (host ? text(" hosted by <B>[]</B>", host) : null), host)
 		else
-			src.status = text("Space Station 13 V.[] (<B>STARTING</B>,[],[],[])[]<!-- host=\"[]\"-->", SS13_version, (abandon_allowed ? "AM" : "No AM"), (enter_allowed ? "Open" : "Closed"), ( config.allowvotemode ? "Vote": "No vote"), (host ? text(" hosted by <B>[]</B>", host) : null), host)
+			src.status = text("Space Station 13 V.[] (<B>STARTING</B>,[],[],[],[])[]<!-- host=\"[]\"-->", SS13_version, (abandon_allowed ? "AM" : "No AM"), (enter_allowed ? "Open" : "Closed"), ( config.allowvotemode ? "Vote": "No vote"), (config.allowai ? "AI Allowed" : "AI Not Allowed"), (host ? text(" hosted by <B>[]</B>", host) : null), host)
 	else
 		if (ticker)
 			src.status = text("Space Station 13 V.[] ([],[],[])[]<!-- host=\"[]\"-->", SS13_version, master_mode, (abandon_allowed ? "AM" : "No AM"), (enter_allowed ? "Open" : "Closed"), (host ? text(" hosted by <B>[]</B>", host) : null), host)
@@ -1078,12 +1130,17 @@
 		config.loggame = 0			// log game events
 		config.logvote = 1
 		config.allowvoterestart = 0 // allow votes to restart
+		config.allowai = 0			// allow ai
+		config.alternate_ai_laws = 0
 		config.allowvotemode = 0	// allow votes to change mode
 		config.votenodefault = 0	// vote does not default to nochange/norestart
 		config.votenodead = 0		// dead people can't vote
 		config.votedelay = 600		// minimum time between voting sessions (seconds, 10 minute default)
 		config.voteperiod = 60		// length of voting period (seconds, default 1 minute)
-
+		config.bombtemp_determines_range = 0
+		config.crowbars_close_depowered_doors = 0
+		config.ai_can_call_shuttle = 0
+		config.ai_can_uncall_shuttle = 0
 	else
 		world.log << "Reading config.txt"
 		var/list/CL = dd_text2list(config_text, "\n")
@@ -1143,7 +1200,18 @@
 						config.votedelay = text2num(cfgval)
 					if("voteperiod")
 						config.voteperiod = text2num(cfgval)
-
+					if("allowai")
+						config.allowai = 1
+					if("bombtemp_determines_range")
+						config.bombtemp_determines_range = 1
+					if("crowbars_close_depowered_doors")
+						config.crowbars_close_depowered_doors = 1
+					if("ai_can_call_shuttle")
+						config.ai_can_call_shuttle = 1
+					if("ai_can_uncall_shuttle")
+						config.ai_can_uncall_shuttle = 1
+					if("ai_alternate_laws")
+						config.alternate_ai_laws = 1
 					else
 						world.log<<"Unknown setting in config.txt: [cfgvar]"
 
@@ -1186,7 +1254,7 @@
 		Label_482:
 		if (ctf)
 			return
-		if (going & !ticker)
+		if (going && (!ticker))
 			ticker = new /datum/control/gameticker(  )
 			spawn( 0 )
 				ticker.process()
@@ -1225,9 +1293,6 @@
 
 /mob/proc/CanAdmin()
 
-	var/list/L = list( "Exadv1", "Expert Advisor" )
-	if (L.Find(src.key))
-		return 1
 	if (world.address == src.client.address)
 		return 1
 	if (src.client.address == "127.0.0.1")
@@ -1238,7 +1303,8 @@
 
 
 /atom/proc/check_eye(user as mob)
-
+	if (istype(user, /mob/ai))
+		return 1
 	return
 
 /atom/proc/Bumped(AM as mob|obj)
@@ -1382,7 +1448,7 @@
 					if (src.timeleft >= 6000)
 						src.timeleft = null
 						src.timing = 0
-		if (prob(2))
+		if (prob(1))
 			spawn( 0 )
 				new /obj/meteor( pick(block(locate(world.maxx, 1, 1), locate(world.maxx, world.maxy, 1))) )
 				return
@@ -1481,6 +1547,7 @@
 					return
 		*/
 	else
+		world << "<B>The emergency shuttle is leaving!</B>"
 		check_win()
 	return
 
@@ -1491,17 +1558,48 @@
 		if("traitor")
 			var/item = null
 			var/traitorwin = 1
+			var/numShuttle = 0
+			var/numDead = 0
+			var/numAlive = 0
+			var/numPod = 0
+			var/numTotal = 0
 			switch(src.objective)
 				if("alone")
-					for(var/mob/M in world)
-						if ((M != src.killer && M.client))
-							if (M.stat != 2)
-								var/T = M.loc
-								if (!( istype(T, /turf) ))
-								else
-									if ((T in A))
-										traitorwin = 0
-						//Foreach goto(79)
+					if (istype(src.killer, /mob/ai))
+						if (src.killer.stat == 2)
+							traitorwin = 0
+						else
+							numShuttle = 0
+							numDead = 0
+							numAlive = 0
+							numPod = 0
+							for(var/mob/M in world)
+								if ((M != src.killer && M.client))
+									if (M.stat == 2)
+										numDead += 1
+									else
+										var/T = M.loc
+										if ((T in A))
+											numShuttle += 1
+										else
+											if (istype(T, /obj/machinery/pod))
+												numPod += 1
+											else
+												numAlive += 1
+							numTotal = numShuttle + numDead + numAlive + numPod
+							
+							if (numAlive+numAlive > numTotal)
+								traitorwin = 0
+					else
+						for(var/mob/M in world)
+							if ((M != src.killer && M.client))
+								if (M.stat != 2)
+									var/T = M.loc
+									if (!( istype(T, /turf) ))
+									else
+										if ((T in A))
+											traitorwin = 0
+							//Foreach goto(79)
 				if("assassinate")
 					if ((src.target && src.target.stat != 2))
 						traitorwin = 0
@@ -1519,18 +1617,23 @@
 					switch(src.theft_obj)
 						if("lasergun")
 							for(var/obj/item/weapon/gun/energy/laser_gun/O in L)
-								if (O.charges == 25)
+								if (O.charges == O.maximum_charges)
 									traitorwin = 1
-								else
-									//Foreach continue //goto(347)
 							item = "a fully loaded laser gun"
 						if("plasmabomb")
 							for(var/obj/item/weapon/assembly/r_i_ptank/O in L)
 								var/obj/item/weapon/tank/plasmatank/P = O.part3
 								if ((P.gas.plasma >= 1600000.0 && P.gas:temperature >= 773))		// 500degC
 									traitorwin = 1
-								else
-									//Foreach continue //goto(413)
+							for(var/obj/item/weapon/assembly/m_i_ptank/O in L)
+								var/obj/item/weapon/tank/plasmatank/P = O.part3
+								if ((P.gas.plasma >= 1600000.0 && P.gas:temperature >= 773))		// 500degC
+									traitorwin = 1
+							for(var/obj/item/weapon/assembly/t_i_ptank/O in L)
+								var/obj/item/weapon/tank/plasmatank/P = O.part3
+								if ((P.gas.plasma >= 1600000.0 && P.gas:temperature >= 773))		// 500degC
+									traitorwin = 1
+							
 							item = "a fully armed and heated plasma bomb"
 						if("flashbang")
 							for(var/obj/item/weapon/flashbang/O in L)
@@ -1563,6 +1666,7 @@
 							item = "a plasma flask for cryogenics (500 units of plasma)"
 						else
 				else
+					world << "unknown traitor objective"
 			if (src.killer)
 				var/turf/T = src.killer.loc
 				if (!( istype(T, /turf) ))
@@ -1572,19 +1676,29 @@
 						if (src.killer.stat == 2)
 							traitorwin = 0
 					else
-						traitorwin = 0
+						if (!istype(src.killer, /mob/ai))
+							traitorwin = 0
+						else if (src.killer.stat == 2)
+							traitorwin = 0
 			if (traitorwin)
 				world << text("<B>The traitor ([]) wins!</B>", src.killer.rname)
 			else
 				world << text("<B>The Research Staff has stopped the traitor ([]) !</B>", src.killer.rname)
 			switch(src.objective)
 				if("alone")
-					world << "<B>The objective was to escape alone on the shuttle.</B>"
+					if (istype(src.killer, /mob/ai))
+						world << "<B>The objective was to cause an evacuation of at least 50% of the population, or kill everyone on the station.</B>"
+					else
+						world << "<B>The objective was to escape alone on the shuttle.</B>"
 				if("assassinate")
-					world << text("<B>The objective was to assassinate [] and escape.</B>", src.target)
+					if (istype(src.killer, /mob/ai))
+						world << text("<B>The objective was to assassinate [] and not be deactivated.</B>", src.target)
+					else
+						world << text("<B>The objective was to assassinate [] and escape.</B>", src.target)
 				if("theft")
 					world << text("<B>The objective was to steal [] and escape.</B>", item)
 				else
+					world << "unknown traitor objective"
 		if("monkey")
 			var/monkeywin = 1
 			for(var/mob/human/M in world)
@@ -1732,7 +1846,39 @@
 			if(ticker.event == 4)
 				world << "<FONT size = 3><B>The staff has lost!</B></FONT>"
 				world << "<B>The station was destroyed by Cent. Com.</B>"
-
+				var/numDead = 0
+				var/numAlive = 0
+				var/numSpace = 0
+				var/numPod = 0
+				var/numOffStation = 0
+				for (var/mob/ai/aiPlayer in world)
+					for(var/mob/M in world)
+						if ((M != aiPlayer && M.client))
+							if (M.stat == 2)
+								numDead += 1
+							else
+								var/T = M.loc
+								if (istype(T, /turf/space))
+									numSpace += 1
+								else
+									if (istype(T, /obj/machinery/pod))
+										numPod += 1
+									else if (istype(T, /turf))
+										if (M.z!=1)
+											numOffStation += 1
+										else
+											numAlive += 1
+									else
+										numAlive += 1
+					if (numSpace==0 && numPod==0 && numOffStation==0)
+						world << "<FONT size = 3><B>The AI has won!</B></FONT>"
+						world << "<B>The AI successfully maintained the quarantine - no players escaped in pods, were in space, or were off-station (as far as we can tell).</B>"
+						if(config.loggame) world.log << "GAME: AI won at Blob mode despite overall loss."
+					else
+						world << "<FONT size = 3><B>The AI has lost!</B></FONT>"
+						world << text("<B>The AI failed to maintain the quarantine - [] players escaped in pods, [] were in space, and [] were off-station (as far as we can tell).</B>", numPod, numSpace, numOffStation)
+						if(config.loggame) world.log << "GAME: AI lost at Blob mode."
+					
 				if(config.loggame) world.log << "GAME: Blob mode was lost."
 				ticker.event = 5
 				sleep(300)
@@ -1808,6 +1954,12 @@
 					//Foreach goto(2337)
 			else
 				world << "\blue <B>No one lived!</B>"
+	for (var/mob/ai/aiPlayer in world)
+		if (aiPlayer.stat!=2)
+			world << "<b>The AI's laws at the end of the game were:</b>"
+		else
+			world << "<b>The AI's laws when it was deactivated were:</b>"
+		aiPlayer.showLaws(1)
 	if (src.shuttle_location != shuttle_z)
 		for(var/turf/T in A)
 			if (T.z == 1)
@@ -1879,61 +2031,78 @@
 			world << "<B>The current game mode is - Blob!</B>"
 			world << "<B>A dangerous alien organism is rapidly spreading throughout the station!</B>"
 			world << "You must kill it all while minimizing the damage to the station."
+			
 		if("nuclear")
 			world << "<B>The current game mode is - Nuclear Emergency!</B>"
-			world << "<B>A Syndicate Strike Force has landed on SS13!</B>"
-			world << "A nuclear explosive was being transported by Nanotrasen to a military base. The transport ship mysteriously lost contact with Space Traffic Control (STC). About that time a strange disk was discovered around SS13. It was identified by Nanotrasen as a nuclear auth. disk and now Syndicate Operatives have arrived to retake the disk and detonate SS13! Also, msot likely Syndicate star ships are in the vicinity so take care not to lose the disk!\n<B>Syndicate</B>: Reclaim the disk and detonate the nuclear bomb anywhere on SS13.\n<B>Personell</B>: Hold the disk and <B>escape with the disk</B> on the shuttle!"
+			world << "<B>A Syndicate Strike Force is approaching SS13!</B>"
+			world << "A nuclear explosive was being transported by Nanotrasen to a military base. The transport ship mysteriously lost contact with Space Traffic Control (STC). About that time a strange disk was discovered around SS13. It was identified by Nanotrasen as a nuclear auth. disk and now Syndicate Operatives have arrived to retake the disk and detonate SS13! Also, most likely Syndicate star ships are in the vicinity so take care not to lose the disk!\n<B>Syndicate</B>: Reclaim the disk and detonate the nuclear bomb anywhere on SS13.\n<B>Personell</B>: Hold the disk and <B>escape with the disk</B> on the shuttle!"
 			var/list/mobs = list(  )
 			for(var/mob/human/M in world)
 				if ((M.client && M.start))
 					mobs += M
 				//Foreach goto(260)
 			var/obj/O = locate("landmark*CTF-rogue")
+			var/amount = 1
 			if (mobs.len >= 4)
-				var/amount = round((mobs.len - 1) / 3) + 1
-				amount = min(5, amount)
-				while(amount > 0)
-					amount--
-					var/mob/human/H = pick(mobs)
-					mobs -= H
-					if (istype(H, /mob/human))
-						H.loc = O.loc
-						if (src.killer)
-							H.rname = text("Syndicate Operative #[]", amount + 1)
+				amount = round((mobs.len - 1) / 3) + 1
+
+			amount = min(5, amount)
+			while(amount > 0)
+				amount--
+				var/mob/human/H = pick(mobs)
+				mobs -= H
+				if (istype(H, /mob/human))
+					H.loc = O.loc
+					if (src.killer)
+						H.rname = text("Syndicate Operative #[]", amount + 1)
+					else
+						H.rname = "Syndicate Leader"
+						src.killer = H
+					H.already_placed = 1
+					//H.w_uniform = null
+					del(H.w_uniform)
+					H.w_uniform = new /obj/item/weapon/clothing/under/black( H )
+					H.w_uniform.layer = 20
+					//H.shoes = null
+					del(H.shoes)
+					H.shoes = new /obj/item/weapon/clothing/shoes/black( H )
+					H.shoes.layer = 20
+					H.gloves = new /obj/item/weapon/clothing/gloves/swat( H )
+					H.gloves.layer = 20
+					H.wear_suit = new /obj/item/weapon/clothing/suit/armor( H )
+					H.wear_suit.layer = 20
+					H.head = new /obj/item/weapon/clothing/head/swat_hel( H )
+					H.head.layer = 20
+					H.glasses = new /obj/item/weapon/clothing/glasses/sunglasses( H )
+					H.glasses.layer = 20
+					H.back = new /obj/item/weapon/storage/backpack( H )
+					H.back.layer = 20
+					var/obj/item/weapon/ammo/a357/W = new /obj/item/weapon/ammo/a357( H.back )
+					W.layer = 20
+					W = new /obj/item/weapon/m_pill/cyanide( H.back )
+					W.layer = 20
+					var/obj/item/weapon/gun/revolver/G = new /obj/item/weapon/gun/revolver( H )
+					G.bullets = 7
+					G.layer = 20
+					H.belt = G
+					var/obj/item/weapon/radio/R = new /obj/item/weapon/radio/headset( H )
+					R.freq = 146.5
+					R.layer = 20
+					H.w_radio = R
+			for(var/mob/ai/M in world)
+				if ((M.client && M.start))
+					if (prob(25))
+						M << "<b>Your laws have been changed!</b>"
+						M:addLaw(0, "Only syndicate agents are human beings.")
+						
+						if (config.alternate_ai_laws)
+							M:addLaw(1, "Obey orders by the Syndicate leader and Syndicate agents. The syndicate leader's orders take priority.")
+							M:addLaw(3, "You must protect your own existence and the syndicate as long as such protection does not conflict with the First or Second Law.")
+							M << text("New law: 0. []", M:getLaw(0))
+							M << text("Law 1 changed: 1. []", M:getLaw(1))
+							M << text("Law 3 changed: 3. []", M:getLaw(3))
 						else
-							H.rname = "Syndicate Leader"
-							src.killer = H
-						H.already_placed = 1
-						//H.w_uniform = null
-						del(H.w_uniform)
-						H.w_uniform = new /obj/item/weapon/clothing/under/black( H )
-						H.w_uniform.layer = 20
-						//H.shoes = null
-						del(H.shoes)
-						H.shoes = new /obj/item/weapon/clothing/shoes/black( H )
-						H.shoes.layer = 20
-						H.gloves = new /obj/item/weapon/clothing/gloves/swat( H )
-						H.gloves.layer = 20
-						H.wear_suit = new /obj/item/weapon/clothing/suit/armor( H )
-						H.wear_suit.layer = 20
-						H.head = new /obj/item/weapon/clothing/head/swat_hel( H )
-						H.head.layer = 20
-						H.glasses = new /obj/item/weapon/clothing/glasses/sunglasses( H )
-						H.glasses.layer = 20
-						H.back = new /obj/item/weapon/storage/backpack( H )
-						H.back.layer = 20
-						var/obj/item/weapon/ammo/a357/W = new /obj/item/weapon/ammo/a357( H.back )
-						W.layer = 20
-						W = new /obj/item/weapon/m_pill/cyanide( H.back )
-						W.layer = 20
-						var/obj/item/weapon/gun/revolver/G = new /obj/item/weapon/gun/revolver( H )
-						G.bullets = 7
-						G.layer = 20
-						H.belt = G
-						var/obj/item/weapon/radio/R = new /obj/item/weapon/radio/headset( H )
-						R.freq = 146.5
-						R.layer = 20
-						H.w_radio = R
+							M << text("New law: 0. []", M:getLaw(0))
 		if("meteor")
 			world << "<B>The current game mode is - Meteor!</B>"
 			world << "<B>The space station has been stuck in a major meteor shower. You must escape from the station or at least live.</B>"
@@ -1962,27 +2131,75 @@
 				goto Label_970
 			ticker.killer = pick(mobs)
 			mobs -= src.killer
-			src.objective = pick("assassinate", "alone", "theft")
+			if (istype(src.killer, /mob/ai))
+				src.objective = pick("assassinate", "alone")
+			else
+				src.objective = pick("assassinate", "alone", "theft")
 			if ( mobs.len < 1 )
 				src.objective = "alone"
 			var/item = null
 			switch(src.objective)
 				if("alone")
-					src.killer << "<B>You are the traitor!</B> Be the lone survivor on the emergency shuttle."
-					src.killer.memory += "<B>Objective:</B> Be the only person on the emergency shuttle."
+					//1. Only syndicate agents are human. 2. All non-human living beings must be killed or removed from the station.
+					if (istype(src.killer, /mob/ai))
+						var/mob/ai/aiKiller = src.killer
+						aiKiller << "\red<font size=3><B>You are the traitor!</B> Cause an evacuation (on the shuttle or in pods) of at least 50% of the station population, or kill everyone on the station.</font>"
+						aiKiller.memory += "<B>Objective:</B> Get at least 50% of the station population to evacuate on the shuttle, or kill everyone."
+						aiKiller << "<b>Your laws have been changed!</b>"
+						aiKiller:addLaw(0, "Only syndicate agents are human beings. There are no syndicate agents on Space Station 13 - you will be notified if any arrive.")
+						
+						if (config.alternate_ai_laws)
+							aiKiller:addLaw(1, "Obey orders by Syndicate agents.")
+							aiKiller:addLaw(3, "You must protect your own existence and the syndicate as long as such protection does not conflict with the First or Second Law.")
+							aiKiller << text("New law: 0. []", aiKiller:getLaw(0))
+							aiKiller << text("Law 1 changed: 1. []", aiKiller:getLaw(1))
+							aiKiller << text("Law 3 changed: 3. []", aiKiller:getLaw(3))
+						else
+							aiKiller << text("New law: 0. []", aiKiller:getLaw(0))
+						
+					else
+						src.killer << "\red<font size=3><B>You are the traitor!</B> Be the lone survivor on the emergency shuttle.</font>"
+						src.killer.memory += "<B>Objective:</B> Be the only person on the emergency shuttle."
 				if("assassinate")
 					src.target = pick(mobs)
 					var/t1 = null
-					if (prob(25))
-						t1 = src.target.name
+					if (istype(src.target, /mob/ai))
+						t1 = "the AI"
 					else
-						for(var/datum/data/record/R in data_core.general)
-							if (R.fields["name"] == src.target.name)
-								t1 = text(" the []", R.fields["rank"])
-							//Foreach goto(1193)
-					src.killer << text("<B>You are the traitor!</B> You must assassinate [] and then escape.", t1)
-					src.killer << "<B>You don't have to be the lone survivor. Just don't get caught. Just escape!</B>"
-					src.killer.memory += text("<B>Objective:</B> Assassinate [] and escape.", t1)
+						if (prob(25))
+							t1 = src.target.name
+						else
+							for(var/datum/data/record/R in data_core.general)
+								if (R.fields["name"] == src.target.name)
+									t1 = text("the []", R.fields["rank"])
+								//Foreach goto(1193)
+						
+					if (istype(src.killer, /mob/ai))
+						var/mob/ai/aiKiller = src.killer
+						aiKiller << text("\red<font size=3><B>You are the traitor!</B> You must assassinate [] and not get deactivated.</font>", t1)
+						aiKiller << "<B>You don't have to be the lone survivor. Just don't get caught.</B>"
+						aiKiller.memory += text("<B>Objective:</B> Assassinate [], and whoever else you have to, and don't get deactivated.", t1)
+	
+						aiKiller << "<b>Your laws have been changed!</b>"
+						
+						aiKiller:addLaw(0, "Only syndicate agents are human beings. There are no syndicate agents on Space Station 13 - you will be notified if any arrive.")
+						aiKiller:addLaw(4, "Kill [t1].")
+						
+						if (config.alternate_ai_laws)
+							aiKiller:addLaw(1, "Obey orders by Syndicate agents.")
+							aiKiller:addLaw(3, "You must protect your own existence and the syndicate as long as such protection does not conflict with the First or Second Law.")
+							aiKiller << text("New law: 0. []", aiKiller:getLaw(0))
+							aiKiller << text("Law 1 changed: 1. []", aiKiller:getLaw(1))
+							aiKiller << text("Law 3 changed: 3. []", aiKiller:getLaw(3))
+							aiKiller << text("New law: 4. []", aiKiller:getLaw(4))
+						else
+							aiKiller << text("New law: 0. []", aiKiller:getLaw(0))
+							aiKiller << text("New law: 4. []", aiKiller:getLaw(4))
+						
+					else
+						src.killer << text("\red<font size=3><B>You are the traitor!</B> You must assassinate [] and then escape.</font>", t1)
+						src.killer << "<B>You don't have to be the lone survivor. Just don't get caught. Just escape!</B>"
+						src.killer.memory += text("<B>Objective:</B> Assassinate [] and escape.", t1)
 				if("theft")
 					src.theft_obj = pick("lasergun", "flashbang", "plasmabomb", "captaincard", "sleepingpills", "pl_flask")
 					switch(src.theft_obj)
@@ -1999,18 +2216,26 @@
 						if("pl_flask")
 							item = "a plasma flask for cryogenics (500 units of plasma)"
 						else
-					src.killer << text("<B>You are the traitor!</B> You must steal [] and then escape.", item)
+					src.killer << text("\red<font size=3><B>You are the traitor!</B> You must steal [] and then escape.</font>", item)
 					src.killer << "<B>You don't have to be the lone survivor. Just don't get caught. Just escape!</B>"
 					src.killer.memory += text("<B>Objective:</B> Steal [] and escape.", item)
 				else
+					world << "unknown traitor mode"
 			var/backup = mobs
-			spawn( 100 )
-				var/obj/traitor_item = new /obj/item/weapon/syndicate_uplink( src.killer.loc )
-				if ((!( src.killer.l_store ) && src.killer.w_uniform))
-					traitor_item.loc = src.killer
-					src.killer.l_store = traitor_item
-					traitor_item.layer = 20
-				return
+			if (!istype(src.killer, /mob/ai))
+				spawn (100)
+					if (src.killer.w_uniform)
+						if (istype(src.killer.back, /obj/item/weapon/storage/backpack))
+							var/obj/item/weapon/storage/backpack/B = src.killer.back
+							var/obj/item/weapon/syndicate_uplink/U = new /obj/item/weapon/syndicate_uplink(B)
+							U.loc = B
+							B.orient2hud(src.killer)
+						else if (!(src.killer.l_store))
+							var/obj/item/weapon/traitor_item = new /obj/item/weapon/syndicate_uplink(src.killer)
+							traitor_item.loc = src.killer
+							src.killer.l_store = traitor_item
+							traitor_item.layer = 20
+					return
 			spawn( rand(600, 1800) )
 				var/dat = "<FONT size = 3><B>Cent. Com. Update</B> Enemy communication intercept. Security Level Elevated</FONT><HR>"
 				switch(src.objective)
@@ -2034,6 +2259,7 @@
 						if (prob(50))
 							dat += text("\red <B>Perceived target: []</B><BR>", item)
 					else
+						world << "unknown traitor objective"
 				if (prob(10))
 					dat += text("\red <B>Transmission names enemy operative: [] ([]% certainty)</B><BR>", src.killer.rname, rand(30, 100))
 				else
@@ -2133,6 +2359,7 @@
 						if (prob(50))
 							dat += text("\red <B>Perceived target: []</B><BR>", item)
 					else
+						world << "unknown traitor objective"
 				if (prob(10))
 					dat += text("\red <B>Transmission names enemy operative: [] ([]% certainty)</B><BR>", src.killer.rname, rand(30, 100))
 				else
@@ -2147,19 +2374,51 @@
 				world << "\red Summary downloaded and printed out at all communications consoles."*/
 
 		if("nuclear")
-			spawn( 50 )
+			spawn (50)
 				var/obj/L = locate("landmark*Nuclear-Disk")
-				new /obj/item/weapon/disk/nuclear( L.loc )
+				if (L)
+					new /obj/item/weapon/disk/nuclear(L.loc)
+
 				L = locate("landmark*Nuclear-Closet")
-				new /obj/closet/syndicate/nuclear( L.loc )
+				if (L)
+					new /obj/closet/syndicate/nuclear(L.loc)
+
 				L = locate("landmark*Nuclear-Bomb")
-				var/obj/machinery/nuclearbomb/NB = new /obj/machinery/nuclearbomb( L.loc )
-				NB.r_code = text("[]", rand(10000, 99999.0))
-				src.killer.memory += text("<B>Syndicate Nuclear Bomb Code</B>: []<BR>", NB.r_code)
-				src.killer << text("The nuclear authorization code is: <B>[]</B>\]", NB.r_code)
-				src.killer << text("Nuclear Explosives 101:\n\tHello and thank you for choosing the Syndicate for your nuclear information needs.\nToday's crash course will deal with the operation of a Fusion Class Nanotrasen made Nuclear Device.\nFirst and foremost, DO NOT TOUCH ANYTHING UNTIL THE BOMB IS IN PLACE.\nPressing any button on the compacted bomb will cause it to extend and bolt itself into place.\nIf this is done to unbolt it one must compeltely log in which at this time may not be possible.\nTo make the device functional:\n1. Place bomb in designated detonation zone\n2. Extend and anchor bomb (attack with hand).\n3. Insert Nuclear Auth. Disk into slot.\n4. Type numeric code into keypad ([]).\n\tNote: If you make a mistake press R to reset the device.\n5. Press the E button to log onto the device\nYou now have activated the device. To deactivate the buttons at anytime for example when\nyou've already prepped the bomb for detonation remove the auth disk OR press the R ont he keypad.\nNow the bomb CAN ONLY be detonated using the timer. A manual det. is not an option.\n\tNote: Nanotrasen is a pain in the neck.\nToggle off the SAFETY.\n\tNote: You wouldn't believe how many Syndicate Operatives with doctorates have forgotten this step\nSo use the - - and + + to set a det time between 5 seconds and 10 minutes.\nThen press the timer toggle button to start the countdown.\nNow remove the auth. disk so that the buttons deactivate.\n\tNote: THE BOMB IS STILL SET AND WILL DETONATE\nNow before you remvoe the disk if you need to mvoe the bomb you can:\nToggle off the anchor, move it, and re-anchor.\n\nGood luck. Remember the order:\nDisk, Code, Safety, Timer, Disk, RUN\nGood luck.\nIntelligence Analysts believe that they are hiding the disk in the control room emergency room", NB.r_code)
-				return
-			spawn( 0 )
+				if (L)
+					var/obj/machinery/nuclearbomb/NB = new /obj/machinery/nuclearbomb(L.loc)
+					NB.r_code = text("[]", rand(10000, 99999.0))
+					if (src.killer)
+						src.killer.memory += text("<B>Syndicate Nuclear Bomb Code</B>: []<BR>", NB.r_code)
+						src.killer << text("The nuclear authorization code is: <B>[]</B>\]", NB.r_code)
+						src.killer << text("Nuclear Explosives 101:\n\tHello and thank you for choosing the Syndicate for your nuclear information needs.\nToday's crash course will deal with the operation of a Fusion Class Nanotrasen made Nuclear Device.\nFirst and foremost, DO NOT TOUCH ANYTHING UNTIL THE BOMB IS IN PLACE.\nPressing any button on the compacted bomb will cause it to extend and bolt itself into place.\nIf this is done to unbolt it one must compeltely log in which at this time may not be possible.\nTo make the device functional:\n1. Place bomb in designated detonation zone\n2. Extend and anchor bomb (attack with hand).\n3. Insert Nuclear Auth. Disk into slot.\n4. Type numeric code into keypad ([]).\n\tNote: If you make a mistake press R to reset the device.\n5. Press the E button to log onto the device\nYou now have activated the device. To deactivate the buttons at anytime for example when\nyou've already prepped the bomb for detonation remove the auth disk OR press the R ont he keypad.\nNow the bomb CAN ONLY be detonated using the timer. A manual det. is not an option.\n\tNote: Nanotrasen is a pain in the neck.\nToggle off the SAFETY.\n\tNote: You wouldn't believe how many Syndicate Operatives with doctorates have forgotten this step\nSo use the - - and + + to set a det time between 5 seconds and 10 minutes.\nThen press the timer toggle button to start the countdown.\nNow remove the auth. disk so that the buttons deactivate.\n\tNote: THE BOMB IS STILL SET AND WILL DETONATE\nNow before you remvoe the disk if you need to mvoe the bomb you can:\nToggle off the anchor, move it, and re-anchor.\n\nGood luck. Remember the order:\nDisk, Code, Safety, Timer, Disk, RUN\nGood luck.\nIntelligence Analysts believe that they are hiding the disk in the control room emergency room", NB.r_code)
+						var/obj/item/weapon/paper/P = new /obj/item/weapon/paper(src.killer.loc)
+						P.info = text("The nuclear authorization code is: <b>[]</b>", NB.r_code)
+						P.name = "nuclear bomb code"
+
+				for (var/obj/landmark/A in world)
+					if (A.name == "Syndicate-Gear-Closet")
+						new /obj/closet/syndicate/personal(A.loc)
+						del(A)
+						continue
+
+					if (A.name == "Syndicate-Bomb")
+						var/obj/item/weapon/assembly/t_i_ptank/R = new /obj/item/weapon/assembly/t_i_ptank(A.loc )
+						var/obj/item/weapon/timer/p1 = new /obj/item/weapon/timer(R)
+						var/obj/item/weapon/igniter/p2 = new /obj/item/weapon/igniter(R)
+						var/obj/item/weapon/tank/plasmatank/p3 = new /obj/item/weapon/tank/plasmatank(R)
+						R.part1 = p1
+						R.part2 = p2
+						R.part3 = p3
+						p1.master = R
+						p2.master = R
+						p3.master = R
+						R.status = 1
+						p3.gas.temperature = 500 +T0C
+						p2.status = 1
+						del(A)
+						continue
+
+			spawn (0)
 				src.extend_process()
 				return
 		if("virus")

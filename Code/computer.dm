@@ -3,11 +3,61 @@
 	if(!maplevel)
 		src.verbs -= /obj/machinery/computer/security/verb/station_map
 
+/obj/machinery/computer/security/attack_ai(var/mob/user as mob)
+	return src.attack_hand(user)
+	return
+	
 /obj/machinery/computer/security/attack_paw(var/mob/user as mob)
 
 	return src.attack_hand(user)
 	return
 
+//Using http://en.wikipedia.org/wiki/Shell_sort
+//It got a little butchered by me not wanting to have half a dozen things going on in one for condition statement or while condition statement.
+/proc/sortList(list/A)
+	// Note: A[someNumber] is a string, the name of the camera, and A[thatName] is the camera.
+	// We're making a backup of the list named 'B' because when we move elements in A, the list forgets about the camera.
+	var/list/B = list()
+	var/i = 0
+	for (i=1, i<=A.len, i++)
+		B[A[i]] = A[A[i]]
+	
+	var/j = 0
+	var/temp = null
+	var/size = A.len
+	var/increment = size / 2
+	while (increment > 0)
+		for (i = increment, i < size, i+=increment)
+			j = i
+			temp = A[1+i]
+			
+			var/other = A[1+j-increment]
+			var/sortval = -sorttext(other, temp) //The - is because sorttext(A,B) returns -1 if A > B, rather than 1, and I'd consider having A > B = 1 to be more natural (since you can then check if sortval > 0, using the same comparison operator that you would have if you were directly comparing A and B (If we think that (0 > sortval) isn't also acceptable)).  -Trafalgar
+			
+			while ((j >= increment) && (sortval > 0))
+				A[1+j] = A[1+j - increment]
+				j = j - increment;
+				if (j>=increment)
+					other = A[1+j-increment]
+					sortval = sorttext(temp, other)
+			
+			A[1+j] = temp
+		
+		
+		if (increment == 2)
+			increment = 1
+		else
+			increment = round(increment / 2.2)
+	
+	//Now we go through and assign names to cameras in a new list, but we do it in the order in which we had sorted the strings to
+	//The presumable un-speediness of this kind of defeats the point of doing the sorting the way we did it, though.
+	var/list/C = list()
+	for (i=1, i<=A.len, i++)
+		C[A[i]] = B[A[i]]
+	
+	
+	return C
+	
 /obj/machinery/computer/security/attack_hand(var/mob/user as mob)
 
 	if(stat & (NOPOWER|BROKEN) ) return
@@ -18,6 +68,8 @@
 		if (C.network == src.network)
 			L[text("[][]", C.c_tag, (C.status ? null : " (Deactivated)"))] = C
 		//Foreach goto(31)
+	
+	L = sortList(L)
 	L["Cancel"] = "Cancel"
 	var/t = input(user, "Which camera should you change to?") as null|anything in L
 
@@ -29,7 +81,7 @@
 	if (t == "Cancel")
 		user.machine = null
 		return 0
-	if ((get_dist(user, src) > 1 || user.machine != src || user.blinded || !( user.canmove ) || !( C.status )))
+	if ((get_dist(user, src) > 1 || user.machine != src || user.blinded || !( user.canmove ) || !( C.status )) && (!istype(user, /mob/ai)))
 		user.machine = null
 		return 0
 	else
@@ -42,7 +94,7 @@
 
 /obj/machinery/computer/security/check_eye(var/mob/user as mob)
 
-	if ((get_dist(user, src) > 1 || !( user.canmove ) || user.blinded || !( src.current ) || !( src.current.status )))
+	if ((get_dist(user, src) > 1 || !( user.canmove ) || user.blinded || !( src.current ) || !( src.current.status )) && (!istype(user, /mob/ai)))
 		return null
 	user.reset_view(src.current)
 	return 1
@@ -164,6 +216,17 @@
 				else
 					if (M.r_hand.w_class <= 2)
 						t1 -= 1
+			else if (locate(/obj/move/wall, oview(1, M)))	//characters 'grab' shuttle walls like regular walls now -shadowlord13
+				if (!( M.l_hand ))
+					t1 -= 1
+				else
+					if (M.l_hand.w_class <= 2)
+						t1 -= 0.5
+				if (!( M.r_hand ))
+					t1 -= 1
+				else
+					if (M.r_hand.w_class <= 2)
+						t1 -= 0.5
 			else
 				if (locate(/turf/station, oview(1, M)))
 					if (!( M.l_hand ))
@@ -188,38 +251,48 @@
 								return
 						return
 					return 0
-	if (src.x <= 2)
-		if (src.z >= 10)
-			if (world.maxz < 10)
-				world.maxz++
-				A.z++
-			else
-				A.z = 9
-		else
-			A.z++
+
+	if (src.x <= 2 && src.z < world.maxz)
+		A.z++
 		A.x = world.maxx - 2
-		spawn( 0 )
+		spawn (0)
 			if ((A && A.loc))
 				A.loc.Entered(A)
-			return
+	else if (A.x >= (world.maxx - 1) && A.z > 1)
+		A.z--
+		A.x = 3
+		spawn (0)
+			if ((A && A.loc))
+				A.loc.Entered(A)
 	else
-		if (A.x >= (world.maxx - 1) )
-			if (A.z > 3)
-				A.z--
-			else
-				A.z = 1
-			A.x = 3
-			spawn( 0 )
-				if ((A && A.loc))
-					A.loc.Entered(A)
-				return
-		else
-			spawn( 5 )
-				if ((A && !( A.anchored ) && A.loc == src))
-					if (step(A, A.last_move))
-					else
-						spawn( 0 )
-							src.Entered(A)
-							return
-				return
+		spawn (5)
+			if ((A && !( A.anchored ) && A.loc == src))
+				if (step(A, A.last_move))
+				else
+					spawn( 0 )
+						src.Entered(A)
+
+/proc/call_shuttle_proc(var/mob/user)
+	if ((!( ticker ) || ticker.shuttle_location == 1))
+		return
+	
+	if( ticker.mode == "blob" )
+		user << "Under directive 7-10, SS13 is quarantined until further notice."
+		return
+
+	world << "\blue <B>Alert: The emergency shuttle has been called. It will arrive in T-10:00 minutes.</B>"
+	if (!( ticker.timeleft ))
+		ticker.timeleft = 6000
+	ticker.timing = 1
+	return
+
+/proc/cancel_call_proc(var/mob/user)
+	if ((!( ticker ) || ticker.shuttle_location == 1 || ticker.timing == 0 || ticker.timeleft < 300))
+		return
+	if( ticker.mode == "blob" )
+		return
+
+	world << "\blue <B>Alert: The shuttle is going back!</B>"
+	ticker.timing = -1.0
+
 	return

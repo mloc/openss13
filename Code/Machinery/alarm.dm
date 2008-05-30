@@ -53,8 +53,9 @@ obj/machinery/alarm
 		if (usr.stat || stat & NOPOWER)
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			usr << "\red You don't have the dexterity to do this!"
-			return
+			if (!istype(usr, /mob/ai))
+				usr << "\red You don't have the dexterity to do this!"
+				return
 		var/turf/T = src.loc
 		if (!( istype(T, /turf) ))
 			return

@@ -225,12 +225,15 @@ obj/machinery/atmoalter/siphs
 
 		// Pipe valve settings handled in /obj/machinery/connector/process()
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 		src.setstate()
 		return
 
+
+	// AI interact same as human
+
+	attack_ai(user as mob)
+		return src.attack_hand(user)
 
 	// Monkey interact same as human
 
@@ -281,9 +284,9 @@ obj/machinery/atmoalter/siphs
 
 		if (usr.stat || usr.restrained())
 			return
-		if (!( src.alterable ))
+		if ((!( src.alterable )) && (!istype(usr, /mob/ai)))
 			return
-		if ((get_dist(src, usr) <= 1 && istype(src.loc, /turf)))
+		if ((get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai)))
 			usr.machine = src
 			if (href_list["c"])
 				var/c = text2num(href_list["c"])
@@ -326,9 +329,7 @@ obj/machinery/atmoalter/siphs
 					if (src.t_status == 2)
 						src.t_status = 3
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
+			src.updateDialog()
 			src.add_fingerprint(usr)
 		else
 			usr << browse(null, "window=canister")

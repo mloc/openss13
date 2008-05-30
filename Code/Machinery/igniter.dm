@@ -33,6 +33,10 @@ obj/machinery/igniter
 			icon_state = "igniter0"
 
 
+	// AI attack
+	attack_ai(mob/user as mob)
+		return src.attack_hand(user)
+
 	// monkey attack same as human if in monkey mode
 
 	attack_paw(mob/user as mob)

@@ -4,20 +4,24 @@
 
 // BEGIN_INTERNALS
 /*
-FILE: Code\!atoms.dm
-DIR: Code Code\Machinery Code\Machinery\Atmoalter Code\Machinery\Computer Code\Machinery\Door Code\Machinery\Power
+FILE: ss13h_new.dmp
+DIR: Code Code\Machinery Code\mob Icons
 MAP_ICON_TYPE: 0
 AUTO_FILE_DIR: ON
 */
 // END_INTERNALS
 // BEGIN_FILE_DIR
 #define FILE_DIR .
+#define FILE_DIR "backup"
 #define FILE_DIR "Code"
+#define FILE_DIR "Code/Item"
+#define FILE_DIR "Code/Item/Weapon"
 #define FILE_DIR "Code/Machinery"
 #define FILE_DIR "Code/Machinery/Atmoalter"
 #define FILE_DIR "Code/Machinery/Computer"
 #define FILE_DIR "Code/Machinery/Door"
 #define FILE_DIR "Code/Machinery/Power"
+#define FILE_DIR "Code/mob"
 #define FILE_DIR "Icons"
 #define FILE_DIR "Interface"
 // END_FILE_DIR
@@ -27,7 +31,7 @@ AUTO_FILE_DIR: ON
 // END_PREFERENCES
 
 // BEGIN_INCLUDE
-#include "ss13h.dmp"
+#include "ss13h_new.dmp"
 #include "Code\!atoms.dm"
 #include "Code\aaaDefines.dm"
 #include "Code\airtunnel.dm"
@@ -61,8 +65,11 @@ AUTO_FILE_DIR: ON
 #include "Code\Test.dm"
 #include "Code\TextHandling.dm"
 #include "Code\vote.dm"
+#include "Code\wallFloorSpaceChanges-normal.dm"
 #include "Code\weap_sat.dm"
 #include "Code\weapons.dm"
+#include "Code\Item\Weapon\aimodules.dm"
+#include "Code\Item\Weapon\multitool.dm"
 #include "Code\Machinery\_machinery.dm"
 #include "Code\Machinery\_pipe_misc.dm"
 #include "Code\Machinery\alarm.dm"
@@ -94,6 +101,7 @@ AUTO_FILE_DIR: ON
 #include "Code\Machinery\sec_lock.dm"
 #include "Code\Machinery\shuttle.dm"
 #include "Code\Machinery\sleeper.dm"
+#include "Code\Machinery\turrets.dm"
 #include "Code\Machinery\valve.dm"
 #include "Code\Machinery\vent.dm"
 #include "Code\Machinery\Atmoalter\_atmoalter.dm"
@@ -129,5 +137,6 @@ AUTO_FILE_DIR: ON
 #include "Code\Machinery\Power\solar_control.dm"
 #include "Code\Machinery\Power\terminal.dm"
 #include "Code\Machinery\Power\turbine.dm"
+#include "Code\mob\ai.dm"
 // END_INCLUDE
 

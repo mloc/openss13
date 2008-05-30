@@ -45,7 +45,6 @@
 	hearing inside closets/pods
 	check head protection when hit by tank etc.
 
-	Double message at end of round.
 
 	gas progagation btwen obj/move & turfs - no flow
 	due to turf/updatecell not counting /obj/moves as sources
@@ -104,13 +103,57 @@
 var
 
 	world_message = "Welcome to SS13!"
-	savefile_ver = "3"
-	SS13_version = "40.93.2H9.6"
+	savefile_ver = "4"
+	SS13_version = "40.93.2H9.7"
 	changes = {"<FONT color='blue'><B>Changes from base version 40.93.2</B></FONT><BR>
 <HR>
+<!--
+<p><B>This is a test version which hasn't been released yet, the reason being to test new bugfixes and/or features to see if they're all working without having broken anything else.
+</B></p>
+-->
+
+<p><B>Version 40.93.2H9.7</B>
+<ul>
+<li>Merged in basically everything from http://shadowlord13.googlepages.com/openss13_b12-index.html (the person who was working on that is on the openss13 dev team now. If you're curious, that's also the person writing this particular entry in the changelog).
+</li><li>Made further changes to the map, starting with that map version: moved the air tunnel north, made a hall going north to it, moved the crew arrival shuttle so it connects to that hall, so meteors can hit the part of the station it was protecting before
+</li><li>The air tunnel now connects to a gauntlet of turrets leading to the AI upload room, which is in the space between the air tunnel and the rest of the station south of it.
+</li><li>Moved the AI's room itself into there as well. The weapons sat has returned to being what it originally was. To get to the AI now, you would either have to go through one or more rwalls and grilles (depending on where you try to break through), or go through the turret gauntlet, and through the AI upload room and out a door on the other side of it. (Of course a sufficiently powerful bomb could probably bust through the walls, if not kill the AI, even if you plant it in the air tunnel)
+</li><li>The AI still has four SMES generators, but they are charged from SS13's main power now. So, if the station loses power, the AI will probably die as well (eventually).
+</li><li>Fixed an exception coming from the AI clicking an engine computer.
+</li><li>Fixed exceptions from clicking things which dropped the active held item while you had someone grabbed in your active hand. If you try to click a closet with someone grabbed, you stuff them in it now. If you try to click a table or rack, you don't do anything. Previously all of these caused you to lose the grip and caused an exception (because when it told the grip to be dropped, it deleted itself, and then it tried to move null).
+</li><li>Many many things which could take someone from being 'dead' to being 'unconscious' have been fixed. These were all cases where stat was being set to 1 without being checked to see if it was 2. Mind you, it wasn't terribly easy to actually resurrect someone with this, since they always immediately died again due to all the damage they had taken, but it did cause them to get (Dead) (Dead) (Dead) (Dead) spammed at the end of their corpse's name if they were thwacked repeatedly. Also, related stuff that would say they were stunned, weakened, etc, should also not happen (unless I missed some).
+</li><li>Syndicate mini-station is more rectangular-ish, and the forcefield around it is more circle-ish. The forcefield is also thicker and completely encases the mini-station, making it harder to teleport inside.
+</li><li>Un-nerfed meteor chance in non-meteor modes a bit from 0.5 to 1 (originally 2.0 before it was nerfed to 0.5).
+</li><li>Added an alternate_ai_laws config variable, which gives the AI some more reasonable laws. It also has some more law adjustments when it's the traitor.
+</li><li>Merged in a number of changes from the goons' svn (but not all of them - I didn't take all of them, and I probably missed a bunch because I didn't try to compare any of the code which was moved in the openss13 code reorganizations). Changes that I merged in include:
+<ul><li>Anesthetic tanks have 700000 N2O and 1000000 oxygen in them now, instead of 1000 N2O and no oxygen
+</li><li>Syndicate closets on the mini-station instead of stuff strewn everywhere
+</li><li>Starting the syndicates in nuclear mode with a few bombs (the goons had given them four bombs and left the heater with the parts to make one or two more bombs, but I've reduced that to two bombs and removed the heater and the bomb-making parts)
+</li><li>Blob dies in space and can't spread at all in the start zone or shuttles
+</li><li>Map transitions west and east work properly
+</li><li>A hardcoded supply station spawnpoint at 77,40,7 for Thief jack, Link43130, Hutchy2k1, Easty, and Exadv1 was removed.
+</li><li>You spawn in /area/arrival/start now instead of sleep_area, and the rest of the arrival shuttle has its own area (/area/arrival/shuttle). The original sleep area is also actually in /area/sleep_area again now.
+</li><li>Attacking someone with a taser gun at point-blank range uses charges and will thwack them instead of stunning if you have no charges.
+</li><li>People who are disconnected have "a vacant look in their eyes" when checked with a medical analyzer.
+</li><li>A fix to make the gasmask overlay not remain after death
+</li><li>Stuttering is applied before HTMLizing text.
+</li><li>Shuttle doors can be opened and closed by clicking them now.
+</li><li>A fix for spawning without your ID
+</li><li>Staff assistants have access level 3.
+</li><li>Fixes to timers showing the wrong icon.
+</li><li>Taser and laser gun have a maximum charges var (They have 10 each).
+</li><li>I had missed the desc on the protect station module.
+</li><li>Added this patch, which reduces turret firing rate and makes shots able to hit things other than the chest (which is another way of fixing the "the turret can't kill me" problem, but is probably better than the one I used). I didn't include the fix for shooting laying down people, since I think my fix for that was better than the one in this patch: http://code.google.com/p/ss13/issues/detail?id=91&colspec=ID%20Type%20Branch%20Status%20Priority%20Owner%20Summary
+</ul>
+</li><li>The steal-laser-pistol objective checks the charges against maximum_charges instead of 25 now.
+</li><li>Prox bombs and timer bombs count for the traitor fully-heated-plasma-bomb objective now.
+</li><li>In nuclear mode, there is now a 25% chance of the AI being loyal to the syndicate instead of SS13. (The SS13 personnel won't know it)
+</li><li>There are now 24 solar panels at north solar, which is the same number that main solar (southwest) has (there were 12 at north solar before).
+</ul>
+
 <p><B>Version 40.93.2H9.6</B>
 <ul>
-<li> Started pipelaying system, Pipe cutting/damage not yet complete.
+<li>Started pipelaying system, Pipe cutting/damage not yet complete.
 <li>Added burning icon for labcoat
 <li>Fixed a minor airsystem bug for /obj/moves
 <li>Fixed admin toggle of mode-voting message (now reports state of allowvotemode correctly)
@@ -122,6 +165,7 @@ var
 <li>Made a temporary fix to runtime errors when blob attacks pipes (until full pipe damage system implemented).
 <li>Code reorganization of /obj/machinery continued.
 </ul>
+
 <p><B>Version 40.93.2H9.5</B>
 <ul>
 <li>Fixed a few bugs with reinforced windows.
@@ -315,7 +359,7 @@ var
 	prison_entered = null
 
 	list/html_colours = new/list(0)
-	list/occupations = list( "Engineer", "Engineer", "Security Officer", "Security Officer", "Forensic Technician", "Medical Researcher", "Research Technician", "Toxin Researcher", "Atmospheric Technician", "Medical Doctor", "Station Technician", "Head of Personnel", "Head of Research", "Prison Security", "Prison Security", "Prison Doctor", "Prison Warden" )
+	list/occupations = list( "Engineer", "Engineer", "Security Officer", "Security Officer", "Forensic Technician", "Medical Researcher", "Research Technician", "Toxin Researcher", "Atmospheric Technician", "Medical Doctor", "Station Technician", "Head of Personnel", "Head of Research", "Prison Security", "Prison Security", "Prison Doctor", "Prison Warden", "AI" )
 	list/assistant_occupations = list( "Technical Assistant", "Medical Assistant", "Research Assistant", "Staff Assistant" )
 	list/bombers = list(  )
 	list/admins = list(  )
@@ -352,6 +396,15 @@ var
 	datum/moduletypes/mods = new()
 
 	wavesecret = 0
+
+	//airlockWireColorToIndex takes a number representing the wire color, e.g. the orange wire is always 1, the dark red wire is always 2, etc. It returns the index for whatever that wire does.
+	//airlockIndexToWireColor does the opposite thing - it takes the index for what the wire does, for example AIRLOCK_WIRE_IDSCAN is 1, AIRLOCK_WIRE_POWER1 is 2, etc. It returns the wire color number.
+	//airlockWireColorToFlag takes the wire color number and returns the flag for it (1, 2, 4, 8, 16, etc)
+	list/airlockWireColorToFlag = RandomAirlockWires()
+	list/airlockIndexToFlag
+	list/airlockIndexToWireColor
+	list/airlockWireColorToIndex
+	list/airlockFeatureNames = list("IdScan", "Main power In", "Main power Out", "Drop door bolts", "Backup power In", "Backup power Out", "Power assist", "AI Control", "Electrify")
 
 world
 	mob = /mob/human

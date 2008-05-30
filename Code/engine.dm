@@ -37,14 +37,14 @@
 	switch(severity)
 		if(1.0)
 			//SN src = null
-			var/turf/space/S = new /turf/space( locate(src.x, src.y, src.z) )
+			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
 				//SN src = null
-				var/turf/space/S = new /turf/space( locate(src.x, src.y, src.z) )
+				var/turf/space/S = src.ReplaceWithSpace()
 				S.buildlinks()
 
 				del(src)

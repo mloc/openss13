@@ -56,7 +56,11 @@ obj/machinery/door/window
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
-
+	// Attack by AI same as human
+	
+	attack_ai(mob/user)
+		return src.attack_hand(user)
+	
 	// Human attack hand - cycle the door
 
 	attack_hand(mob/user)
@@ -90,6 +94,11 @@ obj/machinery/door/window
 			if (!( istype(card, /obj/item/weapon/card/id) ))
 				return
 		else
+			if (istype(user, /mob/ai))
+				if (src.density)
+					open()
+				else
+					close()
 			return
 		if (card.check_access(access, allowed))			// check access levels of worn ID
 			if (src.density)							// and toggle door open/closed depending on current state

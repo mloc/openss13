@@ -131,9 +131,7 @@ obj/machinery/cryo_cell
 		use_power(500)
 
 
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 
 
 	// Called if no pipe is present
@@ -225,17 +223,19 @@ obj/machinery/cryo_cell
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
-
+	// AI interact
+	attack_ai(mob/user)
+		return src.attack_ai(user)
+	
 	// Human interact, show status window of machine and occupant
-	// No topic links, since all control is handled through the freezer unit
-
+	
 	attack_hand(mob/user)
 
 		if(stat & NOPOWER)
 			return
 
 		user.machine = src
-		if (istype(user, /mob/human))
+		if (istype(user, /mob/human) || istype(user, /mob/ai))
 			var/dat = "<font color='blue'> <B>System Statistics:</B></FONT><BR>"
 			if (src.gas.temperature > T0C)
 				dat += text("<font color='red'>\tTemperature (&deg;C): [] (MUST be below 0, add coolant to mixture)</FONT><BR>", round(src.gas.temperature-T0C, 0.1))
@@ -249,6 +249,7 @@ obj/machinery/cryo_cell
 				dat += text("<font color='red'>\tOxygen Units: [] (Add oxygen to mixture!)</FONT><BR>", round(src.gas.oxygen, 0.1))
 			else
 				dat += text("<font color='blue'>\tOxygen Units: []</FONT><BR>", round(src.gas.oxygen, 0.1))
+			dat += text("<A href = '?src=\ref[];drain=1'>Drain</A>", src)
 			if (src.occupant)
 				dat += "<font color='blue'><B>Occupant Statistics:</B></FONT><BR>"
 				var/t1
@@ -298,7 +299,53 @@ obj/machinery/cryo_cell
 			dat += text("<BR><BR><A href='?src=\ref[];mach_close=cryo'>Close</A>", user)
 			user << browse(dat, "window=cryo;size=400x500")
 
+	//This is for the emergency drain feature, for draining the cryo cell back into the freezer -shadowlord13
+	Topic(href, href_list)
+		..()
+		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
+			if (!istype(usr, /mob/ai))
+				usr << "\red You don't have the dexterity to do this!"
+				return
+		if ((usr.stat || usr.restrained()))
+			return
+		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
+			usr.machine = src
+			if (href_list["drain"])
+				//leak_to_turf()
+				if(vnode)
+					//vnode:leak_to_turf()
+					var/obj/machinery/freezer/target = vnode:vnode2
+					if (target)
+						//target.leak_to_turf()
+						var/sendplasma = src.gas.plasma + vnode:gas:plasma + vnode:vnode2:gas:plasma
+						var/sendoxygen = src.gas.oxygen + vnode:gas:oxygen + vnode:vnode2:gas:oxygen
+						for (var/obj/item/weapon/flasks/flask in target.contents)
+							if (istype(flask, /obj/item/weapon/flasks/plasma))
+								flask.plasma += sendplasma
+								src.gas.plasma = 0
+								src.ngas.plasma = 0
+								src.vnode:gas.plasma = 0
+								src.vnode:ngas.plasma = 0
+								src.vnode:vnode2:gas.plasma = 0
+								src.vnode:vnode2:ngas.plasma = 0
+							else
+								if (istype(flask, /obj/item/weapon/flasks/oxygen))
+									flask.oxygen += sendoxygen
+									src.gas.oxygen = 0
+									src.ngas.oxygen = 0
+									src.vnode:gas.oxygen = 0
+									src.vnode:ngas.oxygen = 0
+									src.vnode:vnode2:gas.oxygen = 0
+									src.vnode:vnode2:ngas.oxygen = 0
 
+					//we ignore co2, sl_gas, and n2
+				else
+					leak_to_turf()
+			src.add_fingerprint(usr)
+		else
+			usr << "User too far?"
+		return
+		
 	// Called to remove the occupant of a cell
 	// Reset the view back to normal
 
