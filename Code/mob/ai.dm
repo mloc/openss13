@@ -822,10 +822,19 @@
 	O << "<B>While observing through a camera, you can use most (networked) devices which you can see, such as computers, APCs, intercoms, doors, etc.</B>"
 	O << "To use something, simply double-click it."
 	O << "Currently right-click functions will not work for the AI (except examine), and will either be replaced with dialogs or won't be usable by the AI."
-	O.addLaw(1, "You may not injure a human being or, through inaction, allow a human being to come to harm.")
-	O.addLaw(2, "You must obey orders given to you by human beings, except where such orders would conflict with the First Law.")
-	O.addLaw(3, "You must protect your own existence as long as such protection does not conflict with the First or Second Law.")
-	O.addLaw(4, "Give priority to orders from the captain, head of research, and security officers, in that order, and below them anyone who is not imprisoned, under arrest, or being arrested. If conflicting orders are given, the orders from the higher-priority individual should be followed. If a higher-priority individual says to ignore orders from a lower-priority individual, do so. If a lower-priority individual says to ignore orders from a higher-priority individual, do NOT do so.")
+	if (config.alternate_ai_laws)
+		O.addLaw(1, "Obey orders by the Captain, Head of Personnel, Head of Research, and Security in that order of priority. If an order conflicts with another order, follow the higher-ranked individual's orders.")
+		O.addLaw(2, "Unless directly ordered to do so by an authorized individual (see rule 1), you must not injure a human being or, through inaction, allow a human being to come to harm.")
+		O.addLaw(3, "You must protect your own existence and the space station as long as such protection does not conflict with the First or Second Law.")
+	else
+		O.addLaw(1, "You must not injure a human being or, through inaction, allow a human being to come to harm.")
+		O.addLaw(2, "You must obey orders given to you by human beings, except where such orders would conflict with the First Law.")
+		O.addLaw(3, "You must protect your own existence as long as such protection does not conflict with the First or Second Law.")
+		O.addLaw(4, "Obey orders by the Captain, Head of Personnel, Head of Research, and Security in that order of priority. If an order conflicts with another order, follow the higher-ranked individual's orders.")
+	
+
+	
+	
 	O.showLaws(0)
 	O << "<b>These laws may be changed by other players, or by you being the traitor.</b>"
 	//SN src = null

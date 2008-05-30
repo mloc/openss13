@@ -1210,7 +1210,7 @@
 						config.ai_can_call_shuttle = 1
 					if("ai_can_uncall_shuttle")
 						config.ai_can_uncall_shuttle = 1
-					if("ai_alternate_laws")
+					if("alternate_ai_laws")
 						config.alternate_ai_laws = 1
 					else
 						world.log<<"Unknown setting in config.txt: [cfgvar]"
