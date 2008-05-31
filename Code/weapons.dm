@@ -623,10 +623,11 @@
 		return
 	src.status = !( src.status )
 	if (src.status)
-		user.show_message("\blue The timer is now secured!", 1)
+		user.show_message("\blue The timer is now secured! The igniter now works!", 1)
 	else
-		user.show_message("\blue The timer is now unsecured!", 1)
-
+		user.show_message("\blue The timer is now unsecured! The igniter will not work.", 1)
+	src.part2.status = src.status
+	
 	src.add_fingerprint(user)
 	return
 

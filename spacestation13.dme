@@ -3,16 +3,9 @@
 // New source code should be placed in .dm files: choose File/New --> Code File.
 
 // BEGIN_INTERNALS
-/*
-FILE: ss13h_new.dmp
-DIR: Code Code\Machinery Code\mob Icons
-MAP_ICON_TYPE: 0
-AUTO_FILE_DIR: ON
-*/
 // END_INTERNALS
 // BEGIN_FILE_DIR
 #define FILE_DIR .
-#define FILE_DIR "backup"
 #define FILE_DIR "Code"
 #define FILE_DIR "Code/Item"
 #define FILE_DIR "Code/Item/Weapon"

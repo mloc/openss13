@@ -151,6 +151,9 @@ var
 </li><li>There are now 24 solar panels at north solar, which is the same number that main solar (southwest) has (there were 12 at north solar before).
 </li><li>Fixed several places (everywhere I did it) where I typo'd in an infinite loop in attack_ai calling itself when it should have been calling attack_hand instead.
 </li><li>Fixed some more errors in the computers that crept in while I was merging them through the reorganizations.
+</li><li>Fixed a bug which was causing the air tank dialog to not update when you switched gas flow off (so it still said 'stop gas flow' instead of 'restore gas flow').
+</li><li>You shouldn't be able to knock out, stun, paralyze, etc, the AI anymore.
+</li><li>Timer/igniters now actually ignite when the timer finishes.
 </ul>
 
 <p><B>Version 40.93.2H9.6</B>

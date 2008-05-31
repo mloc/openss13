@@ -613,9 +613,12 @@
 			src.loc = S.loc
 	return
 
-/proc/AutoUpdateAI(obj/subject)
+/proc/AutoUpdateAI(obj/subject, isSelf)
 	if (subject!=null)
 		for(var/mob/ai/M in world)
 			if ((M.client && M.machine == subject))
-				subject.attack_ai(M)
+				if (isSelf==0)
+					subject.attack_ai(M)
+				else
+					subject:attack_self(M)
 

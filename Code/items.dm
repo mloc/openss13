@@ -1246,44 +1246,59 @@
 /obj/item/weapon/gun/revolver/attack(mob/M, mob/user)
 
 	src.add_fingerprint(user)
-	var/mob/human/H = M
-
-// ******* Check
-
-	if ((istype(H, /mob/human) && istype(H, /obj/item/weapon/clothing/head) && H.flags & 8 && prob(80)))
-		M << "\red The helmet protects you from being hit hard in the head!"
-		return
-	if ((user.a_intent == "hurt" && src.bullets > 0))
-		if (prob(20))
-			if (M.paralysis < 10)
-				M.paralysis = 10
-		else
-			if (M.weakened < 10)
-				M.weakened = 10
-		src.bullets--
-		src.force = 75
-		..()
-		src.force = 60
-		if (M.stat<2)
-			M.stat = 1
+	if (istype(M, /mob/ai))
+		if ((user.a_intent == "hurt" && src.bullets > 0))
+			src.bullets--
+			src.force = 75
+			..()
+			src.force = 60
 			for(var/mob/O in viewers(M, null))
-				O.show_message(text("\red <B>[] has been shot point-blank by []!</B>", M, user), 1, "\red You hear someone fall", 2)
-				//Foreach goto(192)
+				O.show_message(text("\red <B>[] has been shot point-blank by []!</B>", M, user), 1, "\red You have been shot point-blank by []!", 2)
+		else
+			src.force = 30
+			..()
+			for(var/mob/O in viewers(M, null))
+				O.show_message(text("\red <B>[] has been pistol whipped by []!</B>", M, user), 1, "\red You have been pistol whipped by []!", 2)
+			
 	else
-		if (prob(50))
-			if (M.paralysis < 60)
-				M.paralysis = 60
+		var/mob/human/H = M
+		
+	// ******* Check
+
+		if ((istype(H, /mob/human) && istype(H, /obj/item/weapon/clothing/head) && H.flags & 8 && prob(80)))
+			M << "\red The helmet protects you from being hit hard in the head!"
+			return
+		if ((user.a_intent == "hurt" && src.bullets > 0))
+			if (prob(20))
+				if (M.paralysis < 10)
+					M.paralysis = 10
+			else
+				if (M.weakened < 10)
+					M.weakened = 10
+			src.bullets--
+			src.force = 75
+			..()
+			src.force = 60
+			if (M.stat<2)
+				M.stat = 1
+				for(var/mob/O in viewers(M, null))
+					O.show_message(text("\red <B>[] has been shot point-blank by []!</B>", M, user), 1, "\red You hear someone fall", 2)
+				
 		else
-			if (M.weakened < 60)
-				M.weakened = 60
-		src.force = 30
-		..()
-		if (M.stat<2)
-			M.stat = 1
-			for(var/mob/O in viewers(M, null))
-				if ((O.client && !( O.blinded )))
-					O.show_message(text("\red <B>[] has been pistol whipped []!</B>", M, user), 1, "\red You hear someone fall", 2)
-				//Foreach goto(315)
+			if (prob(50))
+				if (M.paralysis < 60)
+					M.paralysis = 60
+			else
+				if (M.weakened < 60)
+					M.weakened = 60
+			src.force = 30
+			..()
+			if (M.stat<2)
+				M.stat = 1
+				for(var/mob/O in viewers(M, null))
+					if ((O.client && !( O.blinded )))
+						O.show_message(text("\red <B>[] has been pistol whipped by []!</B>", M, user), 1, "\red You hear someone fall", 2)
+		
 	return
 
 /obj/item/weapon/gun/energy/proc/update_icon()
@@ -1335,7 +1350,7 @@
 
 	..()
 	src.add_fingerprint(user)
-	if ((prob(30) && M.stat < 2))
+	if ((prob(30) && M.stat < 2) && (!istype(M, /mob/ai)))
 		var/mob/human/H = M
 
 // ******* Check
@@ -1403,46 +1418,59 @@
 /obj/item/weapon/gun/energy/taser_gun/attack(mob/M, mob/user)
 
 	src.add_fingerprint(user)
-	var/mob/human/H = M
-
-	// ******* Check
-	if ((istype(H, /mob/human) && istype(H, /obj/item/weapon/clothing/head) && H.flags & 8 && prob(80)))
-		M << "\red The helmet protects you from being hit hard in the head!"
-		return
-	if (src.charges >= 1)
-		if (user.a_intent == "hurt")
-			if (prob(20))
-				if (M.paralysis < 10)
-					M.paralysis = 10
-			else if (M.weakened < 10)
-				M.weakened = 10
-			if (M.stuttering < 10)
-				M.stuttering = 10
+	
+	if (istype(M, /mob/ai) && M.stat<2)
+		if ((user.a_intent == "hurt" && src.charges > 0))
+			src.charges--
+			src.force = 25
 			..()
-			if (M.stat<2)
-				M.stat = 1
-				for(var/mob/O in viewers(M, null))
-					O.show_message(text("\red <B>[] has been knocked unconscious!</B>", M), 1, "\red You hear someone fall", 2)
-					//Foreach goto(182)
+			src.force = 10
+			for(var/mob/O in viewers(M, null))
+				O.show_message(text("\red <B>[] has been zapped with the taser gun by []!</B>", M, user), 1, "\red You have been zapped with the taser gun by []!", 2)
 		else
-			if (prob(50))
-				if (M.paralysis < 60)
-					M.paralysis = 60
+			..()
+	else
+		
+		var/mob/human/H = M
+
+		// ******* Check
+		if ((istype(H, /mob/human) && istype(H, /obj/item/weapon/clothing/head) && H.flags & 8 && prob(80)))
+			M << "\red The helmet protects you from being hit hard in the head!"
+			return
+		if (src.charges >= 1)
+			if (user.a_intent == "hurt")
+				if (prob(20))
+					if (M.paralysis < 10)
+						M.paralysis = 10
+				else if (M.weakened < 10)
+					M.weakened = 10
+				if (M.stuttering < 10)
+					M.stuttering = 10
+				..()
+				if (M.stat<2)
+					M.stat = 1
+					for(var/mob/O in viewers(M, null))
+						O.show_message(text("\red <B>[] has been knocked unconscious!</B>", M), 1, "\red You hear someone fall", 2)
+						//Foreach goto(182)
 			else
-				if (M.weakened < 60)
-					M.weakened = 60
-			if (M.stuttering < 60)
-				M.stuttering = 60
-			if (M.stat<2)
-				M.stat = 1
-				for(var/mob/O in viewers(M, null))
-					if ((O.client && !( O.blinded )))
-						O.show_message(text("\red <B>[] has been stunned with the taser gun by []!</B>", M, user), 1, "\red You hear someone fall", 2)
-					//Foreach goto(309)
-		src.charges--
-		update_icon()
-	else // no charges in the gun, so they just wallop the target with it
-		..()
+				if (prob(50))
+					if (M.paralysis < 60)
+						M.paralysis = 60
+				else
+					if (M.weakened < 60)
+						M.weakened = 60
+				if (M.stuttering < 60)
+					M.stuttering = 60
+				if (M.stat<2)
+					M.stat = 1
+					for(var/mob/O in viewers(M, null))
+						if ((O.client && !( O.blinded )))
+							O.show_message(text("\red <B>[] has been stunned with the taser gun by []!</B>", M, user), 1, "\red You hear someone fall", 2)
+						//Foreach goto(309)
+			src.charges--
+			update_icon()
+		else // no charges in the gun, so they just wallop the target with it
+			..()
 
 /obj/item/weapon/pill_canister/New()
 
@@ -3452,7 +3480,7 @@
 /obj/item/weapon/storage/toolbox/attack(mob/M, mob/user)
 
 	..()
-	if ((prob(30) && M.stat < 2))
+	if ((prob(30) && M.stat < 2) && (!istype(M, /mob/ai)))
 		var/mob/H = M
 
 		// ******* Check
@@ -5796,4 +5824,13 @@
 	for(var/mob/M in nearby)
 		if ((M.client && M.machine == src))
 			src.attack_hand(M)
-	AutoUpdateAI(src)
+	AutoUpdateAI(src, 0)
+
+//Used for air tanks only at the moment, maybe other things later
+/obj/proc/updateEquippedDialog()
+	var/list/nearby = viewers(1, src.loc)
+	for(var/mob/M in nearby)
+		if ((M.client && M.machine == src))
+			src:attack_self(M)
+	AutoUpdateAI(src, 1)
+	

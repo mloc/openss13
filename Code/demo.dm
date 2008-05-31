@@ -69,6 +69,7 @@
 		if ((href_list["stat"] && src.loc == usr))
 			if (usr.internal == src)
 				usr.internal = null
+				src.updateEquippedDialog()
 				return
 			if (usr.internal)
 				usr.internal = null
@@ -77,10 +78,7 @@
 			usr.internal = src
 			usr << "\blue Now running on internals!"
 		src.add_fingerprint(usr)
-		for(var/mob/M in viewers(1, src.loc))
-			if ((M.client && M.machine == src))
-				src.attack_self(M)
-			//Foreach goto(206)
+		src.updateEquippedDialog()
 	else
 		usr << browse(null, "window=tank")
 		return
