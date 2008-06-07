@@ -1,0 +1,66 @@
+We have the capability to allow players to take control of other mobs remotely, and the codebase supports either transferring the player's client to the controlled mob, or leaving it in the controlling mob. This requires, however, some changes to how you might write some code.
+
+====== << on mobs ======
+First, if you are using << on a mob, note that implictly that would go to their client. If the mob doesn't have a client, but is being controlled by another mob's client, that would be bad because they wouldn't get the messages. So, we have a client_mob() function on /mob, which you use like so:
+user.client_mob() << "\blue Slicing metal cover."
+
+This makes the << get sent to the mob which owns the client, which makes whatever you're sending go to their real client instead of into the void.
+
+By the way, show_message has already been updated to use client_mob(), so you can just do someMob.show_message(whatever), and the message will get sent to the proper client if the client is in another mob due to drone-controlling stuff.
+
+====== client.screen ======
+Second, let's say you want to mess with a mob's screen. You'd normally do 'thisMob.client.screen += something' to add something, right? That kind of thing goes on in mob/human/UpdateClothing, for instance. The problem is that we don't really want backpacks and crap on the human to show up on the drone's HUD. So, we have the contents of the client's screen going into a list when they take control of the drone, and the client's screen is then emptied. 
+
+There are several things you can do instead now.
+
+on clients: screenOrBackupAdd(W), screenOrBackupRemove(W). What this does is that if the client is controlling a drone, this adds/removes from the backup list instead of screen. If it isn't controlling a drone, it works on the normal screen list instead. (The backup list is restored to screen when the player releases or loses control of the drone)
+
+on mobs: eitherScreenAdd(W), eitherScreenRemove(W). These check (src.client) and remove W from its screen if it exists. If src's client is null, they call the mob version of screenOrBackupRemove or screenOrBackupAdd.
+
+Also on mobs: screenOrBackupRemove(W) and screenOrBackupAdd(W). These versions use client_mob() to find the client's mob, and then call the client version of the identically named function on its client.
+
+If you want to mess with the *drone's* screen, however, you should just check to make sure the drone has a client and then use client.screen directly.
+
+====== client ======
+Your choices are (#1) M.client, (#2) M.cliented(), and (#3) M.alwaysClient() (which is essentially M.client_mob().client, except that byond does not allow you to write that... can't do .something after a () function call.)
+With #2 and #3, you do need to store them into a variable if you need to modify something on them.
+
+Here are some possible situations, showing what you get from each method, on each mob, in each:
+
+								#1		#2		#3
+Normal mob w/ client			client	client	client
+Controlled drone:	
+	drone w/ client:			client	null	client
+	controller without client:	null	client	client
+Alternate controlled drone:
+	drone without client:		null	null	client
+	controller with client:		client	client	client
+	
+Mob without client				null	null	null
+	(e.g. monkey test subject, or someone logged out)
+
+You can also use the hasClient() method on a mob (it returns 0 or 1) to determine if client_mob() would return a mob which has a client.
+
+Currently, with drones, when a player takes control of a drone, their client moves from the player's mob to the drone's mob, but the two mobs are linked by variables which are checked by cliented() and client_mob(). This is the "Controlled drone" situation. The "Alternate controlled drone" situation is something that may occur in the future with new features (say, torpedoes), and is already supported by the current system.
+
+The purpose for #2 (cliented()) is that it always returns client when called on the original mob, and never on the drone. It was made for all those times you scan all the mobs in the world and do something like count how many syndicate operatives are still alive, see if someone is logged out, etc.
+
+#3 is just for when you need the client regardless of which mob has it.
+
+More detail on the cliented() function on mobs:
+	If called on a normal player which isn't controlling a drone, this returns their client, if they have one (or null if not).
+	If called on a drone, this will return null whether it's controlled by a player or not.
+	If called on the mob which is controlling a drone, it will return the client regardless of which mob 'owns' the client.
+	
+	This would be used like so:
+		if(M.cliented())
+			M.client_mob() << browse(null, "window=vote")
+			M.cliented().showvote = 0
+
+	The old version of that was:
+		if(M.client)
+			M << browse(null, "window=vote")
+			M.client.showvote = 0
+
+==== Rarer cases ====
+In rarer cases you may wish to use screenOrBackup() directly. See /obj/item/weapon/storage/proc/show_to(mob/user) for an example.
