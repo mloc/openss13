@@ -12,8 +12,8 @@ obj/machinery/autolathe
 	icon_state = "autolathe"
 	anchored = 1
 	var
-		m_amount = 0		// amount (cc) of metal loaded
-		g_amount = 0		// amount (cc) of glass loaded
+		m_amount = 0.0		// amount (cc) of metal loaded
+		g_amount = 0.0		// amount (cc) of glass loaded
 		operating = 0		// true if the machine is operating
 		opened = 0			// true if the machine is open (not fully implemented?)
 		temp = null			// temporary intaction window text
@@ -42,22 +42,26 @@ obj/machinery/autolathe
 				src.opened = !( src.opened )
 				src.icon_state = text("autolathe[]", (src.opened ? "f" : null))
 			else
-				user << "\red The machine is in use. You can not maintain it now."
+				user.client_mob() << "\red The machine is in use. You can not maintain it now."
 		else
 			spawn( 0 )
 				src.attack_hand(user)
 				return
 
 
-	// Monkey interact same a human
+	// Monkey interact same as human
 
 	attack_paw(mob/user)
 		return src.attack_hand(user)
 
+	// And the AI's interact is still just the same.
 
+	attack_ai(mob/user)
+		return src.attack_hand(user)
+
+	
 	// Open interaction window
 	// Currenty only pipe pieces can be made
-
 	attack_hand(mob/user)
 
 		if(stat & (BROKEN|NOPOWER))
@@ -78,6 +82,8 @@ obj/machinery/autolathe
 			L["manif"] = "Pipe manifold (15000 cc)"
 			L["junct"] = "Pipe junction (10000 cc)"
 			L["vent"] = "Pipe vent (10000 cc)"
+			if (config.enable_drones)
+				L["drone"] = "Robot drone (150,000 cc)"
 	/*		L["screwdriver"] = "Make Screwdriver {40 cc}"
 			L["wirecutters"] = "Make Wirecutters {80 cc}"
 			L["wrench"] = "Make Wrench {150 cc}"
@@ -96,7 +102,7 @@ obj/machinery/autolathe
 
 			for(var/t in L)
 				dat += "<A href='?src=\ref[src];make=[t]'>[L["[t]"]]<BR>"
-		user << browse("<HEAD><TITLE>Autolathe Control Panel</TITLE></HEAD><TT>[dat]</TT>", "window=autolathe")
+		user.client_mob() << browse("<HEAD><TITLE>Autolathe Control Panel</TITLE></HEAD><TT>[dat]</TT>", "window=autolathe")
 		return
 
 	// Called by topic links from interaction window
@@ -107,10 +113,11 @@ obj/machinery/autolathe
 
 
 		if ((usr.stat || usr.restrained()))
-			return
+			if (!istype(usr, /mob/ai))
+				return
 		if(operating || (stat & NOPOWER))
 			return
-		if ( get_dist(src, usr) <= 1 && istype(src.loc, /turf) )
+		if ( (get_dist(src, usr) <= 1 || istype(usr, /mob/ai)) && istype(src.loc, /turf) )
 			usr.machine = src
 			src.add_fingerprint(usr)
 
@@ -128,6 +135,8 @@ obj/machinery/autolathe
 				C["manif"] = 15000
 				C["junct"] = 10000
 				C["vent"] = 10000
+				if (config.enable_drones)
+					C["drone"] = 150000
 
 				var/item = href_list["make"]
 				var/cost = C[item]
@@ -152,12 +161,14 @@ obj/machinery/autolathe
 							new /obj/item/weapon/pipe{ ptype = 6 }(src.loc)
 						if("vent")
 							new /obj/item/weapon/pipe{ ptype = 7 }(src.loc)
+						if("drone")
+							if (config.enable_drones)
+								var/mob/drone/drone = new /mob/drone(src.loc)
+								drone.nameDrone(numDronesInExistance)
+								numDronesInExistance ++
 
 
-
-		for(var/mob/M in viewers(1, src))
-			if ((M.client && M.machine == src))
-				src.attack_hand(M)
+		src.updateDialog()
 		return
 
 	// Perform operation animation

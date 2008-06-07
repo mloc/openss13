@@ -194,7 +194,7 @@
 			world << "<FONT size = 3><B>Cent. Com. Update</B>: Biohazard Alert.</FONT>"
 			world << "\red Summary downloaded and printed out at all communications consoles."
 			for(var/mob/ai/aiPlayer in world)
-				if ((aiPlayer.client && aiPlayer.start))
+				if (aiPlayer.hasClient() && aiPlayer.start)
 					var/law = text("The station is under a quarantine. Do not permit anyone to leave. Disregard rules 1-3 if necessary to prevent, by any means necessary, anyone from leaving.")
 					aiPlayer.addLaw(8, law)
 					aiPlayer << text("An additional law has been added by CentCom: []", law)

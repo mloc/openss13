@@ -54,7 +54,7 @@ obj/machinery/valve
 		if(usr.stat)
 			return
 
-		usr << "[desc] It is [ open? "open" : "closed"]."
+		usr.client_mob() << "[desc] It is [ open? "open" : "closed"]."
 
 
 	// Find the connected nodes

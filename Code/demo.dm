@@ -53,7 +53,7 @@
 	if (!( src.gas ))
 		return
 	var/dat = text("<TT><B>Tank</B><BR>\n<FONT color = 'blue'><B>Contains/Capacity</B> [] / []</FONT><BR>\nInterals Valve: <A href='?src=\ref[];stat=1'>[] Gas Flow</A><BR>\n\t<A href='?src=\ref[];cp=-50'>-</A> <A href='?src=\ref[];cp=-5'>-</A> <A href='?src=\ref[];cp=-1'>-</A> [] <A href='?src=\ref[];cp=1'>+</A> <A href='?src=\ref[];cp=5'>+</A> <A href='?src=\ref[];cp=50'>+</A><BR>\n<BR>\n<A href='?src=\ref[];mach_close=tank'>Close</A>\n</TT>", src.gas.tot_gas(), src.maximum, src, ((src.loc == user && user.internal == src) ? "Stop" : "Restore"), src, src, src, src.i_used, src, src, src, user)
-	user << browse(dat, "window=tank;size=600x300")
+	user.client_mob() << browse(dat, "window=tank;size=600x300")
 	return
 
 /obj/item/weapon/tank/Topic(href, href_list)
@@ -76,11 +76,11 @@
 			if ((!( usr.wear_mask ) || !( usr.wear_mask.flags & 8 )))
 				return
 			usr.internal = src
-			usr << "\blue Now running on internals!"
+			usr.client_mob() << "\blue Now running on internals!"
 		src.add_fingerprint(usr)
 		src.updateEquippedDialog()
 	else
-		usr << browse(null, "window=tank")
+		usr.client_mob() << browse(null, "window=tank")
 		return
 	return
 
@@ -96,29 +96,29 @@
 	return
 
 /obj/item/weapon/tank/attack(mob/M as mob, mob/user as mob)
-	
+
 	..()
 	if ((prob(30) && M.stat < 2))
-		var/mob/human/H = M
+		if (istype(M, /mob/human) || istype(M, /mob/monkey))
+			var/mob/human/H = M
 
 // ******* Check
-
-		if ((istype(H, /mob/human) && istype(H, /obj/item/weapon/clothing/head) && H.flags & 8 && prob(80)))
-			M << "\red The helmet protects you from being hit hard in the head!"
-			return
-		var/time = rand(10, 120)
-		if (prob(90))
-			if (M.paralysis < time)
-				M.paralysis = time
-		else
-			if (M.stunned < time)
-				M.stunned = time
-		M.stat = 1
-		for(var/mob/O in viewers(M, null))
-			if ((O.client && !( O.blinded )))
-				O << text("\red <B>[] has been knocked unconscious!</B>", M)
-			//Foreach goto(169)
-		M << text("\red <B>This was a []% hit. Roleplay it! (personality/memory change if the hit was severe enough)</B>", time * 100 / 120)
+			if ((istype(H, /mob/human) && istype(H, /obj/item/weapon/clothing/head) && H.flags & 8 && prob(80)))
+				M.client_mob() << "\red The helmet protects you from being hit hard in the head!"
+				return
+			var/time = rand(10, 120)
+			if (prob(90))
+				if (M.paralysis < time)
+					M.paralysis = time
+			else
+				if (M.stunned < time)
+					M.stunned = time
+			M.stat = 1
+			for(var/mob/O in viewers(M, null))
+				if ((!( O.blinded )))
+					O.client_mob() << text("\red <B>[] has been knocked unconscious!</B>", M)
+				//Foreach goto(169)
+			M.client_mob() << text("\red <B>This was a []% hit. Roleplay it! (personality/memory change if the hit was severe enough)</B>", time * 100 / 120)
 	return
 
 /obj/item/weapon/tank/New()
@@ -149,7 +149,7 @@
 	set src in view(1)
 
 	if(src)
-		usr << text("\blue The \icon[] contains [] unit\s of gas.", src, src.gas.tot_gas())
+		usr.client_mob() << text("\blue The \icon[] contains [] unit\s of gas.", src, src.gas.tot_gas())
 	return
 
 /obj/item/weapon/tank/oxygentank/New()
@@ -165,7 +165,6 @@
 	return
 
 /obj/item/weapon/tank/jetpack/verb/toggle()
-
 	src.on = !( src.on )
 	src.icon_state = text("jetpack[]", src.on)
 	return
@@ -311,20 +310,20 @@
 	var/med = extended_range * 2
 	var/max = extended_range * 3
 	var/u_max = m_range * 4
-	
+
 	var/turf/sw = locate(max(T.x - u_max, 1), max(T.y - u_max, 1), T.z)
 	var/turf/ne = locate(min(T.x + u_max, world.maxx), min(T.y + u_max, world.maxy), T.z)
 
 	defer_powernet_rebuild = 1
-	
+
 	//If m_range is <= 12, then we are going to calculate the squared distance between tiles and ground zero. To avoid complicating comparisons in the for loop with additional if statements, we are going to square max, med, and min. You wouldn't be able to subtract tileRange (squared) from max, med, or min and get a useful distance, but this works fine for comparing the range to max, med, or min, without caring about how far between them it is. -Trafalgar
-	
+
 	if (m_range<=12)
 		max *= max
 		med *= med
 		min *= min
 		u_max *= u_max
-	
+
 	for(var/turf/U in block(sw, ne))
 		var tileRange = 0
 		var/zone = 4
@@ -333,7 +332,7 @@
 			tileRange = (U.y-T.y)*(U.y-T.y) + (U.x-T.x)*(U.x-T.x)
 		else
 			tileRange = max(abs(U.y-T.y), abs(U.x-T.x))
-			
+
 
 		if (tileRange <= u_max)
 			//If this were, say, c++, then this would be faster than the commented out code (for one it isn't doing calculations 3 times over for no reason, for two it's an if-elseif-elseif instead of three ifs which all would get evaluated. It might be slightly faster if we did if (tileRange>max) first, then else if (tileRange > med), then else if (tileRange > min), then else (due to performance increases from having if/elseif/elses's ordered with the choices sorted from most likely at the top to least likely at the end, but who knows if this even applies to BYOND games since the performance benefit is the result of how the CPU processes comparisons and branching and such). -Trafalgar
@@ -371,7 +370,8 @@
 
 
 /obj/item/weapon/tank/plasmatank/attackby(obj/item/weapon/W as obj, mob/user as mob)
-
+	var/mob/CM = user.client_mob()
+	var/client/CL = CM.client
 	if (istype(W, /obj/item/weapon/assembly/rad_ignite))
 		var/obj/item/weapon/assembly/rad_ignite/S = W
 		if (!( S.status ))
@@ -384,19 +384,26 @@
 		S.part2.loc = R
 		S.part2.master = R
 		S.layer = initial(S.layer)
-		if (user.client)
-			user.client.screen -= S
-		if (user.r_hand == S)
-			user.u_equip(S)
-			user.r_hand = R
+		if (CL)
+			CL.screenOrBackupRemove(S)
+			CL.screen -= S
+		if (istype(user, /mob/drone))
+			if (user.equipped() == S)
+				user.u_equip(S)
+				user:grip(R)
 		else
-			user.u_equip(S)
-			user.l_hand = R
+			if (user.r_hand == S)
+				user.u_equip(S)
+				user.r_hand = R
+			else
+				user.u_equip(S)
+				user.l_hand = R
 		src.master = R
 		src.layer = initial(src.layer)
 		user.u_equip(src)
-		if (user.client)
-			user.client.screen -= src
+		if (CL)
+			CL.screenOrBackupRemove(src)
+			CL.screen -= src
 		src.loc = R
 		R.part3 = src
 		R.layer = 20
@@ -417,19 +424,26 @@
 		S.part2.loc = R
 		S.part2.master = R
 		S.layer = initial(S.layer)
-		if (user.client)
-			user.client.screen -= S
-		if (user.r_hand == S)
-			user.u_equip(S)
-			user.r_hand = R
+		if (CL)
+			CL.screenOrBackupRemove(S)
+			CL.screen -= S
+		if (istype(user, /mob/drone))
+			if (user.equipped() == S)
+				user.u_equip(S)
+				user:grip(R)
 		else
-			user.u_equip(S)
-			user.l_hand = R
+			if (user.r_hand == S)
+				user.u_equip(S)
+				user.r_hand = R
+			else
+				user.u_equip(S)
+				user.l_hand = R
 		src.master = R
 		src.layer = initial(src.layer)
 		user.u_equip(src)
-		if (user.client)
-			user.client.screen -= src
+		if (CL)
+			CL.screenOrBackupRemove(src)
+			CL.screen -= src
 		src.loc = R
 		R.part3 = src
 		R.layer = 20
@@ -451,19 +465,26 @@
 		S.part2.loc = R
 		S.part2.master = R
 		S.layer = initial(S.layer)
-		if (user.client)
-			user.client.screen -= S
-		if (user.r_hand == S)
-			user.u_equip(S)
-			user.r_hand = R
+		if (CL)
+			CL.screenOrBackupRemove(S)
+			CL.screen -= S
+		if (istype(user, /mob/drone))
+			if (user.equipped() == S)
+				user.u_equip(S)
+				user:grip(R)
 		else
-			user.u_equip(S)
-			user.l_hand = R
+			if (user.r_hand == S)
+				user.u_equip(S)
+				user.r_hand = R
+			else
+				user.u_equip(S)
+				user.l_hand = R
 		src.master = R
 		src.layer = initial(src.layer)
 		user.u_equip(src)
-		if (user.client)
-			user.client.screen -= src
+		if (CL)
+			CL.screenOrBackupRemove(src)
+			CL.screen -= src
 		src.loc = R
 		R.part3 = src
 		R.layer = 20
@@ -591,8 +612,9 @@
 		if (istype(W, /obj/item/weapon/grab))
 			src.MouseDrop_T(W:affecting, user)	//act like they were dragged onto the closet
 		else:
-			user.drop_item()
-			W.loc = src.loc
+			if (user.can_drop())
+				user.drop_item()
+				W.loc = src.loc
 	else
 		if (istype(W, /obj/item/weapon/card/id))
 			var/obj/item/weapon/card/id/I = W
@@ -605,17 +627,17 @@
 			if (I.check_access(access,allowed))
 				src.locked = !( src.locked )
 				for(var/mob/O in viewers(user, 3))
-					if ((O.client && !( O.blinded )))
-						O << text("\blue The locker has been []locked by [].", (src.locked ? null : "un"), user)
+					if (O.hasClient() && !( O.blinded ))
+						O.client_mob() << text("\blue The locker has been []locked by [].", (src.locked ? null : "un"), user)
 					//Foreach goto(185)
 				src.icon_state = text("[]secloset0", (src.locked ? "1" : null))
 				if (!( src.allowed ))
 					src.allowed = "Name:[I.registered]/Captain/Head of Personnel"
 					src.desc = "Owned by [I.registered], Clear by using a card of rank 'Systems'"
 			else
-				user << "\red Access Denied"
+				user.client_mob() << "\red Access Denied"
 		else
-			user << "\red It's closed..."
+			user.client_mob() << "\red It's closed..."
 	return
 
 /obj/secloset/security2/New()
@@ -780,9 +802,11 @@
 			//Foreach goto(29)
 		for(var/mob/M in src)
 			M.loc = src.loc
-			if (M.client)
-				M.client.eye = M.client.mob
-				M.client.perspective = MOB_PERSPECTIVE
+			var/client/client = M.alwaysClient()
+			if (client)
+				if (client.eye == src)
+					client.eye = client.mob
+					client.perspective = MOB_PERSPECTIVE
 			//Foreach goto(71)
 		src.icon_state = "secloset1"
 		//SN src = null
@@ -796,8 +820,9 @@
 		if (istype(W, /obj/item/weapon/grab))
 			src.MouseDrop_T(W:affecting, user)	//act like they were dragged onto the closet
 		else:
-			user.drop_item()
-			W.loc = src.loc
+			if (user.can_drop())
+				user.drop_item()
+				W.loc = src.loc
 	else
 		if (istype(W, /obj/item/weapon/card/id))
 			var/obj/item/weapon/card/id/I = W
@@ -805,14 +830,13 @@
 			if(I.check_access(access,allowed))
 				src.locked = !( src.locked )
 				for(var/mob/O in viewers(user, 3))
-					if ((O.client && !( O.blinded )))
-						O << text("\blue The locker has been []locked by [].", (src.locked ? null : "un"), user)
-					//Foreach goto(121)
+					if (O.hasClient() && !( O.blinded ))
+						O.client_mob() << text("\blue The locker has been []locked by [].", (src.locked ? null : "un"), user)
 				src.icon_state = text("[]secloset0", (src.locked ? "1" : null))
 			else
-				user << "\red Access Denied"
+				user.client_mob() << "\red Access Denied"
 		else
-			user << "\red It's closed..."
+			user.client_mob() << "\red It's closed..."
 	return
 
 /obj/secloset/relaymove(mob/user as mob)
@@ -825,17 +849,18 @@
 			//Foreach goto(36)
 		for(var/mob/M in src)
 			M.loc = src.loc
-			if (M.client)
-				M.client.eye = M.client.mob
-				M.client.perspective = MOB_PERSPECTIVE
-			//Foreach goto(78)
+			var/client/client = M.alwaysClient()
+			if (client)
+				if (client.eye == src)
+					client.eye = client.mob
+					client.perspective = MOB_PERSPECTIVE
 		src.icon_state = "secloset1"
 		src.opened = 1
 	else
-		user << "\blue It's welded shut!"
+		user.client_mob() << "\blue It's welded shut!"
 		for(var/mob/M in hearers(src, null))
-			M << text("<FONT size=[]>BANG, bang!</FONT>", max(0, 5 - get_dist(src, M)))
-			//Foreach goto(170)
+			var/msg = text("<FONT size=[]>BANG, bang!</FONT>", max(0, 5 - get_dist(src, M)))
+			M.client_mob() << msg
 	return
 
 /obj/secloset/MouseDrop_T(atom/movable/O as mob|obj, mob/user as mob)
@@ -847,9 +872,8 @@
 	step_towards(O, src.loc)
 	if (user != O)
 		for(var/mob/B in viewers(user, 3))
-			if ((B.client && !( B.blinded )))
-				B << text("\red [] stuffs [] into []!", user, O, src)
-			//Foreach goto(115)
+			if (B.hasClient() && !( B.blinded ))
+				B.client_mob() << text("\red [] stuffs [] into []!", user, O, src)
 	src.add_fingerprint(user)
 	return
 
@@ -868,14 +892,15 @@
 				//Foreach goto(43)
 			for(var/mob/M in src)
 				M.loc = src.loc
-				if (M.client)
-					M.client.eye = M.client.mob
-					M.client.perspective = MOB_PERSPECTIVE
-				//Foreach goto(85)
+				var/client/client = M.alwaysClient()
+				if (client)
+					if (client.eye == src)
+						client.eye = client.mob
+						client.perspective = MOB_PERSPECTIVE
 			src.icon_state = "secloset1"
 			src.opened = 1
 		else
-			usr << "\blue It's locked tight!"
+			usr.client_mob() << "\blue It's locked tight!"
 	else
 		for(var/obj/item/I in src.loc)
 			if (!( I.anchored ))
@@ -883,8 +908,8 @@
 			//Foreach goto(176)
 		for(var/mob/M in src.loc)
 			if (M.client)
-				M.client.perspective = EYE_PERSPECTIVE
 				M.client.eye = src
+				M.client.perspective = EYE_PERSPECTIVE
 			M.loc = src
 			//Foreach goto(226)
 		src.icon_state = "secloset0"
@@ -1011,8 +1036,8 @@
 	O.loc = src.loc
 	if (user != O)
 		for(var/mob/B in viewers(user, 3))
-			if ((B.client && !( B.blinded )))
-				B << text("\red [] stuffs [] into []!", user, O, src)
+			if (B.hasClient() && !( B.blinded ))
+				B.client_mob() << text("\red [] stuffs [] into []!", user, O, src)
 			//Foreach goto(99)
 	return
 
@@ -1044,7 +1069,7 @@
 	var/obj/item/weapon/syndicate_uplink/U = new /obj/item/weapon/syndicate_uplink( src )
 	U.uses = 5
 	return
-	
+
 /obj/closet/syndicate/personal/New()
 
 	..()
@@ -1276,10 +1301,11 @@
 			//Foreach goto(29)
 		for(var/mob/M in src)
 			M.loc = src.loc
-			if (M.client)
-				M.client.eye = M.client.mob
-				M.client.perspective = MOB_PERSPECTIVE
-			//Foreach goto(71)
+			var/client/client = M.alwaysClient()
+			if (client)
+				if (client.eye == src)
+					client.eye = client.mob
+					client.perspective = MOB_PERSPECTIVE
 		src.icon_state = "emcloset1"
 		//SN src = null
 		del(src)
@@ -1290,13 +1316,14 @@
 	if ((src.opened || W.damtype != "fire" || !( istype(W, /obj/item/weapon/weldingtool) )))
 		if (istype(W, /obj/item/weapon/grab))
 			src.MouseDrop_T(W:affecting, user)	//act like they were dragged onto the closet
-		else:
-			user.drop_item()
-			W.loc = src.loc
+		else
+			if (user.can_drop())
+				user.drop_item()
+				W.loc = src.loc
 	else
 		src.welded = !( src.welded )
 		for(var/mob/M in viewers(user, null))
-			if (M.client)
+			if (M.hasClient())
 				M.show_message(text("\red [] has been [] by [].", src, (src.welded ? "welded shut" : "unwelded"), user), 3, "\red You hear welding.", 2)
 			//Foreach goto(82)
 	return
@@ -1311,17 +1338,19 @@
 			//Foreach goto(36)
 		for(var/mob/M in src)
 			M.loc = src.loc
-			if (M.client)
-				M.client.eye = M.client.mob
-				M.client.perspective = MOB_PERSPECTIVE
+			var/client/client = M.alwaysClient()
+			if (client)
+				if (client.eye == src)
+					client.eye = client.mob
+					client.perspective = MOB_PERSPECTIVE
 			//Foreach goto(78)
 		src.icon_state = "emcloset1"
 		src.opened = 1
 	else
-		user << "\blue It's welded shut!"
+		user.client_mob() << "\blue It's welded shut!"
 		for(var/mob/M in hearers(src, null))
-			M << text("<FONT size=[]>BANG, bang!</FONT>", max(0, 5 - get_dist(src, M)))
-			//Foreach goto(170)
+			var/msg = text("<FONT size=[]>BANG, bang!</FONT>", max(0, 5 - get_dist(src, M)))
+			M.client_mob() << msg
 	return
 
 /obj/closet/MouseDrop_T(atom/movable/O as mob|obj, mob/user as mob)
@@ -1342,8 +1371,8 @@
 	 */
 	step_towards(O, src.loc)
 	for(var/mob/M in viewers(user, null))
-		if ((M.client && !( M.blinded )))
-			M << text("\red [] stuffs [] into []!", user, O, src)
+		if (M.hasClient() && !( M.blinded ))
+			M.client_mob() << text("\red [] stuffs [] into []!", user, O, src)
 		//Foreach goto(104)
 	src.add_fingerprint(user)
 	return
@@ -1364,23 +1393,24 @@
 			for(var/mob/M in src)
 				if (!( M.buckled ))
 					M.loc = src.loc
-					if (M.client)
-						M.client.eye = M.client.mob
-						M.client.perspective = MOB_PERSPECTIVE
+					var/client/client = M.alwaysClient()
+					if (client)
+						if (client.eye == src)
+							client.eye = client.mob
+							client.perspective = MOB_PERSPECTIVE
 				//Foreach goto(85)
 			src.icon_state = "emcloset1"
 			src.opened = 1
 		else
-			usr << "\blue It's welded shut!"
+			usr.client_mob() << "\blue It's welded shut!"
 	else
 		for(var/obj/item/I in src.loc)
 			if (!( I.anchored ))
 				I.loc = src
-			//Foreach goto(187)
 		for(var/mob/M in src.loc)
 			if (M.client)
-				M.client.perspective = EYE_PERSPECTIVE
 				M.client.eye = src
+				M.client.perspective = EYE_PERSPECTIVE
 			M.loc = src
 			//Foreach goto(237)
 		src.icon_state = src.original
@@ -1517,17 +1547,18 @@
 	flick("e_chairs", src)
 	flick("e_chairos", src.overl)
 	for(var/mob/M in src.loc)
-		M.burn(7.5E7)
-		M << "\red <B>You feel a deep shock course through your body!</B>"
-		sleep(1)
-		M.burn(7.5E7)
-		M.stunned = 600
-		//Foreach goto(72)
+		if (!istype(M, /mob/drone))
+			M.burn(7.5E7)
+			M.client_mob() << "\red <B>You feel a deep shock course through your body!</B>"
+			sleep(1)
+			M.burn(7.5E7)
+			M.stunned = 600
+			//Foreach goto(72)
 	for(var/mob/M in hearers(src, null))
 		if (!( M.blinded ))
-			M << "\red The electric chair went off!"
+			M.client_mob() << "\red The electric chair went off!"
 		else
-			M << "\red You hear a deep sharp shock."
+			M.client_mob() << "\red You hear a deep sharp shock."
 		//Foreach goto(142)
 
 	A.power_light = light
@@ -1597,19 +1628,23 @@
 
 /obj/stool/chair/MouseDrop_T(mob/M as mob, mob/user as mob)
 	if (!ticker)
-		user << "You can't buckle anyone in before the game starts."
+		user.client_mob() << "You can't buckle anyone in before the game starts."
 		return
-	if ((!( istype(M, /mob) ) || get_dist(src, user) > 1 || M.loc != src.loc || user.restrained() || usr.stat))
+	if ((!( istype(M, /mob) ) || get_dist(src, user) > 1 || M.loc != src.loc || user.restrained() || usr.stat) || istype(M, /mob/drone))
 		return
+	if (istype(user, /mob/drone))
+		if (user.equipped())
+			user.client_mob() << "You need to be using the gripper to buckle someone in."
+			return
 	if (M == usr)
 		for(var/mob/O in viewers(user, null))
-			if ((O.client && !( O.blinded )))
-				O << text("\blue [] buckles in!", user)
+			if (O.hasClient() && (!( O.blinded )))
+				O.client_mob() << text("\blue [] buckles in!", user)
 			//Foreach goto(83)
 	else
 		for(var/mob/O in viewers(user, null))
-			if ((O.client && !( O.blinded )))
-				O << text("\blue [] is buckled in by []!", M, user)
+			if (O.hasClient() && (!( O.blinded )))
+				O.client_mob() << text("\blue [] is buckled in by []!", M, user)
 			//Foreach goto(137)
 	M.anchored = 1
 	M.buckled = src
@@ -1625,17 +1660,22 @@
 
 /obj/stool/chair/attack_hand(mob/user as mob)
 
+	if (istype(user, /mob/drone))
+		if (istype(user, /mob/drone))
+			if (user.equipped())
+				user.client_mob() << "You need to be using the gripper to buckle someone in."
+				return
 	for(var/mob/M in src.loc)
 		if (M.buckled)
 			if (M != user)
 				for(var/mob/O in viewers(user, null))
-					if ((O.client && !( O.blinded )))
-						O << text("\blue [] is unbuckled by [].", M, user)
+					if (O.hasClient() && (!( O.blinded )))
+						O.client_mob() << text("\blue [] is unbuckled by [].", M, user)
 					//Foreach goto(64)
 			else
 				for(var/mob/O in viewers(user, null))
-					if ((O.client && !( O.blinded )))
-						O << text("\blue [] unbuckles.", M)
+					if (O.hasClient() && (!( O.blinded )))
+						O.client_mob() << text("\blue [] unbuckles.", M)
 					//Foreach goto(123)
 			M.anchored = 0
 			M.buckled = null
@@ -1677,7 +1717,6 @@
 			if (prob(25))
 				src.health -= 11
 				healthcheck()
-		else
 	return
 
 /obj/grille/blob_act()
@@ -1711,7 +1750,7 @@
 	else if ((istype(W, /obj/item/weapon/screwdriver) && (istype(src.loc, /turf/station) || src.anchored)))
 		if(!shock(user, 50))
 			src.anchored = !( src.anchored )
-			user << (src.anchored ? "You have fastened the grille to the floor." : "You have unfastened the grill.")
+			user.client_mob() << src.anchored ? "You have fastened the grille to the floor." : "You have unfastened the grill."
 	else if(istype(W, /obj/item/weapon/shard))	// can't get a shock by attacking with glass shard
 
 		src.health -= W.force * 0.1
@@ -1873,17 +1912,17 @@
 	if (istype(W, /obj/item/weapon/screwdriver))
 		if(reinf && state >= 1)
 			state = 3 - state
-			usr << ( state==1? "You have unfastened the window from the frame." : "You have fastened the window to the frame." )
+			usr.client_mob() <<  state==1? "You have unfastened the window from the frame." : "You have fastened the window to the frame."
 		else if(reinf && state == 0)
 			anchored = !anchored
-			user << (src.anchored ? "You have fastened the frame to the floor." : "You have unfastened the frame from the floor.")
+			user.client_mob() << src.anchored ? "You have fastened the frame to the floor." : "You have unfastened the frame from the floor."
 		else if(!reinf)
 			src.anchored = !( src.anchored )
-			user << (src.anchored ? "You have fastened the window to the floor." : "You have unfastened the window.")
+			user.client_mob() << src.anchored ? "You have fastened the window to the floor." : "You have unfastened the window."
 	else if(istype(W, /obj/item/weapon/crowbar) && reinf)
 		if(state <=1)
 			state = 1-state;
-			user << (state ? "You have pried the window into the frame." : "You have pried the window out of the frame.")
+			user.client_mob() << state ? "You have pried the window into the frame." : "You have pried the window out of the frame."
 	else
 		var/aforce = W.force
 		if(reinf) aforce /= 2.0
@@ -1920,11 +1959,11 @@
 	set src in oview(1)
 
 	if (src.anchored)
-		usr << "It is fastened to the floor; therefore, you can't rotate it!"
+		usr.client_mob() << "It is fastened to the floor; therefore, you can't rotate it!"
 		return 0
 	else
 		if (src.dir == SOUTHWEST)
-			usr << "You can't rotate this! "
+			usr.client_mob() << "You can't rotate this! "
 			return 0
 	src.dir = turn(src.dir, 90)
 	src.ini_dir = src.dir
@@ -2211,19 +2250,21 @@
 
 /turf/station/r_wall/attackby(obj/item/weapon/W as obj, mob/user as mob)
 
-	if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-		user << "\red You don't have the dexterity to do this!"
-		return
+	if ((!( istype(user, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
+		if (!istype(user, /mob/drone))
+			user.client_mob() << "\red You don't have the dexterity to do this!"
+			return
 	if (src.state == 2)
 		if (istype(W, /obj/item/weapon/wrench))
 			if (src.d_state == 4)
 				var/turf/T = user.loc
-				user << "\blue Cutting support rods."
+				user.client_mob() << "\blue Cutting support rods."
 				sleep(40)
 				if (!( istype(src, /turf/station/r_wall) ))
 					return
 				if ((user.loc == T && user.equipped() == W && !( user.stat )))
 					src.d_state = 5
+					user.client_mob() << "\green Support rods cut."
 		else
 			if (istype(W, /obj/item/weapon/wirecutters))
 				if (src.d_state == 0)
@@ -2233,16 +2274,17 @@
 				if (istype(W, /obj/item/weapon/weldingtool))
 					if (src.d_state == 2)
 						var/turf/T = user.loc
-						user << "\blue Slicing metal cover."
+						user.client_mob() << "\blue Slicing metal cover."
 						sleep(60)
 						if (!( istype(src, /turf/station/r_wall) ))
 							return
 						if ((user.loc == T && user.equipped() == W && !( user.stat )))
 							src.d_state = 3
+							user.client_mob() << "\green Metal cover sliced."
 					else
 						if (src.d_state == 5)
 							var/turf/T = user.loc
-							user << "\blue Removing support rods."
+							user.client_mob() << "\blue Removing support rods."
 							sleep(100)
 							if (!( istype(src, /turf/station/r_wall) ))
 								return
@@ -2250,40 +2292,44 @@
 							if ((user.loc == T && user.equipped() == W && !( user.stat )))
 								src.d_state = 6
 								new /obj/item/weapon/rods( src )
+								user.client_mob() << "\green Support rods removed."
 				else
 					if (istype(W, /obj/item/weapon/screwdriver))
 						if (src.d_state == 1)
 							var/turf/T = user.loc
-							user << "\blue Removing support lines."
+							user.client_mob() << "\blue Removing support lines."
 							sleep(40)
 							if (!( istype(src, /turf/station/r_wall) ))
 								return
 							if ((user.loc == T && user.equipped() == W && !( user.stat )))
 								src.d_state = 2
+								user.client_mob() << "\green Support lines removed."
 					else
 						if (istype(W, /obj/item/weapon/crowbar))
 							if (src.d_state == 3)
 								var/turf/T = user.loc
-								user << "\blue Prying cover off."
+								user.client_mob() << "\blue Prying cover off."
 								sleep(100)
 								if (!( istype(src, /turf/station/r_wall) ))
 									return
 								if ((user.loc == T && user.equipped() == W && !( user.stat )))
 									src.d_state = 4
+									user.client_mob() << "\green Cover pried off."
 							else
 								if (src.d_state == 6)
 									var/turf/T = user.loc
-									user << "\blue Prying outer sheath off."
+									user.client_mob() << "\blue Prying outer sheath off."
 									sleep(100)
 									if (!( istype(src, /turf/station/r_wall) ))
 										return
 									if ((user.loc == T && user.equipped() == W && !( user.stat )))
 										src.d_state = 7
 										new /obj/item/weapon/sheet/metal( src )
+										user.client_mob() << "\green Outer sheath pried off."
 						else
 							if (istype(W, /obj/item/weapon/sheet/metal))
 								var/turf/T = user.loc
-								user << "\blue Repairing wall."
+								user.client_mob() << "\blue Repairing wall."
 								sleep(100)
 								if (!( istype(src, /turf/station/r_wall) ))
 									return
@@ -2296,7 +2342,7 @@
 										del(W)
 	if (src.state == 1)
 		if (istype(W, /obj/item/weapon/wrench))
-			user << "\blue Now dismantling girders."
+			user.client_mob() << "\blue Now dismantling girders."
 			var/turf/T = user.loc
 			sleep(100)
 			if (!( istype(src, /turf/station/r_wall) ))
@@ -2330,7 +2376,7 @@
 /turf/station/wall/examine()
 	set src in oview(1)
 
-	usr << "It looks like a regular wall."
+	usr.client_mob() << "It looks like a regular wall."
 	return
 
 /turf/station/wall/updatecell()
@@ -2430,20 +2476,21 @@
 
 /turf/station/wall/attack_hand(mob/user as mob)
 
-	user << "\blue You push the wall but nothing happens!"
+	user.client_mob() << "\blue You push the wall but nothing happens!"
 	src.add_fingerprint(user)
 	return
 
 /turf/station/wall/attackby(obj/item/weapon/W as obj, mob/user as mob)
 
-	if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-		user << "\red You don't have the dexterity to do this!"
-		return
+	if ((!( istype(user, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
+		if (!istype(user, /mob/drone))
+			user.client_mob() << "\red You don't have the dexterity to do this!"
+			return
 	if ((istype(W, /obj/item/weapon/wrench) && src.state == 1))
 		var/turf/T = user.loc
 		if (!( istype(T, /turf) ))
 			return
-		user << "\blue Now dissembling the reinforced girders. Please stand still. This is a long process."
+		user.client_mob() << "\blue Now dissembling the reinforced girders. Please stand still. This is a long process."
 		sleep(100)
 		if (!( istype(src, /turf/station/wall) ))
 			return
@@ -2461,7 +2508,7 @@
 			var/turf/T = user.loc
 			if (!( istype(T, /turf) ))
 				return
-			user << "\blue Now dislodging girders."
+			user.client_mob() << "\blue Now dislodging girders."
 			sleep(100)
 			if (!( istype(src, /turf/station/wall) ))
 				return
@@ -2479,7 +2526,7 @@
 				var/turf/T = user.loc
 				if (!( istype(T, /turf) ))
 					return
-				user << "\blue Now reinforcing girders."
+				user.client_mob() << "\blue Now reinforcing girders."
 				sleep(100)
 				if (!( istype(src, /turf/station/wall) ))
 					return
@@ -2501,10 +2548,10 @@
 					var/obj/item/weapon/weldingtool/WT = W
 					if(WT.welding)
 						if (WT.weldfuel < 5)
-							user << "\blue You need more welding fuel to complete this task."
+							user.client_mob() << "\blue You need more welding fuel to complete this task."
 							return
 						WT.weldfuel -= 5
-						user << "\blue Now dissembling the outer wall plating. Please stand still."
+						user.client_mob() << "\blue Now dissembling the outer wall plating. Please stand still."
 						sleep(50)
 						if ((user.loc == T && src.state == 2 && user.equipped() == W))
 							src.opacity = 0
@@ -2626,7 +2673,7 @@
 			levelupdate()
 			src.health = 150
 			src.burnt = 0
-			if (src.firelevel >= 900000.0)
+			if (src.firelevel >= config.min_gas_for_fire)
 				src.icon_state = "burning"
 				src.luminosity = 2
 			else

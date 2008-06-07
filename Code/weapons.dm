@@ -44,7 +44,7 @@
 
 	user.machine = src
 	var/dat = text("<TT><B>Infrared Sensor</B><BR>\n<B>Passive Emitter</B>: []<BR>\n<B>Active Emitter</B>: <A href='?src=\ref[];active=0'>Burst Fire</A>\n</TT>", (src.passive ? text("<A href='?src=\ref[];passive=0'>On</A>", src) : text("<A href='?src=\ref[];passive=1'>Off</A>", src)), src)
-	user << browse(dat, "window=infra_sensor")
+	user.client_mob() << browse(dat, "window=infra_sensor")
 	return
 
 /obj/item/weapon/infra_sensor/Topic(href, href_list)
@@ -63,21 +63,15 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				for(var/mob/M in viewers(1, src))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(164)
+				src.updateDialog()
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				for(var/mob/M in viewers(1, src.master))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(240)
+				src.updateDialog()
 		src.add_fingerprint(usr)
 	else
-		usr << browse(null, "window=infra_sensor")
+		usr.client_mob() << browse(null, "window=infra_sensor")
 		return
 	return
 
@@ -118,9 +112,15 @@
 	S.loc = R
 	R.part1 = S
 	S.layer = initial(S.layer)
-	if (user.client)
-		user.client.screen -= S
-	if (user.r_hand == S)
+	var/client/client = user.alwaysClient()
+	if (client)
+		client.screenOrBackupRemove(S)
+		client.screen -= S
+	if (istype(user, /mob/drone))
+		if (user.equipped() == S)
+			user.u_equip(S)
+			user:grip(R)
+	else if (user.r_hand == S)
 		user.u_equip(S)
 		user.r_hand = R
 	else
@@ -130,8 +130,9 @@
 	src.master = R
 	src.layer = initial(src.layer)
 	user.u_equip(src)
-	if (user.client)
-		user.client.screen -= src
+	if (client)
+		client.screenOrBackupRemove(src)
+		client.screen -= src
 	src.loc = R
 	R.part2 = src
 	R.layer = 20
@@ -144,7 +145,7 @@
 
 	user.machine = src
 	var/dat = text("<TT><B>Proximity Sensor</B>\n<B>Status</B>: []<BR>\n[]\n</TT>", (src.state ? text("<A href='?src=\ref[];state=0'>On</A>", src) : text("<A href='?src=\ref[];state=1'>Off</A>", src)), (src.state ? "<b>\red Time On (30)</b>" : text("<A href='?src=\ref[];time=1'>Time On (30)</A>", src)))
-	user << browse(dat, "window=prox")
+	user.client_mob() << browse(dat, "window=prox")
 	return
 
 
@@ -177,10 +178,7 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				for(var/mob/M in viewers(1, src))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(234)
+				src.updateDialog()
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
@@ -190,7 +188,7 @@
 						src.attack_self(M)
 					//Foreach goto(310)
 	else
-		usr << browse(null, "window=prox")
+		usr.client_mob() << browse(null, "window=prox")
 		return
 	return
 
@@ -258,9 +256,15 @@
 	S.loc = R
 	R.part1 = S
 	S.layer = initial(S.layer)
-	if (user.client)
-		user.client.screen -= S
-	if (user.r_hand == S)
+	var/client/client = user.alwaysClient()
+	if (client)
+		client.screenOrBackupRemove(S)
+		client.screen -= S
+	if (istype(user, /mob/drone))
+		if (user.equipped() == S)
+			user.u_equip(S)
+			user:grip(R)
+	else if (user.r_hand == S)
 		user.u_equip(S)
 		user.r_hand = R
 	else
@@ -270,8 +274,9 @@
 	src.master = R
 	src.layer = initial(src.layer)
 	user.u_equip(src)
-	if (user.client)
-		user.client.screen -= src
+	if (client)
+		client.screenOrBackupRemove(src)
+		client.screen -= src
 	src.loc = R
 	R.part2 = src
 	R.layer = 20
@@ -292,7 +297,7 @@
 
 	user.machine = src
 	var/dat = text("<TT><B>Infrared Laser</B>\n<B>Status</B>: []<BR>\n<B>Visibility</B>: []<BR>\n</TT>", (src.state ? text("<A href='?src=\ref[];state=0'>On</A>", src) : text("<A href='?src=\ref[];state=1'>Off</A>", src)), (src.visible ? text("<A href='?src=\ref[];visible=0'>Visible</A>", src) : text("<A href='?src=\ref[];visible=1'>Invisible</A>", src)))
-	user << browse(dat, "window=infra")
+	user.client_mob() << browse(dat, "window=infra")
 	return
 
 /obj/item/weapon/infra/Topic(href, href_list)
@@ -316,20 +321,14 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				for(var/mob/M in viewers(1, src))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(211)
+				src.updateDialog()
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				for(var/mob/M in viewers(1, src.master))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(287)
+				src.updateDialog()
 	else
-		usr << browse(null, "window=infra")
+		usr.client_mob() << browse(null, "window=infra")
 		return
 	return
 
@@ -408,17 +407,12 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				for(var/mob/M in viewers(1, src))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(100)
+				updateDialog()
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				for(var/mob/M in viewers(1, src.master))
-					if (M.client)
-						src.attack_self(M)
+				src.updateDialog()
 	else
 		//If it's not timing, reset the icon so it doesn't look like it's still about to go off.
 		src.c_state(0)
@@ -440,9 +434,15 @@
 		S.loc = R
 		R.part1 = S
 		S.layer = initial(S.layer)
-		if (user.client)
-			user.client.screen -= S
-		if (user.r_hand == S)
+		var/client/client = user.alwaysClient()
+		if (client)
+			client.screenOrBackupRemove(S)
+			client.screen -= S
+		if (istype(user, /mob/drone))
+			if (user.equipped() == S)
+				user.u_equip(S)
+				user:grip(R)
+		else if (user.r_hand == S)
 			user.u_equip(S)
 			user.r_hand = R
 		else
@@ -452,8 +452,9 @@
 		src.master = R
 		src.layer = initial(src.layer)
 		user.u_equip(src)
-		if (user.client)
-			user.client.screen -= src
+		if (client)
+			client.screenOrBackupRemove(src)
+			client.screen -= src
 		src.loc = R
 		R.part2 = src
 		R.layer = 20
@@ -479,9 +480,9 @@
 		var/second = src.time % 60
 		var/minute = (src.time - second) / 60
 		var/dat = text("<TT><B>Timing Unit</B>\n[] []:[]\n<A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT>", (src.timing ? text("<A href='?src=\ref[];time=0'>Timing</A>", src) : text("<A href='?src=\ref[];time=1'>Not Timing</A>", src)), minute, second, src, src, src, src)
-		user << browse(dat, "window=timer")
+		user.client_mob() << browse(dat, "window=timer")
 	else
-		user << browse(null, "window=timer")
+		user.client_mob() << browse(null, "window=timer")
 		user.machine = null
 
 	return
@@ -506,21 +507,15 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				for(var/mob/M in viewers(1, src))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(192)
+				src.updateDialog()
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				for(var/mob/M in viewers(1, src.master))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(268)
+				src.updateDialog()
 		src.add_fingerprint(usr)
 	else
-		usr << browse(null, "window=timer")
+		usr.client_mob() << browse(null, "window=timer")
 		return
 	return
 
@@ -1083,7 +1078,7 @@
 		user.show_message("\blue A pressure hole has been bored to the plasma tank valve. The plasma tank can now be ignited.", 1)
 	else
 		src.status = 0
-		user << "\blue The hole has been closed."
+		user.client_mob() << "\blue The hole has been closed."
 	src.part2.status = src.status
 	src.add_fingerprint(user)
 	return
@@ -1168,7 +1163,7 @@
 		user.show_message("\blue A pressure hole has been bored to the plasma tank valve. The plasma tank can now be ignited.", 1)
 	else
 		src.status = 0
-		user << "\blue The hole has been closed."
+		user.client_mob() << "\blue The hole has been closed."
 	src.part2.status = src.status
 
 	src.add_fingerprint(user)
@@ -1267,7 +1262,7 @@
 		user.show_message("\blue A pressure hole has been bored to the plasma tank valve. The plasma tank can now be ignited.", 1)
 	else
 		src.status = 0
-		user << "\blue The hole has been closed."
+		user.client_mob() << "\blue The hole has been closed."
 	src.part2.status = src.status
 	src.part1.b_stat = !( src.status )
 	src.add_fingerprint(user)

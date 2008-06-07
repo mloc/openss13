@@ -85,7 +85,7 @@ Hair Color: ([h_r],[h_g],[h_b]) <A href='?src=\ref[src];h_reset=1'>\[Reset\]</A>
 Red (0-255): <A href='?src=\ref[src];h_r=-300'>\[0\]</A> <A href='?src=\ref[src];h_r=-10'>-10</A> <A href='?src=\ref[src];h_r=-1'>-1</A> [h_r] <A href='?src=\ref[src];h_r=1'>1</A> <A href='?src=\ref[src];h_r=10'>10</A> <A href='?src=\ref[src];h_r=300'>\[255\]</A><BR>
 Green (0-255): <A href='?src=\ref[src];h_g=-300'>\[0\]</A> <A href='?src=\ref[src];h_g=-10'>-10</A> <A href='?src=\ref[src];h_g=-1'>-1</A> [h_g] <A href='?src=\ref[src];h_g=1'>1</A> <A href='?src=\ref[src];h_g=10'>10</A> <A href='?src=\ref[src];h_g=300'>\[255\]</A><BR>
 Blue (0-255): <A href='?src=\ref[src];h_b=-300'>\[0\]</A> <A href='?src=\ref[src];h_b=-10'>-10</A> <A href='?src=\ref[src];h_b=-1'>-1</A> [h_b] <A href='?src=\ref[src];h_b=1'>1</A> <A href='?src=\ref[src];h_b=10'>10</A> <A href='?src=\ref[src];h_b=300'>\[255\]</A><BR>"}
-		user << browse(dat, "window=hologram_console")
+		user.client_mob() << browse(dat, "window=hologram_console")
 
 
 	// Handle topic links from window
@@ -131,9 +131,7 @@ Blue (0-255): <A href='?src=\ref[src];h_b=-300'>\[0\]</A> <A href='?src=\ref[src
 			else if (href_list["temp"])
 				src.temp = null
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.show_console(M)
+			src.updateDialog()
 
 
 /*

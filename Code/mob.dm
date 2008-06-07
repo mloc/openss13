@@ -18,6 +18,8 @@
 
 	usr.show_message(t, 1)
 
+/mob/proc/can_drop()
+	return 1
 
 /proc/hsl2rgb(h, s, l)
 
@@ -261,8 +263,8 @@
 		del(src)
 		return
 	if (src.assailant.client)
-		src.assailant.client.screen -= src.hud1
-		src.assailant.client.screen += src.hud1
+		src.assailant.client.screenOrBackupRemove(src.hud1)
+		src.assailant.client.screenOrBackupAdd(src.hud1)
 	if (src.assailant.pulling == src.affecting)
 		src.assailant.pulling = null
 	if (src.state <= 2)
@@ -286,7 +288,7 @@
 				if (G.state == 2)
 					src.allow_upgrade = 0
 				//Foreach goto(341)
-		if (src.allow_upgrade)
+		if ((src.allow_upgrade) && (istype(src, /mob/human) || istype(src, /mob/monkey)))
 			src.hud1.icon_state = "reinforce"
 		else
 			src.hud1.icon_state = "!reinforce"
@@ -335,6 +337,8 @@
 		if(1.0)
 			if (src.state < 2)
 				if (!( src.allow_upgrade ))
+					return
+				if (!(istype(src, /mob/human) || istype(src, /mob/monkey)))
 					return
 				if (prob(75))
 					for(var/mob/O in viewers(src.assailant, null))
@@ -1044,7 +1048,7 @@
 
 	if (src.item)
 		for(var/mob/O in viewers(src.target, null))
-			if ((O.client && !( O.blinded )))
+			if ((O.hasClient() && !( O.blinded )))
 				O.show_message(text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target), 1)
 			//Foreach goto(251)
 	else
@@ -1084,13 +1088,14 @@
 		return
 	if ((src.source.restrained() || src.source.stat))
 		return
+		
 	switch(src.place)
 		if("mask")
 			if (src.target.wear_mask)
 				var/obj/item/weapon/W = src.target.wear_mask
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1107,8 +1112,8 @@
 			if (src.target.l_hand)
 				var/obj/item/weapon/W = src.target.l_hand
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1125,8 +1130,8 @@
 			if (src.target.r_hand)
 				var/obj/item/weapon/W = src.target.r_hand
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1143,8 +1148,8 @@
 			if (src.target.back)
 				var/obj/item/weapon/W = src.target.back
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1161,8 +1166,8 @@
 			if (src.target.handcuffed)
 				var/obj/item/weapon/W = src.target.handcuffed
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1187,7 +1192,7 @@
 						src.target.internal = src.target.back
 						src.target.internal.add_fingerprint(src.source)
 						for(var/mob/M in viewers(src.target, 1))
-							if ((M.client && !( M.blinded )))
+							if ((M.hasClient() && !( M.blinded )))
 								M.show_message(text("[] is now running on internals.", src.target), 1)
 							//Foreach goto(1097)
 		else
@@ -1346,8 +1351,8 @@
 			if (src.target.wear_mask)
 				var/obj/item/weapon/W = src.target.wear_mask
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1364,8 +1369,8 @@
 			if (src.target.w_radio)
 				var/obj/item/weapon/W = src.target.w_radio
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1381,8 +1386,8 @@
 			if (src.target.gloves)
 				var/obj/item/weapon/W = src.target.gloves
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1399,8 +1404,8 @@
 			if (src.target.glasses)
 				var/obj/item/weapon/W = src.target.glasses
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1417,8 +1422,8 @@
 			if (src.target.belt)
 				var/obj/item/weapon/W = src.target.belt
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1435,8 +1440,8 @@
 			if (src.target.head)
 				var/obj/item/weapon/W = src.target.head
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1453,8 +1458,8 @@
 			if (src.target.ears)
 				var/obj/item/weapon/W = src.target.ears
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1471,8 +1476,8 @@
 			if (src.target.shoes)
 				var/obj/item/weapon/W = src.target.shoes
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1493,8 +1498,8 @@
 			if (src.target.l_hand)
 				var/obj/item/weapon/W = src.target.l_hand
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1516,8 +1521,8 @@
 			if (src.target.r_hand)
 				var/obj/item/weapon/W = src.target.r_hand
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1536,7 +1541,7 @@
 				var/obj/item/weapon/W = src.target.w_uniform
 				src.target.u_equip(W)
 				if (src.target.client)
-					src.target.client.screen -= W
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1545,8 +1550,8 @@
 				W = src.target.l_store
 				if (W)
 					src.target.u_equip(W)
-					if (src.target.client)
-						src.target.client.screen -= W
+					if (src.target.hasClient())
+						src.target.screenOrBackupRemove(W)
 					if (W)
 						W.loc = src.target.loc
 						W.dropped(src.target)
@@ -1554,8 +1559,8 @@
 				W = src.target.r_store
 				if (W)
 					src.target.u_equip(W)
-					if (src.target.client)
-						src.target.client.screen -= W
+					if (src.target.hasClient())
+						src.target.screenOrBackupRemove(W)
 					if (W)
 						W.loc = src.target.loc
 						W.dropped(src.target)
@@ -1563,8 +1568,8 @@
 				W = src.target.wear_id
 				if (W)
 					src.target.u_equip(W)
-					if (src.target.client)
-						src.target.client.screen -= W
+					if (src.target.hasClient())
+						src.target.screenOrBackupRemove(W)
 					if (W)
 						W.loc = src.target.loc
 						W.dropped(src.target)
@@ -1580,8 +1585,8 @@
 			if (src.target.wear_suit)
 				var/obj/item/weapon/W = src.target.wear_suit
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1598,8 +1603,8 @@
 			if (src.target.wear_id)
 				var/obj/item/weapon/W = src.target.wear_id
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1616,8 +1621,8 @@
 			if (src.target.back)
 				var/obj/item/weapon/W = src.target.back
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1634,8 +1639,8 @@
 			if (src.target.handcuffed)
 				var/obj/item/weapon/W = src.target.handcuffed
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1662,7 +1667,7 @@
 				for(var/mob/O in viewers(src.source, null))
 					O.show_message(text("\red [] performs CPR on []!", src.source, src.target), 1)
 					//Foreach goto(3251)
-				src.source << "\red Repeat every 7 seconds AT LEAST."
+				src.source.client_mob() << "\red Repeat every 7 seconds AT LEAST."
 		if("syringe")
 			var/obj/item/weapon/syringe/S = src.item
 			src.item.add_fingerprint(src.source)
@@ -1679,7 +1684,7 @@
 			for(var/mob/O in viewers(src.source, null))
 				O.show_message(text("\red [] injects [] with the syringe!", src.source, src.target), 1)
 				//Foreach goto(3407)
-			src.source << text("\red You inject [] units into []. The syringe contains [] units.", a, src.target, S.chem.volume())
+			src.source.client_mob() << text("\red You inject [] units into []. The syringe contains [] units.", a, src.target, S.chem.volume())
 		if("pill")
 			var/obj/item/weapon/m_pill/S = src.item
 			if (!( istype(S, /obj/item/weapon/m_pill) ))
@@ -1700,8 +1705,8 @@
 			if (src.target.l_store)
 				var/obj/item/weapon/W = src.target.l_store
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1710,8 +1715,8 @@
 			if (src.target.r_store)
 				var/obj/item/weapon/W = src.target.r_store
 				src.target.u_equip(W)
-				if (src.target.client)
-					src.target.client.screen -= W
+				if (src.target.hasClient())
+					src.target.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.target.loc
 					W.dropped(src.target)
@@ -1861,13 +1866,14 @@
 	return
 
 /mob/human/proc/monkeyize()
-
+	if (src.currentDrone!=null)
+		src.currentDrone:releaseControl(0)
 	if (src.monkeyizing)
 		return
 	for(var/obj/item/weapon/W in src)
 		src.u_equip(W)
 		if (src.client)
-			src.client.screen -= W
+			src.client.screenOrBackupRemove(W)
 		if (W)
 			W.loc = src.loc
 			W.dropped(src)
@@ -2379,7 +2385,9 @@
 		//src.paralysis += 1
 
 	src.show_message("\red The blob attacks you!")
-
+	src.damage_anywhere(damage)
+	
+/mob/human/proc/damage_anywhere(damage)
 	var/list/zones = list("head","chest","chest", "diaper", "l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot")
 
 	var/zone = pick(zones)
@@ -2460,8 +2468,8 @@
 			W = src.r_store
 			if (W)
 				u_equip(W)
-				if (src.client)
-					src.client.screen -= W
+				if (src.hasClient())
+					src.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.loc
 					W.dropped(src)
@@ -2469,8 +2477,8 @@
 			W = src.l_store
 			if (W)
 				u_equip(W)
-				if (src.client)
-					src.client.screen -= W
+				if (src.hasClient())
+					src.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.loc
 					W.dropped(src)
@@ -2478,8 +2486,8 @@
 			W = src.wear_id
 			if (W)
 				u_equip(W)
-				if (src.client)
-					src.client.screen -= W
+				if (src.hasClient())
+					src.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.loc
 					W.dropped(src)
@@ -2487,8 +2495,8 @@
 			W = src.belt
 			if (W)
 				u_equip(W)
-				if (src.client)
-					src.client.screen -= W
+				if (src.hasClient())
+					src.screenOrBackupRemove(W)
 				if (W)
 					W.loc = src.loc
 					W.dropped(src)
@@ -2689,7 +2697,7 @@
 /mob/human/meteorhit(O as obj)
 
 	for(var/mob/M in viewers(src, null))
-		if ((M.client && !( M.blinded )))
+		if ((M.hasClient() && !( M.blinded )))
 			M.show_message(text("\red [] has been hit with by []", src, O), 1)
 		//Foreach goto(19)
 	if (src.health > 0)
@@ -2725,8 +2733,9 @@
 	src.sdisabilities = 0
 	src.stat = 0
 */
-/mob/human/Move(a, b, flag)
 
+/* IMPORTANT NOTE: Both humans and drones have a copy of this code. If the code is modified to fix a bug or whatever, it will need to be modified in BOTH of them. Monkeys also have some of this code, but not all of it. (Moving the code into a shared method or two wasn't feasible because of where the ..() calls are and such) --shadowlord13 */
+/mob/human/Move(a, b, flag)
 	if (src.buckled)
 		return
 	if (src.restrained())
@@ -2745,6 +2754,9 @@
 			return
 		//////
 		if (src.pulling.anchored)
+			src.pulling = null
+			return
+		if (istype(src.pulling, /mob/drone) && config.walkable_not_pullable_drones)
 			src.pulling = null
 			return
 		//////
@@ -2825,7 +2837,8 @@
 
 
 /mob/human/Logout()
-
+	if (src.droneTransitioning==1)
+		return
 	if(config.logaccess) world.log << "LOGOUT: [src.key]"
 	if (!( src.start ))
 		//SN src = null
@@ -2915,7 +2928,10 @@
 	return
 
 /mob/human/Login()
-
+	if (src.droneTransitioning==1)
+		..()
+		return
+	
 	if(config.logaccess)
 		world.log << "LOGIN: [src.key] from [src.client.address]"
 		src.lastKnownIP = src.client.address
@@ -2934,8 +2950,8 @@
 						world.log << "FURTHER NOTE: [M.lastKnownCKey] was banned."
 
 
-	src.client.screen -= main_hud.contents
-	src.client.screen -= main_hud2.contents
+	src.client.screenOrBackupRemove(main_hud.contents)
+	src.client.screenOrBackupRemove(main_hud2.contents)
 	world.update_stat()
 	if (!( src.hud_used ))
 		src.hud_used = main_hud
@@ -3041,9 +3057,6 @@
 		src.verbs += /proc/Vars
 	src << text("\blue <B>[]</B>", world_message)
 	src << browse(text("[]", changes), "window=changes")
-	if (!( isturf(src.loc) ))
-		src.client.eye = src.loc
-		src.client.perspective = EYE_PERSPECTIVE
 	if (!( src.start ))
 		src.savefile_load()
 		ShowChoices()
@@ -3055,27 +3068,33 @@
 			//Foreach goto(1473)
 
 		src.loc = pick(L)
-
+	
 	return
 
 /mob/human/Bump(atom/movable/AM as mob|obj, yes)
-
 	spawn( 0 )
 		if ((!( yes ) || src.now_pushing))
 			return
 		..()
-		if (!( istype(AM, /atom/movable) ))
-			return
-		if (!( src.now_pushing ))
-			src.now_pushing = 1
-			if (!( AM.anchored ))
-				var/t = get_dir(src, AM)
-				step(AM, t)
-			src.now_pushing = null
-		return
+		src.PushingBump(AM, yes)
 	return
 
+/mob/proc/PushingBump(atom/movable/AM as mob|obj, yes)
+	if (!( istype(AM, /atom/movable) ))
+		return
+	if (!( src.now_pushing ))
+		src.now_pushing = 1
+		if (!( AM.anchored ))
+			/* If it's a drone and walkable_not_pullable_drones is set, you CAN'T pull it. --shadowlord13 */
+			if (!(istype(src, /mob/drone) && config.walkable_not_pullable_drones))
+				var/t = get_dir(src, AM)
+				step(AM, t)
+		src.now_pushing = null
+	return
+	
 /mob/human/death()
+	if (src.currentDrone!=null)
+		src.currentDrone:releaseControl()
 
 	if(src.healths)
 		src.healths.icon_state = "health5"
@@ -3087,7 +3106,7 @@
 	//src.icon_state = "dead"
 	var/cancel
 	for(var/mob/M in world)
-		if ((M.client && !( M.stat )))
+		if ((M.cliented() && !( M.stat )))
 			cancel = 1
 		//Foreach goto(67)
 	if (!( cancel ))
@@ -3098,7 +3117,7 @@
 		spawn(50)
 			cancel = 0
 			for(var/mob/M in world)
-				if ((M.client && !( M.stat )))
+				if ((M.cliented() && !( M.stat )))
 					cancel = 1
 				//Foreach goto(67)
 			if (!( cancel ))
@@ -3124,6 +3143,9 @@
 			tally += 15
 		else
 			tally += -1.0
+	if (src.pulling)
+		if (istype(src.pulling, /mob/drone))
+			tally += 5
 	return tally
 
 
@@ -3597,10 +3619,10 @@
 	if (src.eye_blurry > 0)
 		src.eye_blurry--
 		src.eye_blurry = max(0, src.eye_blurry)
-	if (src.client)
-		src.client.screen -= main_hud.g_dither
+	if (src.hasClient())
+		src.screenOrBackupRemove(main_hud.g_dither)
 		if (src.stat!=2 && istype(src.wear_mask, /obj/item/weapon/clothing/mask/gasmask))
-			src.client.screen += main_hud.g_dither
+			src.screenOrBackupAdd(main_hud.g_dither)
 		if (istype(src.glasses, /obj/item/weapon/clothing/glasses/meson))
 			src.sight |= SEE_TURFS
 			src.see_in_dark = 3
@@ -3658,30 +3680,31 @@
 				src.oxygen.icon_state = "oxy1"
 			else
 				src.oxygen.icon_state = "oxy0"
-		src.client.screen -= src.hud_used.blurry
-		src.client.screen -= src.hud_used.vimpaired
+		src.screenOrBackupRemove(src.hud_used.blurry)
+		src.screenOrBackupRemove(src.hud_used.vimpaired)
 		if ((src.blind && src.stat != 2))
 			if (src.blinded)
 				src.blind.layer = 18
 			else
 				src.blind.layer = 0
 				if ((src.disabilities & 1 && !( istype(src.glasses, /obj/item/weapon/clothing/glasses/regular) )))
-					src.client.screen -= src.hud_used.vimpaired
-					src.client.screen += src.hud_used.vimpaired
+					src.screenOrBackupRemove(src.hud_used.vimpaired)
+					src.screenOrBackupAdd(src.hud_used.vimpaired)
 				else
-					src.client.screen -= src.hud_used.vimpaired
+					src.screenOrBackupRemove(src.hud_used.vimpaired)
 				if (src.eye_blurry)
-					src.client.screen -= src.hud_used.blurry
-					src.client.screen += src.hud_used.blurry
+					src.screenOrBackupRemove(src.hud_used.blurry)
+					src.screenOrBackupAdd(src.hud_used.blurry)
 				else
-					src.client.screen -= src.hud_used.blurry
+					src.screenOrBackupRemove(src.hud_used.blurry)
 		if (src.stat != 2)
-			if (src.machine)
-				if (!( src.machine.check_eye(src) ))
-					src.reset_view(null)
-			else
-				if(!client.adminobs)
-					reset_view(null)
+			if (src.client)
+				if (src.machine)
+					if (!( src.machine.check_eye(src) ))
+						src.reset_view(null)
+				else
+					if(!client.adminobs)
+						reset_view(null)
 	if (src.primary)
 		src.primary.cleanup()
 	src.UpdateClothing()
@@ -3947,16 +3970,17 @@
 	return
 
 /mob/human/UpdateClothing()
-
+	
 	..()
 	if (src.monkeyizing)
 		return
+	
 	if (!( src.w_uniform ))
 		var/obj/item/weapon/W = src.r_store
 		if (W)
 			u_equip(W)
-			if (src.client)
-				src.client.screen -= W
+			if (src.hasClient())
+				src.screenOrBackupRemove(W)
 			if (W)
 				W.loc = src.loc
 				W.dropped(src)
@@ -3964,8 +3988,8 @@
 		W = src.l_store
 		if (W)
 			u_equip(W)
-			if (src.client)
-				src.client.screen -= W
+			if (src.hasClient())
+				src.screenOrBackupRemove(W)
 			if (W)
 				W.loc = src.loc
 				W.dropped(src)
@@ -3973,8 +3997,8 @@
 		W = src.wear_id
 		if (W)
 			u_equip(W)
-			if (src.client)
-				src.client.screen -= W
+			if (src.hasClient())
+				src.screenOrBackupRemove(W)
 			if (W)
 				W.loc = src.loc
 				W.dropped(src)
@@ -3982,8 +4006,8 @@
 		W = src.belt
 		if (W)
 			u_equip(W)
-			if (src.client)
-				src.client.screen -= W
+			if (src.hasClient())
+				src.screenOrBackupRemove(W)
 			if (W)
 				W.loc = src.loc
 				W.dropped(src)
@@ -4026,12 +4050,12 @@
 		src.w_uniform.screen_loc = "2,2"
 	if (src.wear_id)
 		src.overlays += image("icon" = 'mob.dmi', "icon_state" = text("id[]", (!( src.lying ) ? null : "2")), "layer" = MOB_LAYER)
-	if (src.client)
-		src.client.screen -= src.hud_used.other
-		src.client.screen -= src.hud_used.intents
-		src.client.screen -= src.hud_used.mov_int
-	if ((src.client && src.other))
-		src.client.screen += src.hud_used.other
+	if (src.hasClient())
+		src.screenOrBackupRemove(src.hud_used.other)
+		src.screenOrBackupRemove(src.hud_used.intents)
+		src.screenOrBackupRemove(src.hud_used.mov_int)
+	if ((src.hasClient() && src.other))
+		src.screenOrBackupAdd(src.hud_used.other)
 		if (src.gloves)
 			var/t1 = src.gloves.s_istate
 			if (!( t1 ))
@@ -4094,16 +4118,16 @@
 				t1 = src.wear_mask.icon_state
 			src.overlays += image("icon" = 'mob.dmi', "icon_state" = text("[][]", t1, (!( src.lying ) ? null : "2")), "layer" = MOB_LAYER)
 		src.wear_mask.screen_loc = "2,3"
-	if (src.client)
+	if (src.hasClient())
 		if (src.i_select)
 			if (src.intent)
-				src.client.screen += src.hud_used.intents
+				src.screenOrBackupAdd(src.hud_used.intents)
 				src.i_select.screen_loc = src.intent
 			else
 				src.i_select.screen_loc = null
 		if (src.m_select)
 			if (src.m_int)
-				src.client.screen += src.hud_used.mov_int
+				src.screenOrBackupAdd(src.hud_used.mov_int)
 				src.m_select.screen_loc = src.m_int
 			else
 				src.m_select.screen_loc = null
@@ -4126,7 +4150,7 @@
 				src.hand = 0
 				drop_item()
 				src.hand = h
-	if ((src.client && src.other))
+	if ((src.hasClient() && src.other))
 		if (src.head)
 			var/t1 = src.head.s_istate
 			if (!( t1 ))
@@ -4204,9 +4228,9 @@
 			src.overlays += image("icon" = 'mob.dmi', "icon_state" = "handcuff1", "layer" = MOB_LAYER)
 		else
 			src.overlays += image("icon" = 'mob.dmi', "icon_state" = "handcuff2", "layer" = MOB_LAYER)
-	if (src.client)
-		src.client.screen -= src.contents
-		src.client.screen += src.contents
+	if (src.hasClient())
+		src.screenOrBackupRemove(src.contents)
+		src.screenOrBackupAdd(src.contents)
 	var/shielded = 0
 	for(var/obj/item/weapon/shield/S in src)
 		if (S.active)
@@ -4271,7 +4295,7 @@
 									//Foreach goto(299)
 								return
 			for(var/mob/O in viewers(src, null))
-				if ((O.client && !( O.blinded )))
+				if ((O.hasClient() && !( O.blinded )))
 					O.show_message(text("\red <B>The monkey has bit []!</B>", src), 1)
 				//Foreach goto(344)
 			var/damage = rand(1, 3)
@@ -4287,7 +4311,7 @@
 				src.monkeyize()
 		else
 			for(var/mob/O in viewers(src, null))
-				if ((O.client && !( O.blinded )))
+				if ((O.hasClient() && !( O.blinded )))
 					O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
 				//Foreach goto(580)
 	return
@@ -4351,36 +4375,90 @@
 				//Foreach goto(623)
 	return
 
-/mob/human/attack_hand(mob/human/M as mob)
+/mob/human/attack_hand(mob/M as mob)
 	if (!ticker)
 		M << "You cannot attack people before the game has started."
 		return
-	if (M.a_intent == "help")
-		if (src.health > 0)
-			if (src.w_uniform)
-				src.w_uniform.add_fingerprint(M)
-			src.sleeping = 0
-			src.resting = 0
-			for(var/mob/O in viewers(src, null))
-				O.show_message(text("\blue [] shakes [] trying to wake [] up!", M, src, src), 1)
-				//Foreach goto(80)
+	
+	var/intentToApply = M.a_intent
+	var/aiControllingBonus = 0
+	var/corruptedIntent = 0
+	
+	if (istype(M, /mob/drone))
+		var/mob/owner = M:controlledBy
+		if (owner!=null && istype(owner, /mob/ai))
+			aiControllingBonus = 1
 		else
-			if (M.health >= -75.0)
-				if (((M.head && M.head.flags & 4) || ((M.wear_mask && !( M.wear_mask.flags & 32 )) || ((src.head && src.head.flags & 4) || (src.wear_mask && !( src.wear_mask.flags & 32 ))))))
-					M << "\blue <B>Remove that mask!</B>"
-					return
-				var/obj/equip_e/human/O = new /obj/equip_e/human(  )
-				O.source = M
-				O.target = src
-				O.s_loc = M.loc
-				O.t_loc = src.loc
-				O.place = "CPR"
-				src.requests += O
-				spawn( 0 )
-					O.process()
-					return
+			if (M.a_intent=="help")
+				corruptedIntent = prob(50)
+				if (corruptedIntent)
+					if (prob(75))	//push down
+						intentToApply = "disarm"
+					else
+						intentToApply = "hurt"
+			else if (M.a_intent == "grab")
+				corruptedIntent = prob(50)
+				if (corruptedIntent)
+					if (prob(10))	//push down
+						intentToApply = "disarm"
+					else
+						intentToApply = "hurt"
+			else if (M.a_intent == "hurt")
+				corruptedIntent = prob(30)
+				if (corruptedIntent)
+					if (prob(20))	//push down
+						intentToApply = "disarm"
+					else
+						intentToApply = "grab"
+			else //disarm
+				corruptedIntent = prob(50)
+				if (corruptedIntent)
+					if (prob(50))
+						M.client_mob() << "You tried to disarm them, but managed to miss entirely."
+						for(var/mob/O in viewers(src, null))
+							O.show_message(text("\blue [] attempted to disarm [], but completely missed!", M, src), 1)
+						return
+					//otherwise we push them down
+					
+	if (intentToApply == "help")
+		if (istype(M, /mob/human))
+			var/mob/human/H = M
+			if (src.health > 0)
+				if (src.w_uniform)
+					src.w_uniform.add_fingerprint(M)
+				src.sleeping = 0
+				src.resting = 0
+				for(var/mob/O in viewers(src, null))
+					O.show_message(text("\blue [] shakes [] trying to wake [] up!", M, src, src), 1)
+					//Foreach goto(80)
+			else
+				if (M.health >= -75.0)
+					if (((H.head && H.head.flags & 4) || ((H.wear_mask && !( H.wear_mask.flags & 32 )) || ((src.head && src.head.flags & 4) || (src.wear_mask && !( src.wear_mask.flags & 32 ))))))
+						H.client_mob() << "\blue <B>Remove that mask!</B>"
+						return
+					var/obj/equip_e/human/O = new /obj/equip_e/human(  )
+					O.source = M
+					O.target = src
+					O.s_loc = M.loc
+					O.t_loc = src.loc
+					O.place = "CPR"
+					src.requests += O
+					spawn( 0 )
+						O.process()
+						return
+		else if (istype(M, /mob/drone))
+			if (src.health > 0)
+				if (src.w_uniform)
+					src.w_uniform.add_fingerprint(M)
+				src.sleeping = 0
+				src.resting = 0
+				for(var/mob/O in viewers(src, null))
+					O.show_message(text("\blue [] shakes [] trying to wake [] up!", M, src, src), 1)
+					//Foreach goto(80)
+			else
+				M << "They need CPR, and you can't perform it through this drone!"
 	else
-		if (M.a_intent == "grab")
+		if (intentToApply == "grab")
 			if (M == src)
 				return
 			if (src.w_uniform)
@@ -4400,92 +4478,104 @@
 				//Foreach goto(441)
 		else
 			if (M.stat < 2)
-				if (M.a_intent == "hurt")
-					if (src.w_uniform)
-						src.w_uniform.add_fingerprint(M)
-					var/damage = rand(1, 9)
-					var/obj/item/weapon/organ/external/affecting = src.organs["chest"]
-					var/t = M.zone_sel.selecting
-					if ((t in list( "hair", "eyes", "mouth", "neck" )))
-						t = "head"
-					var/def_zone = ran_zone(t)
-					if (src.organs[text("[]", def_zone)])
-						affecting = src.organs[text("[]", def_zone)]
-					if ((istype(affecting, /obj/item/weapon/organ/external) && prob(90)))
-						for(var/mob/O in viewers(src, null))
-							O.show_message(text("\red <B>[] has punched []!</B>", M, src), 1)
-							//Foreach goto(646)
-						if (def_zone == "head")
-							if ((((src.head && src.head.brute_protect & 1) || (src.wear_mask && src.wear_mask.brute_protect & 1)) && prob(99)))
-								if (prob(20))
-									affecting.take_damage(damage, 0)
-								else
-									src.show_message("\red You have been protected from a hit to the head.")
-								return
-							if (damage > 4.9)
-								if (src.weakened < 10)
-									src.weakened = rand(10, 15)
-								for(var/mob/O in viewers(M, null))
-									O.show_message(text("\red <B>[] has weakened []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-									//Foreach goto(820)
-							affecting.take_damage(damage)
-						else
-							if (def_zone == "chest")
-								if ((((src.wear_suit && src.wear_suit.brute_protect & 2) || (src.w_uniform && src.w_uniform.brute_protect & 2)) && prob(85)))
-									src.show_message("\red You have been protected from a hit to the chest.")
+				if (intentToApply == "hurt")
+					if (istype(M, /mob/human))
+						if (src.w_uniform)
+							src.w_uniform.add_fingerprint(M)
+						var/damage = rand(1, 9)
+						var/obj/item/weapon/organ/external/affecting = src.organs["chest"]
+						var/t = M.zone_sel.selecting
+						if ((t in list( "hair", "eyes", "mouth", "neck" )))
+							t = "head"
+						var/def_zone = ran_zone(t)
+						if (src.organs[text("[]", def_zone)])
+							affecting = src.organs[text("[]", def_zone)]
+						if ((istype(affecting, /obj/item/weapon/organ/external) && prob(90)))
+							for(var/mob/O in viewers(src, null))
+								O.show_message(text("\red <B>[] has punched []!</B>", M, src), 1)
+								//Foreach goto(646)
+							if (def_zone == "head")
+								if ((((src.head && src.head.brute_protect & 1) || (src.wear_mask && src.wear_mask.brute_protect & 1)) && prob(99)))
+									if (prob(20))
+										affecting.take_damage(damage, 0)
+									else
+										src.show_message("\red You have been protected from a hit to the head.")
 									return
 								if (damage > 4.9)
-									if (prob(50))
-										if (src.weakened < 5)
-											src.weakened = 5
-										for(var/mob/O in viewers(src, null))
-											O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-											//Foreach goto(993)
-									else
-										if (src.stunned < 5)
-											src.stunned = 5
-										for(var/mob/O in viewers(src, null))
-											O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
-											//Foreach goto(1063)
-									src.stat = 1
+									if (src.weakened < 10)
+										src.weakened = rand(10, 15)
+									for(var/mob/O in viewers(M, null))
+										O.show_message(text("\red <B>[] has weakened []!</B>", M, src), 1, "\red You hear someone fall.", 2)
+										//Foreach goto(820)
 								affecting.take_damage(damage)
 							else
-								if (def_zone == "diaper")
-									if ((((src.wear_suit && src.wear_suit.brute_protect & 4) || (src.w_uniform && src.w_uniform.brute_protect & 4)) && prob(75)))
-										src.show_message("\red You have been protected from a hit to the lower chest/diaper.")
+								if (def_zone == "chest")
+									if ((((src.wear_suit && src.wear_suit.brute_protect & 2) || (src.w_uniform && src.w_uniform.brute_protect & 2)) && prob(85)))
+										src.show_message("\red You have been protected from a hit to the chest.")
 										return
 									if (damage > 4.9)
 										if (prob(50))
-											if (src.weakened < 3)
-												src.weakened = 3
+											if (src.weakened < 5)
+												src.weakened = 5
 											for(var/mob/O in viewers(src, null))
 												O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-												//Foreach goto(1239)
+												//Foreach goto(993)
 										else
-											if (src.stunned < 3)
-												src.stunned = 3
+											if (src.stunned < 5)
+												src.stunned = 5
 											for(var/mob/O in viewers(src, null))
 												O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
-												//Foreach goto(1309)
+												//Foreach goto(1063)
 										src.stat = 1
 									affecting.take_damage(damage)
 								else
-									affecting.take_damage(damage)
+									if (def_zone == "diaper")
+										if ((((src.wear_suit && src.wear_suit.brute_protect & 4) || (src.w_uniform && src.w_uniform.brute_protect & 4)) && prob(75)))
+											src.show_message("\red You have been protected from a hit to the lower chest/diaper.")
+											return
+										if (damage > 4.9)
+											if (prob(50))
+												if (src.weakened < 3)
+													src.weakened = 3
+												for(var/mob/O in viewers(src, null))
+													O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
+													//Foreach goto(1239)
+											else
+												if (src.stunned < 3)
+													src.stunned = 3
+												for(var/mob/O in viewers(src, null))
+													O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
+													//Foreach goto(1309)
+											src.stat = 1
+										affecting.take_damage(damage)
+									else
+										affecting.take_damage(damage)
 
-						src.UpdateDamageIcon()
+							src.UpdateDamageIcon()
 
-						src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
-					else
+							src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+						else
+							for(var/mob/O in viewers(src, null))
+								O.show_message(text("\red <B>[] has attempted to punch []!</B>", M, src), 1)
+								//Foreach goto(1419)
+							return
+					else if (istype(M, /mob/drone))
+						var/damage = 0
+						if (corruptedIntent)
+							damage = rand(0, 5)
+						else
+							damage = rand(5, 14)
 						for(var/mob/O in viewers(src, null))
-							O.show_message(text("\red <B>[] has attempted to punch []!</B>", M, src), 1)
-							//Foreach goto(1419)
-						return
+							O.show_message(text("\red <B>[] has smacked [] with its arm!</B>", M, src), 1)
+						if (corruptedIntent)
+							M << "Oops! You've accidentally hit them."
+						src.damage_anywhere(damage)
 				else
 					if (!( src.lying ))
 						if (src.w_uniform)
 							src.w_uniform.add_fingerprint(M)
 						var/randn = rand(1, 100)
-						if (randn <= 25)
+						if (randn <= 25 || corruptedIntent)
 							src.weakened = 2
 							for(var/mob/O in viewers(src, null))
 								O.show_message(text("\red <B>[] has pushed down []!</B>", M, src), 1)
@@ -4500,6 +4590,11 @@
 								for(var/mob/O in viewers(src, null))
 									O.show_message(text("\red <B>[] has attempted to disarm []!</B>", M, src), 1)
 									//Foreach goto(1643)
+					if (corruptedIntent)
+						if (M.a_intent == "help")
+							M.client_mob() << "You failed to help [src] due to poor control over the drone, and may have knocked \him down, but at least you have not hurt \him."
+						else if (M.a_intent == "grab")
+							M.client_mob() << "You failed to grab [src] due to poor control over the drone, and may have knocked \him down, but at least you have not hurt \him."
 	return
 
 // loads the savefile corresponding to the mob's ckey
@@ -4740,10 +4835,11 @@
 	return
 
 /mob/human/show_inv(mob/user as mob)
+
 	user.machine = src
-	// Fix added for Bug #1986988.
-	var/dat = text("<PRE>\n<B><FONT size=3>[]</FONT></B>\n\t<B>Head(Mask):</B> <A href='?src=\ref[];item=mask'>[]</A>\n\t\t<B>Headset:</B> <A href='?src=\ref[];item=headset'>[]</A>\n\t<B>Left Hand:</B> <A href='?src=\ref[];item=l_hand'>[]</A>\n\t<B>Right Hand:</B> <A href='?src=\ref[];item=r_hand'>[]</A>\n\t<B>Gloves:</B> <A href='?src=\ref[];item=gloves'>[]</A>\n\t<B>Eyes:</B> <A href='?src=\ref[];item=eyes'>[]</A>\n\t<B>Ears:</B> <A href='?src=\ref[];item=ears'>[]</A>\n\t<B>Head:</B> <A href='?src=\ref[];item=head'>[]</A>\n\t<B>Shoes:</B> <A href='?src=\ref[];item=shoes'>[]</A>\n\t<B>Belt:</B> <A href='?src=\ref[];item=belt'>[]</A>\n\t<B>Uniform:</B> <A href='?src=\ref[];item=uniform'>[]</A>\n\t<B>(Exo)Suit:</B> <A href='?src=\ref[];item=suit'>[]</A>\n\t<B>Back:</B> <A href='?src=\ref[];item=back'>[]</A> []\n\t<B>ID:</B> <A href='?src=\ref[];item=id'>[]</A>\n\t[]\n\t[]\n\t<A href='?src=\ref[];item=pockets'>Empty Pockets</A>\n<A href='?src=\ref[];mach_close=mob[]'>Close</A>\n</PRE>", src.name, src, (src.wear_mask ? text("[]", src.wear_mask) : "Nothing"), src, (src.w_radio ? text("[]", src.w_radio) : "Nothing"), src, (src.l_hand ? text("[]", src.l_hand) : "Nothing"), src, (src.r_hand ? text("[]", src.r_hand) : "Nothing"), src, (src.gloves ? text("[]", src.gloves) : "Nothing"), src, (src.glasses ? text("[]", src.glasses) : "Nothing"), src, (src.ears ? text("[]", src.ears) : "Nothing"), src, (src.head ? text("[]", src.head) : "Nothing"), src, (src.shoes ? text("[]", src.shoes) : "Nothing"), src, (src.belt ? text("[]", src.belt) : "Nothing"), src, (src.w_uniform ? text("[]", src.w_uniform) : "Nothing"), src, (src.wear_suit ? text("[]", src.wear_suit) : "Nothing"), src, (src.back ? text("[]", src.back) : "Nothing"), ((istype(src.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.back, /obj/item/weapon/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : ""), src, (src.wear_id ? text("[]", src.wear_id) : "Nothing"), (src.handcuffed ? text("<A href='?src=\ref[];item=handcuff'>Handcuffed</A>", src) : text("<A href='?src=\ref[];item=handcuff'>Not Handcuffed</A>", src)), (src.internal ? text("<A href='?src=\ref[];item=internal'>Remove Internal</A>", src) : ""), src, user, html_encode(src.name))
+	var/dat = text("<PRE>\n<B><FONT size=3>[]</FONT></B>\n\t<B>Head(Mask):</B> <A href='?src=\ref[];item=mask'>[]</A>\n\t\t<B>Headset:</B> <A href='?src=\ref[];item=headset'>[]</A>\n\t<B>Left Hand:</B> <A href='?src=\ref[];item=l_hand'>[]</A>\n\t<B>Right Hand:</B> <A href='?src=\ref[];item=r_hand'>[]</A>\n\t<B>Gloves:</B> <A href='?src=\ref[];item=gloves'>[]</A>\n\t<B>Eyes:</B> <A href='?src=\ref[];item=eyes'>[]</A>\n\t<B>Ears:</B> <A href='?src=\ref[];item=ears'>[]</A>\n\t<B>Head:</B> <A href='?src=\ref[];item=head'>[]</A>\n\t<B>Shoes:</B> <A href='?src=\ref[];item=shoes'>[]</A>\n\t<B>Belt:</B> <A href='?src=\ref[];item=belt'>[]</A>\n\t<B>Uniform:</B> <A href='?src=\ref[];item=uniform'>[]</A>\n\t<B>(Exo)Suit:</B> <A href='?src=\ref[];item=suit'>[]</A>\n\t<B>Back:</B> <A href='?src=\ref[];item=back'>[]</A> []\n\t<B>ID:</B> <A href='?src=\ref[];item=id'>[]</A>\n\t[]\n\t[]\n\t<A href='?src=\ref[];item=pockets'>Empty Pockets</A>\n<A href='?src=\ref[];mach_close=mob[]'>Close</A>\n</PRE>", src.name, src, (src.wear_mask ? text("[]", src.wear_mask) : "Nothing"), src, (src.w_radio ? text("[]", src.w_radio) : "Nothing"), src, (src.l_hand ? text("[]", src.l_hand) : "Nothing"), src, (src.r_hand ? text("[]", src.r_hand) : "Nothing"), src, (src.gloves ? text("[]", src.gloves) : "Nothing"), src, (src.glasses ? text("[]", src.glasses) : "Nothing"), src, (src.ears ? text("[]", src.ears) : "Nothing"), src, (src.head ? text("[]", src.head) : "Nothing"), src, (src.shoes ? text("[]", src.shoes) : "Nothing"), src, (src.belt ? text("[]", src.belt) : "Nothing"), src, (src.w_uniform ? text("[]", src.w_uniform) : "Nothing"), src, (src.wear_suit ? text("[]", src.wear_suit) : "Nothing"), src, (src.back ? text("[]", src.back) : "Nothing"), ((istype(src.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.back, /obj/item/weapon/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : ""), src, (src.wear_id ? text("[]", src.wear_id) : "Nothing"), (src.handcuffed ? text("<A href='?src=\ref[];item=handcuff'>Handcuffed</A>", src) : text("<A href='?src=\ref[];item=handcuff'>Not Handcuffed</A>", src)), (src.internal ? text("<A href='?src=\ref[];item=internal'>Remove Internal</A>", src) : ""), src, user, src.name)
 	user << browse(dat, text("window=mob[];size=300x600", html_encode(src.name)))
+	return
 
 /mob/proc/show_message(msg, type, alt, alt_type)
 
@@ -4762,7 +4858,7 @@
 				type = alt_type
 				if ((type & 1 && src.sdisabilities & 1))
 					return
-	src << msg
+	src.client_mob() << msg
 	return
 
 /mob/proc/findname(msg)
@@ -4826,8 +4922,7 @@
 	var/obj/item/weapon/W = src.equipped()
 	if (W)
 		u_equip(W)
-		if (src.client)
-			src.client.screen -= W
+		src.eitherScreenRemove(W)
 		if (usr.stat)
 			return
 		W.loc = src.loc
@@ -4880,8 +4975,7 @@
 	var/obj/item/weapon/W = src.equipped()
 	if (W)
 		u_equip(W)
-		if (src.client)
-			src.client.screen -= W
+		src.eitherScreenRemove(W)
 		if (W)
 			W.loc = src.loc
 			W.dropped(src)
@@ -4890,7 +4984,8 @@
 	return
 
 /mob/proc/reset_view(atom/A)
-
+	if (src.currentDrone!=null)
+		A = src.currentDrone
 	if (src.client)
 		if (istype(A, /atom/movable))
 			src.client.perspective = EYE_PERSPECTIVE
@@ -4910,9 +5005,9 @@
 	var/total = 0
 	usr << "<B>Current Players:</B>"
 	for(var/mob/M in world)
-		if (M.client)
+		if (M.cliented())
 			total++
-			usr << text("\t [] ([]) []", M, M.client, M.health)
+			usr << text("\t [] ([]) []", M, M.cliented(), M.health)
 		//Foreach goto(32)
 	usr << text("<B>Total Players: []</B>", total)
 	return
@@ -4938,7 +5033,7 @@
 
 	user.machine = src
 	var/dat = text("<TT>\n<B><FONT size=3>[]</FONT></B><BR>\n\t<B>Head(Mask):</B> <A href='?src=\ref[];item=mask'>[]</A><BR>\n\t<B>Left Hand:</B> <A href='?src=\ref[];item=l_hand'>[]</A><BR>\n\t<B>Right Hand:</B> <A href='?src=\ref[];item=r_hand'>[]</A><BR>\n\t<B>Back:</B> <A href='?src=\ref[];item=back'>[]</A><BR>\n\t[]<BR>\n\t[]<BR>\n\t[]<BR>\n\t<A href='?src=\ref[];item=pockets'>Empty Pockets</A><BR>\n<A href='?src=\ref[];mach_close=mob[]'>Close</A><BR>\n</TT>", src.name, src, (src.wear_mask ? text("[]", src.wear_mask) : "Nothing"), src, (src.l_hand ? text("[]", src.l_hand) : "Nothing"), src, (src.r_hand ? text("[]", src.r_hand) : "Nothing"), src, (src.back ? text("[]", src.back) : "Nothing"), ((istype(src.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.back, /obj/item/weapon/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : ""), (src.internal ? text("<A href='?src=\ref[];item=internal'>Remove Internal</A>", src) : ""), (src.handcuffed ? text("<A href='?src=\ref[];item=handcuff'>Handcuffed</A>", src) : text("<A href='?src=\ref[];item=handcuff'>Not Handcuffed</A>", src)), src, user, src.name)
-	user << browse(dat, text("window=mob[]", src.name))
+	user << browse(dat, text("window=mob[]", html_encode(src.name)))
 	return
 
 /mob/proc/u_equip(W as obj)
@@ -5113,9 +5208,9 @@
 /mob/proc/boot(mob/M as mob in world, txt as text)
 	set category = "Admin"
 
-	if ((M && M.client && txt))
+	if ((M && M.hasClient() && txt))
 		//M.client = null
-		del(M.client)
+		del(M.alwaysClient())
 
 	if(config.logadmin) world.log << text("ADMIN: [] booted []/[].", src.key,M,M.key)
 	return
@@ -5123,10 +5218,10 @@
 /mob/proc/ban(mob/M as mob in world, txt as text)
 	set category = "Admin"
 
-	if ((M && M.client && txt))
+	if ((M && M.hasClient() && txt))
 		banned += M.ckey
 		//M.client = null
-		del(M.client)
+		del(M.alwaysClient())
 	if(config.logadmin) world.log << text("ADMIN: [] banned []/[].", src.key,M,M.key)
 	return
 
@@ -5179,6 +5274,8 @@
 		del(O)
 		//Foreach goto(20)
 	var/mob/monkey/O = new /mob/monkey( M.loc )
+	if (M.currentDrone!=null)
+		M.currentDrone:releaseControl(0)
 	M.client.mob = O
 	O.loc = M.loc
 	//M = null
@@ -5486,8 +5583,6 @@
 	return
 
 /mob/verb/switch_hud()
-	if (istype(src, /mob/ai))
-		return
 	src.client.screen -= main_hud.contents
 	src.client.screen -= main_hud2.contents
 	if (src.hud_used == main_hud)
@@ -5528,17 +5623,51 @@
 	src.client.screen -= src.hud_used.adding
 	src.client.screen += src.hud_used.adding
 	return
-
+	
 /mob/Login()
 	if(ticker && master_mode == "sandbox" && src.sandbox==null)
 		src.CanBuild()
 
 	src.sight |= SEE_SELF
+	if (CanAdmin())
+		if (src.droneTransitioning==0)
+			src << text("\blue The game ip is byond://[]:[] !", world.address, world.port)
+		src.verbs += /mob/proc/mute
+		src.verbs += /mob/proc/changemessage
+		src.verbs += /mob/proc/boot
+		src.verbs += /mob/proc/changemode
+		src.verbs += /mob/proc/restart
+		src.verbs += /mob/proc/who
+		src.verbs += /mob/proc/change_name
+		src.verbs += /mob/proc/show_help
+		src.verbs += /mob/proc/toggle_ooc
+		src.verbs += /mob/proc/toggle_abandon
+		src.verbs += /mob/proc/toggle_enter
+		src.verbs += /mob/proc/toggle_ai
+		src.verbs += /mob/proc/toggle_shuttle
+		src.verbs += /mob/proc/delay_start
+		src.verbs += /mob/proc/start_now
+		src.verbs += /mob/proc/worldsize
+		src.verbs += /mob/proc/make_gift
+		src.verbs += /mob/proc/make_flag
+		src.verbs += /mob/proc/make_pill
+		src.verbs += /mob/proc/show_ctf
+		src.verbs += /mob/proc/ban
+		src.verbs += /mob/proc/unban
+		src.verbs += /mob/proc/secrets
+		src.verbs += /mob/proc/carboncopy
+		src.verbs += /mob/proc/toggle_alter
+		src.verbs += /mob/proc/list_dna
+		src.verbs += /proc/Vars
+	
 	..()
 	return
 
 /mob/CheckPass(mob/M as mob)
 	if (istype(M, /mob)) //BYOND calls functions even when the passed parameters are not the specified types
+		if (config.walkable_not_pullable_drones)
+			if (istype(src, /mob) && (istype(src, /mob/drone) ^ istype(M, /mob/drone)))
+				return 1
 		if ((src.other_mobs && ismob(M) && M.other_mobs))
 			return 1
 		else
@@ -5675,8 +5804,8 @@
 		src.overlays += image("icon" = 'l_items.dmi', "icon_state" = t1, "layer" = src.layer)
 		src.l_hand.screen_loc = "3,2"
 	if (src.client)
-		src.client.screen -= src.contents
-		src.client.screen += src.contents
+		src.client.screenOrBackupRemove(src.contents)
+		src.client.screenOrBackupAdd(src.contents)
 	return
 
 /mob/ghost/Life()
@@ -5829,20 +5958,11 @@
 	return
 
 /mob/monkey/Bump(atom/movable/AM as mob|obj, yes)
-
 	spawn( 0 )
 		if ((!( yes ) || src.now_pushing))
 			return
 		..()
-		if (!( istype(AM, /atom/movable) ))
-			return
-		if (!( src.now_pushing ))
-			src.now_pushing = 1
-			if (!( AM.anchored ))
-				var/t = get_dir(src, AM)
-				step(AM, t)
-			src.now_pushing = null
-		return
+		src.PushingBump(AM, yes)
 	return
 
 /mob/monkey/Topic(href, href_list)
@@ -5850,7 +5970,7 @@
 	if (href_list["mach_close"])
 		var/t1 = text("window=[]", href_list["mach_close"])
 		src.machine = null
-		src << browse(null, t1)
+		src.client_mob() << browse(null, t1)
 	if ((href_list["item"] && !( usr.stat ) && !( usr.restrained() ) && get_dist(src, usr) <= 1))
 		var/obj/equip_e/monkey/O = new /obj/equip_e/monkey(  )
 		O.source = usr
@@ -5944,41 +6064,96 @@
 	return
 
 /mob/monkey/attack_hand(mob/M as mob)
-
-	if (M.a_intent == "help")
+	if (!ticker)
+		M << "You cannot attack people before the game has started."
+		return
+	var/intentToApply = M.a_intent
+	var/aiControllingBonus = 0
+	var/corruptedIntent = 0
+	
+	if (istype(M, /mob/drone))
+		var/mob/owner = M:controlledBy
+		if (owner!=null && istype(owner, /mob/ai))
+			aiControllingBonus = 1
+		else
+			if (M.a_intent=="help")
+				corruptedIntent = prob(50)
+				if (corruptedIntent)
+					if (prob(75))	//push down
+						intentToApply = "disarm"
+					else
+						intentToApply = "hurt"
+			else if (M.a_intent == "grab")
+				corruptedIntent = prob(50)
+				if (corruptedIntent)
+					if (prob(10))	//push down
+						intentToApply = "disarm"
+					else
+						intentToApply = "hurt"
+			else if (M.a_intent == "hurt")
+				corruptedIntent = prob(30)
+				if (corruptedIntent)
+					if (prob(20))	//push down
+						intentToApply = "disarm"
+					else
+						intentToApply = "grab"
+			else //disarm
+				corruptedIntent = prob(50)
+				if (corruptedIntent)
+					if (prob(50))
+						M.client_mob() << "You tried to disarm them, but managed to miss entirely."
+						for(var/mob/O in viewers(src, null))
+							O.show_message(text("\blue [] attempted to disarm [], but completely missed!", M, src), 1)
+						return
+					//otherwise we push them down
+					
+	if (intentToApply == "help")
 		src.sleeping = 0
 		src.resting = 0
 		for(var/mob/O in viewers(src, null))
-			if ((O.client && !( O.blinded )))
+			if ((O.hasClient() && !( O.blinded )))
 				O.show_message(text("\blue [] shakes the monkey trying to wake him up!", M), 1)
 			//Foreach goto(47)
 	else
-		if (M.a_intent == "hurt")
-			if ((prob(75) && src.health > 0))
+		if (intentToApply == "hurt")
+			if (istype(M, /mob/human))
+				if ((prob(75) && src.health > 0))
+					for(var/mob/O in viewers(src, null))
+						if ((O.hasClient() && !( O.blinded )))
+							O.show_message(text("\red <B>[] has punched the monkey!</B>", M), 1)
+						//Foreach goto(135)
+					var/damage = rand(5, 10)
+					if (prob(40))
+						damage = rand(10, 15)
+						if (src.paralysis < 5)
+							src.paralysis = rand(10, 15)
+							spawn( 0 )
+								for(var/mob/O in viewers(src, null))
+									if ((O.hasClient() && !( O.blinded )))
+										O.show_message(text("\red <B>[] has knocked out the monkey!</B>", M), 1)
+									//Foreach goto(248)
+								return
+					src.bruteloss += damage
+					src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+				else
+					for(var/mob/O in viewers(src, null))
+						if ((O.hasClient() && !( O.blinded )))
+							O.show_message(text("\red <B>[] has attempted to punch the monkey!</B>", M), 1)
+						//Foreach goto(336)
+			else if (istype(M, /mob/drone))
+				var/damage = 0
+				if (corruptedIntent)
+					damage = rand(0, 5)
+				else
+					damage = rand(5, 14)
 				for(var/mob/O in viewers(src, null))
-					if ((O.client && !( O.blinded )))
-						O.show_message(text("\red <B>[] has punched the monkey!</B>", M), 1)
-					//Foreach goto(135)
-				var/damage = rand(5, 10)
-				if (prob(40))
-					damage = rand(10, 15)
-					if (src.paralysis < 5)
-						src.paralysis = rand(10, 15)
-						spawn( 0 )
-							for(var/mob/O in viewers(src, null))
-								if ((O.client && !( O.blinded )))
-									O.show_message(text("\red <B>[] has knocked out the monkey!</B>", M), 1)
-								//Foreach goto(248)
-							return
+					O.show_message(text("\red <B>[] has smacked the monkey!</B>", M), 1)
+				if (corruptedIntent)
+					M << "Oops! You've accidentally hit them."
 				src.bruteloss += damage
 				src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
-			else
-				for(var/mob/O in viewers(src, null))
-					if ((O.client && !( O.blinded )))
-						O.show_message(text("\red <B>[] has attempted to punch the monkey!</B>", M), 1)
-					//Foreach goto(336)
 		else
-			if (M.a_intent == "grab")
+			if (intentToApply == "grab")
 				if (M == src)
 					return
 				var/obj/item/weapon/grab/G = new /obj/item/weapon/grab( M )
@@ -5996,18 +6171,24 @@
 					//Foreach goto(502)
 			else
 				if (!( src.paralysis ))
-					if (prob(25))
+					if (prob(25) || corruptedIntent)
 						src.paralysis = 2
 						for(var/mob/O in viewers(src, null))
-							if ((O.client && !( O.blinded )))
+							if ((O.hasClient() && !( O.blinded )))
 								O.show_message(text("\red <B>[] has pushed down the monkey!</B>", M), 1)
 							//Foreach goto(571)
 					else
 						drop_item()
 						for(var/mob/O in viewers(src, null))
-							if ((O.client && !( O.blinded )))
+							if ((O.hasClient() && !( O.blinded )))
 								O.show_message(text("\red <B>[] has disarmed the monkey!</B>", M), 1)
 							//Foreach goto(638)
+				
+				if (corruptedIntent)
+					if (M.a_intent == "help")
+						M.client_mob() << "You failed to help [src] due to poor control over the drone, and may have knocked \him down, but at least you have not hurt \him."
+					else if (M.a_intent == "grab")
+						M.client_mob() << "You failed to grab [src] due to poor control over the drone, and may have knocked \him down, but at least you have not hurt \him."
 	return
 
 
@@ -6062,25 +6243,25 @@
 			src.overlays += image("icon" = 'monkey.dmi', "icon_state" = "handcuff1", "layer" = src.layer)
 		else
 			src.overlays += image("icon" = 'monkey.dmi', "icon_state" = "handcuff2", "layer" = src.layer)
-	if (src.client)
-		src.client.screen -= src.contents
-		src.client.screen += src.contents
-		src.client.screen -= src.hud_used.m_ints
-		src.client.screen -= src.hud_used.mov_int
+	if (src.hasClient())
+		src.screenOrBackupRemove(src.contents)
+		src.screenOrBackupAdd(src.contents)
+		src.screenOrBackupRemove(src.hud_used.m_ints)
+		src.screenOrBackupRemove(src.hud_used.mov_int)
 		if (src.i_select)
 			if (src.intent)
-				src.client.screen += src.hud_used.m_ints
+				src.screenOrBackupAdd(src.hud_used.m_ints)
 				src.i_select.screen_loc = src.intent
 			else
 				src.i_select.screen_loc = null
 		if (src.m_select)
 			if (src.m_int)
-				src.client.screen += src.hud_used.mov_int
+				src.screenOrBackupAdd(src.hud_used.mov_int)
 				src.m_select.screen_loc = src.m_int
 			else
 				src.m_select.screen_loc = null
 	for(var/mob/M in viewers(1, src))
-		if ((M.client && M.machine == src))
+		if ((M.hasClient() && M.machine == src))
 			spawn( 0 )
 				src.show_inv(M)
 				return
@@ -6088,12 +6269,15 @@
 	return
 
 /mob/monkey/Login()
-
+	if (src.droneTransitioning==1)
+		..()
+		return
+	
 	if (banned.Find(src.ckey))
 		//src.client = null
 		del(src.client)
-	src.client.screen -= main_hud.contents
-	src.client.screen -= main_hud2.contents
+	src.client.screenOrBackupRemove(main_hud.contents)
+	src.client.screenOrBackupRemove(main_hud2.contents)
 	if (!( src.hud_used ))
 		src.hud_used = main_hud
 	src.next_move = 1
@@ -6113,6 +6297,7 @@
 	src.hands = new /obj/screen( null )
 	src.sleep = new /obj/screen( null )
 	src.rest = new /obj/screen( null )
+	
 	..()
 	UpdateClothing()
 	src.oxygen.icon_state = "oxy0"
@@ -6163,12 +6348,12 @@
 	src.sleep.layer = 20
 	src.rest.layer = 20
 	src.client.screen.len = null
-	src.client.screen -= list( src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
-	src.client.screen += list( src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
-	src.client.screen -= src.hud_used.adding
-	src.client.screen += src.hud_used.adding
-	src.client.screen -= src.hud_used.mon_blo
-	src.client.screen += src.hud_used.mon_blo
+	src.client.screenOrBackupRemove(list( src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach ))
+	src.client.screenOrBackupAdd(list( src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach ))
+	src.client.screenOrBackupRemove(src.hud_used.adding)
+	src.client.screenOrBackupAdd(src.hud_used.adding)
+	src.client.screenOrBackupRemove(src.hud_used.mon_blo)
+	src.client.screenOrBackupAdd(src.hud_used.mon_blo)
 	if (!( src.primary ))
 		var/t1 = rand(1000, 1500)
 		dna_ident += t1
@@ -6222,44 +6407,16 @@
 
 			src.loc = pick(L)
 	//src << browse('help.htm', "window=help")
-	if (CanAdmin())
-		src << text("\blue The game ip is byond://[]:[] !", world.internet_address, world.port)
-		src.verbs += /mob/proc/mute
-		src.verbs += /mob/proc/changemessage
-		src.verbs += /mob/proc/boot
-		src.verbs += /mob/proc/changemode
-		src.verbs += /mob/proc/show_ctf
-		src.verbs += /mob/proc/restart
-		src.verbs += /mob/proc/who
-		src.verbs += /mob/proc/change_name
-		src.verbs += /mob/proc/show_help
-		src.verbs += /mob/proc/toggle_ooc
-		src.verbs += /mob/proc/toggle_abandon
-		src.verbs += /mob/proc/toggle_enter
-		src.verbs += /mob/proc/toggle_ai
-		src.verbs += /mob/proc/toggle_shuttle
-		src.verbs += /mob/proc/delay_start
-		src.verbs += /mob/proc/start_now
-		src.verbs += /mob/proc/worldsize
-		src.verbs += /mob/proc/make_gift
-		src.verbs += /mob/proc/make_flag
-		src.verbs += /mob/proc/make_pill
-		src.verbs += /mob/proc/ban
-		src.verbs += /mob/proc/unban
-		src.verbs += /mob/proc/secrets
-		src.verbs += /mob/proc/toggle_alter
-		src.verbs += /mob/proc/carboncopy
-		src.verbs += /mob/proc/list_dna
-		src.verbs += /proc/Vars
 	src << text("\blue <B>[]</B>", world_message)
-	if (!( isturf(src.loc) ))
+	if (src.loc!=null && (!( isturf(src.loc) )))
 		src.client.eye = src.loc
 		src.client.perspective = EYE_PERSPECTIVE
 	src.name = text("monkey ([])", copytext(md5(src.primary.uni_identity), 2, 6))
 	return
 
+/* This code is not identical to the code in /mob/human/Move or /mob/drone/Move, but it is similar. It lacks some things, it appears. --shadowlord13 */
 /mob/monkey/Move()
-
+	
 	if ((!( src.buckled ) || src.buckled.loc != src.loc))
 		src.buckled = null
 	if (src.buckled)
@@ -6274,6 +6431,8 @@
 			//Foreach goto(93)
 	if ((t7 && src.pulling && get_dist(src, src.pulling) <= 1))
 		if (src.pulling.anchored)
+			src.pulling = null
+		if (istype(src.pulling, /mob/drone) && config.walkable_not_pullable_drones)
 			src.pulling = null
 		var/T = src.loc
 		. = ..()
@@ -6302,6 +6461,8 @@
 	return
 
 /mob/monkey/death()
+	if (src.currentDrone!=null)
+		src.currentDrone:releaseControl()
 
 	var/cancel
 	if (src.healths)
@@ -6314,7 +6475,7 @@
 	src.rname = "[src.rname] (Dead)"
 	//src.icon_state = "dead"
 	for(var/mob/M in world)
-		if ((M.client && !( M.stat )))
+		if ((M.cliented() && !( M.stat )))
 			cancel = 1
 		//Foreach goto(79)
 	if (!( cancel ))
@@ -6640,10 +6801,10 @@
 	if (src.eye_blurry > 0)
 		src.eye_blurry--
 		src.eye_blurry = max(0, src.eye_blurry)
-	if (src.client)
-		src.client.screen -= main_hud.g_dither
+	if (src.hasClient())
+		src.screenOrBackupRemove(main_hud.g_dither)
 		if (src.stat!=2 && istype(src.wear_mask, /obj/item/weapon/clothing/mask/gasmask))
-			src.client.screen += main_hud.g_dither
+			src.screenOrBackupAdd(main_hud.g_dither)
 		if (src.mach)
 			if (src.machine)
 				src.mach.icon_state = "mach1"
@@ -6690,18 +6851,18 @@
 				src.oxygen.icon_state = "oxy1"
 			else
 				src.oxygen.icon_state = "oxy0"
-		src.client.screen -= src.hud_used.blurry
-		src.client.screen -= src.hud_used.vimpaired
+		src.screenOrBackupRemove(src.hud_used.blurry)
+		src.screenOrBackupRemove(src.hud_used.vimpaired)
 		if ((src.blind && src.stat != 2))
 			if (src.blinded)
 				src.blind.layer = 18
 			else
 				src.blind.layer = 0
 				if (src.eye_blurry)
-					src.client.screen -= src.hud_used.blurry
-					src.client.screen += src.hud_used.blurry
+					src.screenOrBackupRemove(src.hud_used.blurry)
+					src.screenOrBackupAdd(src.hud_used.blurry)
 				else
-					src.client.screen -= src.hud_used.blurry
+					src.screenOrBackupRemove(src.hud_used.blurry)
 		if (src.stat != 2)
 			if (src.machine)
 				if (!( src.machine.check_eye(src) ))
@@ -6709,7 +6870,7 @@
 			else
 				reset_view(null)
 
-	else
+	else if (!hasClient())
 		if ((src.canmove && prob(10) && isturf(src.loc)))
 			step(src, pick(NORTH, SOUTH, EAST, WEST))
 			if (prob(10))
@@ -6764,7 +6925,7 @@
 
 /mob/monkey/proc/firecheck(turf/T as turf)
 
-	if (T.firelevel < 900000.0)
+	if (T.firelevel < config.min_gas_for_fire)
 		return 0
 	var/total = 0
 	if (src.wear_mask)
@@ -7045,7 +7206,9 @@
 	if (!( usr ))
 		return
 	if (!( src.anchored ))
-		usr.pulling = src
+		/* If it's a drone and walkable_not_pullable_drones is set, you CAN'T pull it. --shadowlord13 */
+		if (!(istype(src, /mob/drone) && config.walkable_not_pullable_drones))
+			usr.pulling = src
 	return
 
 /atom/verb/examine()
@@ -7100,16 +7263,26 @@
 		return
 	if (src.mob.monkeyizing)
 		return
-	var/is_monkey = istype(src.mob, /mob/monkey)
-	if (locate(/obj/item/weapon/grab, locate(/obj/item/weapon/grab, src.mob.grabbed_by.len)))
+	var/mob/thisMob = src.mob
+	var/is_monkey = istype(thisMob, /mob/monkey)
+
+	//Change thisMob and n if they're using a drone and their current mob is not the drone (normally it would be, but in case we add future things that the user's client doesn't transfer to, this code will activate for it)
+	if (thisMob.currentDrone!=null)
+		thisMob = thisMob.currentDrone
+		if (istype(thisMob.loc, /turf))
+			n = get_step(thisMob.loc, direct)
+		else
+			n = null
+
+	if (locate(/obj/item/weapon/grab, locate(/obj/item/weapon/grab, thisMob.grabbed_by.len)))
 		var/list/grabbing = list(  )
-		if (istype(src.mob.l_hand, /obj/item/weapon/grab))
-			var/obj/item/weapon/grab/G = src.mob.l_hand
+		if (istype(thisMob.l_hand, /obj/item/weapon/grab))
+			var/obj/item/weapon/grab/G = thisMob.l_hand
 			grabbing += G.affecting
-		if (istype(src.mob.r_hand, /obj/item/weapon/grab))
-			var/obj/item/weapon/grab/G = src.mob.r_hand
+		if (istype(thisMob.r_hand, /obj/item/weapon/grab))
+			var/obj/item/weapon/grab/G = thisMob.r_hand
 			grabbing += G.affecting
-		for(var/obj/item/weapon/grab/G in src.mob.grabbed_by)
+		for(var/obj/item/weapon/grab/G in thisMob.grabbed_by)
 			if (G.state == 1)
 				if (!( grabbing.Find(G.assailant) ))
 					//G = null
@@ -7118,8 +7291,8 @@
 				if (G.state == 2)
 					src.move_delay = world.time + 10
 					if ((prob(25) && (!( is_monkey ) || prob(25))))
-						for(var/mob/O in viewers(src.mob, null))
-							O.show_message(text("\red [] has broken free of []'s grip!", src.mob, G.assailant), 1)
+						for(var/mob/O in viewers(thisMob, null))
+							O.show_message(text("\red [] has broken free of []'s grip!", thisMob, G.assailant), 1)
 							//Foreach goto(309)
 						//G = null
 						del(G)
@@ -7129,28 +7302,28 @@
 					if (G.state == 2)
 						src.move_delay = world.time + 10
 						if ((prob(5) && !( is_monkey ) || prob(25)))
-							for(var/mob/O in viewers(src.mob, null))
-								O.show_message(text("\red [] has broken free of []'s headlock!", src.mob, G.assailant), 1)
+							for(var/mob/O in viewers(thisMob, null))
+								O.show_message(text("\red [] has broken free of []'s headlock!", thisMob, G.assailant), 1)
 								//Foreach goto(423)
 							//G = null
 							del(G)
 						else
 							return
 			//Foreach goto(189)
-	if (src.mob.canmove)
+	if (thisMob.canmove)
 
-		if(src.mob.m_intent == "face")
-			src.mob.dir = direct
+		if(thisMob.m_intent == "face")
+			thisMob.dir = direct
 
 		var/j_pack = 0
-		if ((istype(src.mob.loc, /turf/space) && !( locate(/obj/move, src.mob.loc) )))
-			if (!( src.mob.restrained() ))
-				if (!( (locate(/obj/grille, oview(1, src.mob)) || locate(/turf/station, oview(1, src.mob))) ))
-					if (istype(src.mob.back, /obj/item/weapon/tank/jetpack))
-						var/obj/item/weapon/tank/jetpack/J = src.mob.back
-						j_pack = J.allow_thrust(100, src.mob)
+		if ((istype(thisMob.loc, /turf/space) && !( locate(/obj/move, thisMob.loc) )))
+			if (!( thisMob.restrained() ))
+				if (!( (locate(/obj/grille, oview(1, thisMob)) || locate(/turf/station, oview(1, thisMob))) ))
+					if (istype(thisMob.back, /obj/item/weapon/tank/jetpack))
+						var/obj/item/weapon/tank/jetpack/J = thisMob.back
+						j_pack = J.allow_thrust(100, thisMob)
 						if(j_pack)
-							var/obj/effects/sparks/ion_trails/I = new /obj/effects/sparks/ion_trails( src.mob.loc )
+							var/obj/effects/sparks/ion_trails/I = new /obj/effects/sparks/ion_trails( thisMob.loc )
 							flick("ion_fade", I)
 							I.icon_state = "blank"
 							spawn( 20 )
@@ -7165,54 +7338,54 @@
 				return 0
 
 
-		if (isturf(src.mob.loc))
+		if (isturf(thisMob.loc))
 			src.move_delay = world.time
 			if ((j_pack && j_pack < 1))
 				src.move_delay += 5
-			switch(src.mob.m_intent)
+			switch(thisMob.m_intent)
 				if("run")
-					if (src.mob.drowsyness > 0)
+					if (thisMob.drowsyness > 0)
 						src.move_delay += 6
 					src.move_delay += 1
 				if("face")
-					src.mob.dir = direct
+					thisMob.dir = direct
 					return
 				if("walk")
 					src.move_delay += 7
 
 
-			src.move_delay += src.mob.m_delay()
+			src.move_delay += thisMob.m_delay()
 
-			src.move_delay += round((100 - src.mob.health) / 20)		//*****RM fix
+			src.move_delay += round((100 - thisMob.health) / 20)		//*****RM fix
 
-			if (src.mob.restrained())
-				for(var/mob/M in range(src.mob, 1))
-					if (((M.pulling == src.mob && (!( M.restrained() ) && M.stat == 0)) || locate(/obj/item/weapon/grab, src.mob.grabbed_by.len)))
+			if (thisMob.restrained())
+				for(var/mob/M in range(thisMob, 1))
+					if (((M.pulling == thisMob && (!( M.restrained() ) && M.stat == 0)) || locate(/obj/item/weapon/grab, thisMob.grabbed_by.len)))
 						src << "\blue You're restrained! You can't move!"
 						return 0
 					//Foreach goto(853)
 			src.moving = 1
-			if (locate(/obj/item/weapon/grab, src.mob))
+			if (locate(/obj/item/weapon/grab, thisMob))
 				src.move_delay = max(src.move_delay, world.time + 7)
-				var/list/L = src.mob.ret_grab()
+				var/list/L = thisMob.ret_grab()
 				if (istype(L, /list))
 					if (L.len == 2)
-						L -= src.mob
+						L -= thisMob
 						var/mob/M = L[1]
-						if ((get_dist(src.mob, M) <= 1 || M.loc == src.mob.loc))
-							var/turf/T = src.mob.loc
+						if ((get_dist(thisMob, M) <= 1 || M.loc == thisMob.loc))
+							var/turf/T = thisMob.loc
 							. = ..()
 							if (isturf(M.loc))
-								var/diag = get_dir(src.mob, M)
+								var/diag = get_dir(thisMob, M)
 								if ((diag - 1) & diag)
 								else
 									diag = null
-								if ((get_dist(src.mob, M) > 1 || diag))
+								if ((get_dist(thisMob, M) > 1 || diag))
 									step(M, get_dir(M.loc, T))
 					else
 						for(var/mob/M in L)
 							M.other_mobs = 1
-							if (src.mob != M)
+							if (thisMob != M)
 								M.animate_movement = 3
 							//Foreach goto(1163)
 						for(var/mob/M in L)
@@ -7225,20 +7398,22 @@
 								return
 							//Foreach goto(1214)
 			else
-				. = ..()
+				//This should be equivalent to . = ..() when thisMob is src.mob, but should make moving thisMob work when thisMob is not src.mob. -shadowlord13
+				walk(thisMob, 0)
+				. = thisMob.Move(n, direct)
 			src.moving = null
 			return .
 		else
-			if (isobj(src.mob.loc))
-				var/obj/O = src.mob.loc
-				if (src.mob.canmove)
-					return O.relaymove(src.mob, direct)
+			if (isobj(thisMob.loc))
+				var/obj/O = thisMob.loc
+				if (thisMob.canmove)
+					return O.relaymove(thisMob, direct)
 	else
 		return
 	return
 
 /client/proc/show_panel()
-	set name = "Administrator Panel"
+	set name = "Admin Panel"
 
 	if (src.holder)
 		src.holder.update()
@@ -7298,3 +7473,120 @@
 	//src.holder = null
 	del(src.holder)
 	return
+
+/client/Topic(href, href_list[], hsrc)
+	//Checking for us using a drone without the drone being our client's mob (won't happen unless we add things which are remote-controlled without the user's client transferring), and changing usr to the drone if so
+	src << "client/Topic(href is ([href]) href_list is ([href_list]) hsrc is ([hsrc])."
+	if (src.mob!=null)
+		src << "src.mob is [src.mob]."
+		if (src.mob.currentDrone!=null)
+			if (!istype(src.mob.currentDrone:equipped(), /obj/item/weapon/drone/aiInterface))
+				src << "src.mob.currentDrone is [src.mob.currentDrone]. Setting usr."
+				usr = src.mob.currentDrone
+	src << "usr is [usr]."
+	..()
+
+/* The primary purpose of client/proc/screenOrBackup, client/proc/screenOrBackupAdd, client/proc/screenOrBackupRemove, and mob/proc/client_mob (and overloaded mob/somesubclass/client_mob) is to provide a single point of change if, in the future, we need the capability to have a mob remote-controlling another mob or object without the mob's client being changed, if we want the client to have only HUD icons related to the thing they are controlling, without stopping their actual mob from having its appearance updated. An example would someone remote-controlling a torpedo.
+
+src.screenOrBackupAdd(value) replaces src.screen += value, and src.screenOrBackupRemove(value) replaces src.screen -= value. (All instances of that which were relevant were changed. Some which only occured during login or char setup may have been ignored.)
+
+Originally the robot drone was being implemented in this manner, but I didn't find any way to make verbs work, so I preserved this and switched over to changing the client while controlling a drone instead. It was tested while the drone was working in this fashion, and did work.
+--shadowlord13 */
+
+/client/proc/screenOrBackup()
+	if (src.mob!=null)
+		if (src.mob.currentDrone!=null)
+			return src.mob.currentDrone:savedDroneIcons
+		else if (istype(src.mob, /mob/drone))
+			return src.mob:savedDroneIcons
+	return screen
+
+/client/proc/screenOrBackupAdd(value)
+	var/list/L = src.screenOrBackup()
+	L += value
+
+/client/proc/screenOrBackupRemove(value)
+	var/list/L = src.screenOrBackup()
+	L -= value
+
+/mob/proc/screenOrBackupAdd(value)
+	var/client/client = alwaysClient()
+	if (client)
+		client.screenOrBackupAdd(value)
+
+/mob/proc/screenOrBackupRemove(value)
+	var/client/client = alwaysClient()
+	if (client)
+		client.screenOrBackupRemove(value)
+
+/* These are perhaps a bit better than the screenOrBackupAdd and screenOrBackupRemove. If the mob has a client, it uses screen. If not, it checks currentDrone and uses current_mob. If it doesn't have either, it does nothing. This can replace several statements with one function call. */
+/mob/proc/eitherScreenRemove(value)
+	if (src.client)
+		src.client.screen -= value
+	else
+		src.screenOrBackupRemove(value)
+		
+/mob/proc/eitherScreenAdd(value)
+	if (src.client)
+		src.client.screen += value
+	else
+		src.screenOrBackupAdd(value)
+		
+/* client_mob returns the mob belonging to the actual client associated with this mob. To explain that more sensibly:
+	A player whose key is 'foo' joins the game, and makes a character named 'bar'.
+	Bar takes control of a drone. This changes foo's client from bar to the drone, but sets foo.currentDrone to bar, and sets bar.controlledBy to foo.
+	If you call client_mob() on bar, it will return the drone. If you call it on the drone, it will still return the drone.
+	
+	In the future, if we add remote-controlled objects or mobs which the controller's client doesn't transfer to, this should also handle that as well. Additionally, code is already in-place and fairly tested (there's one known bug: it can't push obstructions out of the way) in client/Move for supporting forwarding movement requests to the remote-controlled mob and such as well.
+	
+	--shadowlord13
+*/
+/mob/proc/client_mob()
+	if (src.client!=null)
+		return src
+	else
+		var/mob/owner = src.currentDrone
+		if (owner!=null)
+			return owner
+		else
+			return src
+
+/mob/proc/clientMob()
+	return src.client_mob()
+	
+/mob/proc/alwaysClient()
+	var/mob/mob = src.client_mob()
+	return mob.client
+
+/* 	This is intended for use in places which loop through all the mobs in the world to find clients. It will result in those functions selecting/examining/whatever the original mobs instead of drones - if the player is controlling a drone, the player's original mob will have a non-null cliented() return value, but the drone will have null.
+	If called on a normal player with a client, this returns their client.
+	If called on a drone, this will return null whether it's controlled by a player or not.
+	If called on the mob which is controlling a drone, and that drone has a client, this will return that client. (If the player took control of a drone and then logged out, this will return null)
+	
+	This would be used like so:
+		if(M.cliented())
+			M.client_mob() << browse(null, "window=vote")
+			M.cliented().showvote = 0
+
+	The old version of that was:
+		if(M.client)
+			M << browse(null, "window=vote")
+			M.client.showvote = 0
+
+	--shadowlord13
+*/
+/mob/proc/cliented()
+	if (src.currentDrone!=null)
+		return src.currentDrone:client
+	else if (istype(src, /mob/drone))
+		return null
+	else
+		return src.client
+
+/mob/proc/hasClient()
+	if (src.client!=null)
+		return 1
+	else if (src.currentDrone!=null && src.currentDrone:client!=null)
+		return 1
+	else
+		return 0

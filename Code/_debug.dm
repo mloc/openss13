@@ -470,5 +470,6 @@
 
 	world.log << "\nTotals: M=[num2text(mplas, 10)] T=[num2text(tplas, 10)], all = [num2text(mplas+tplas, 10)]"
 
-
-
+//Pops up the take-off / put-on dialog, but for yourself.
+/mob/human/proc/ShowMyInv()
+	src.show_inv(src)

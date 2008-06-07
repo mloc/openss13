@@ -16,11 +16,11 @@ obj/machinery/door/firedoor
 	// Standard open and close procs do not work with firedoors
 
 	open()
-		usr << "This is a remote firedoor!"
+		usr.client_mob() << "This is a remote firedoor!"
 
 
 	close()
-		usr << "This is a remote firedoor!"
+		usr.client_mob() << "This is a remote firedoor!"
 
 
 

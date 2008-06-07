@@ -25,18 +25,18 @@
 	
 /obj/item/weapon/aiModule/proc/install(var/obj/machinery/computer/aiupload/comp)
 	if(comp.stat & NOPOWER)
-		usr << "The upload computer has no power!"
+		usr.client_mob() << "The upload computer has no power!"
 		return
 	if(comp.stat & BROKEN)
-		usr << "The upload computer is broken!"
+		usr.client_mob() << "The upload computer is broken!"
 		return
 	
 	var/found=0
 	for(var/mob/ai/M in world)
 		if (M.stat == 2)
-			usr << "Upload failed. No signal is being detected from the AI."
+			usr.client_mob() << "Upload failed. No signal is being detected from the AI."
 		else if (M.see_in_dark == 0)
-			usr << "Upload failed. Only a faint signal is being detected from the AI, and it is not responding to our requests. It may be low on power."
+			usr.client_mob() << "Upload failed. Only a faint signal is being detected from the AI, and it is not responding to our requests. It may be low on power."
 		else
 			src.transmitInstructions(M, usr)
 			if (M != ticker.killer)
@@ -45,7 +45,7 @@
 			usr << "Upload complete. The AI's laws have been modified."
 		found=1
 	if (!found)
-		usr << "Upload failed. No signal is being detected from the AI."
+		usr.client_mob() << "Upload failed. No signal is being detected from the AI."
 	
 /obj/item/weapon/aiModule/proc/transmitInstructions(var/mob/ai/target, var/mob/sender)
 	if (ticker.killer == target)

@@ -124,11 +124,11 @@
 		return
 
 	if(get_dist(T,user) > 1)
-		user << "You can't lay pipe at a place that far away."
+		user.client_mob() << "You can't lay pipe at a place that far away."
 		return
 
 	if(!T.intact && (ptype == 2 || ptype == 3 || ptype == 6) )
-		user << "That type of pipe cannot be laid under the floor."
+		user.client_mob() << "That type of pipe cannot be laid under the floor."
 		return
 
 
@@ -233,7 +233,7 @@
 
 				if(M.level == src.level)		// only on same level
 					if( (M.p_dir & pipedir) || (M.h_dir & pipedir) )	// matches at least one direction on either type of pipe
-						user << "There is already a pipe at that location and position."
+						user.client_mob() << "There is already a pipe at that location and position."
 						return
 
 

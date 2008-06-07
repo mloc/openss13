@@ -43,7 +43,9 @@ obj/machinery/computer/pod
 		if(stat & (NOPOWER|BROKEN)) return
 
 		if (!( src.connected ))
-			viewers(null, null) << "Cannot locate mass driver connector. Cancelling firing sequence!"
+			var/list/observers = viewers(null, null)
+			for (var/mob/who in observers)
+				who.client_mob() << "Cannot locate mass driver connector. Cancelling firing sequence!"
 			return
 
 		for(var/obj/machinery/door/poddoor/M in machines)
@@ -116,7 +118,7 @@ Time Left: [(minute ? "[minute]:" : null)][second] <A href='?src=\ref[src];tp=-3
 			dat += "<BR>\n<A href = '?src=\ref[src];door=1'>Toggle Outer Door</A><BR>"
 
 		dat += "<BR><BR><A href='?src=\ref[user];mach_close=computer'>Close</A></TT></BODY></HTML>"
-		user << browse(dat, "window=computer;size=400x500")
+		user.client_mob() << browse(dat, "window=computer;size=400x500")
 
 
 	// Handle topic links from interaction window
@@ -125,7 +127,7 @@ Time Left: [(minute ? "[minute]:" : null)][second] <A href='?src=\ref[src];tp=-3
 		..()
 
 		if(stat & (NOPOWER|BROKEN))
-			usr << browse(null, "window=computer")
+			usr.client_mob() << browse(null, "window=computer")
 			return
 
 		if (usr.restrained() || usr.lying)
@@ -133,9 +135,10 @@ Time Left: [(minute ? "[minute]:" : null)][second] <A href='?src=\ref[src];tp=-3
 				return
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			if (!istype(usr, /mob/ai))		
-				usr << "\red You don't have the dexterity to do this!"
-				return
+			if (!istype(usr, /mob/ai))
+				if (!istype(usr, /mob/drone))
+					usr.client_mob() << "\red You don't have the dexterity to do this!"
+					return
 		if ((usr.stat || usr.restrained()))
 			if (!istype(usr, /mob/ai))
 				return

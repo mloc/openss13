@@ -23,7 +23,7 @@
 		dat += variable(usr, V, D.vars[V])	 	//get the text for that variable
 
 	dat += "</BODY>"
-	usr << browse(dat, "window=\ref[D]")		// display the browser pop-up
+	usr.client_mob() << browse(dat, "window=\ref[D]")		// display the browser pop-up
 
 
 // return a HTML formatted string displaying a variable
@@ -45,7 +45,7 @@
 
 		#ifdef VARSICON
 		var/rnd = rand(1,10000)					// use random number in filename to avoid conflicts
-		user << browse_rsc(val, "tmp\ref[val][rnd].png")	// precache the icon image file
+		user.client_mob() << browse_rsc(val, "tmp\ref[val][rnd].png")	// precache the icon image file
 		t+="<IMG SRC=\"tmp\ref[val][rnd].png\">"			// and add the icon to the HTML
 		#endif
 

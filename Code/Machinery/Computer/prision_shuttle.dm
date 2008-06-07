@@ -61,7 +61,7 @@ obj/machinery/computer/prison_shuttle
 						del(T)
 				prison_entered = 1
 			else
-				usr << "\blue There is an obstructing shuttle!"
+				usr.client_mob() << "\blue There is an obstructing shuttle!"
 
 
 	// Restabalize verb
@@ -70,7 +70,9 @@ obj/machinery/computer/prison_shuttle
 	verb/restabalize()
 		set src in oview(1)
 
-		viewers(null, null) << "\red <B>Restabalizing prison shuttle atmosphere!</B>"
+		var/list/observers = viewers(null, null)
+		for (var/mob/who in observers)
+			who.client_mob() << "\red <B>Restabilizing prison shuttle atmosphere!</B>"
 		var/A = locate(/area/shuttle_prison)
 		for(var/obj/move/T in A)
 			T.firelevel = 0
@@ -93,5 +95,7 @@ obj/machinery/computer/prison_shuttle
 			T.otemp = T20C
 			T.ttemp = T20C
 
-		viewers(null, null) << "\red <B>Prison shuttle Restabalized!</B>"
+		observers = viewers(null, null)
+		for (var/mob/who in observers)
+			who.client_mob() << "\red <B>Prison shuttle Restabilized!</B>"
 		src.add_fingerprint(usr)

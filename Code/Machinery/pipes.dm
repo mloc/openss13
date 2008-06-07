@@ -253,7 +253,7 @@ obj/machinery/pipes
 			if(WT.welding && WT.weldfuel > 3)
 				WT.weldfuel -=3
 
-				user << "\blue Cutting the pipe. Stand still as this takes some time."
+				user.client_mob() << "\blue Cutting the pipe. Stand still as this takes some time."
 				var/turf/T = user.loc
 				sleep(50)
 

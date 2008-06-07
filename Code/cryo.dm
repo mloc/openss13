@@ -3,8 +3,8 @@
 /obj/item/weapon/flasks/examine()
 	set src in oview(1)
 
-	usr << text("The flask is []% full", (src.oxygen + src.plasma + src.coolant) * 100 / 500)
-	usr << "The flask can ONLY store liquids."
+	usr.client_mob() << text("The flask is []% full", (src.oxygen + src.plasma + src.coolant) * 100 / 500)
+	usr.client_mob() << "The flask can ONLY store liquids."
 	return
 
 /mob/human/abiotic()

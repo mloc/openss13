@@ -24,13 +24,13 @@ obj/machinery/cell_charger
 
 		if(istype(W, /obj/item/weapon/cell))
 			if(charging)
-				user << "There is already a cell in the charger."
+				user.client_mob() << "There is already a cell in the charger."
 				return
 			else
 				user.drop_item()
 				W.loc = src
 				charging = W
-				user << "You insert the cell into the charger."
+				user.client_mob() << "You insert the cell into the charger."
 				chargelevel = -1
 
 
@@ -78,7 +78,7 @@ obj/machinery/cell_charger
 			charging.updateicon()
 
 			src.charging = null
-			user << "You remove the cell from the charger."
+			user.client_mob() << "You remove the cell from the charger."
 			chargelevel = -1
 			updateicon()
 

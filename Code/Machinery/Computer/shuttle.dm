@@ -22,7 +22,7 @@ obj/machinery/computer/shuttle
 	verb/restabalize()
 		set src in oview(1)
 
-		world << "\red <B>Restabalizing shuttle atmosphere!</B>"
+		world << "\red <B>Restabilizing shuttle atmosphere!</B>"
 		var/A = locate(/area/shuttle)
 		for(var/obj/move/T in A)
 			T.firelevel = 0
@@ -45,7 +45,7 @@ obj/machinery/computer/shuttle
 			T.otemp = T20C
 			T.ttemp = T20C
 
-		world << "\red <B>Shuttle Restabalized!</B>"
+		world << "\red <B>Shuttle Restabilized!</B>"
 		src.add_fingerprint(usr)
 
 
@@ -75,7 +75,7 @@ obj/machinery/computer/shuttle
 		if ((!( istype(W, /obj/item/weapon/card/id) ) || !( ticker ) || ticker.shuttle_location == shuttle_z || !( user )))
 			return
 		if (!W.check_access(access, allowed))
-			user << text("The access level ([]) of [] card is not high enough. ", W.access_level, W.registered)
+			user.client_mob() << text("The access level ([]) of [] card is not high enough. ", W.access_level, W.registered)
 			return
 		var/choice = alert(user, text("Would you like to (un)authorize a shortened launch time? [] authorization\s are still needed. Use abort to cancel all authorizations.", src.auth_need - src.authorized.len), "Shuttle Launch", "Authorize", "Repeal", "Abort")
 		switch(choice)

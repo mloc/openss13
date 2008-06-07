@@ -114,7 +114,7 @@ Important Notes:<BR>
 
 			else
 				dat += "<A href='?src=\ref[src];login=1'>{Log In}</A>"
-		user << browse("<HEAD><TITLE>Medical Records</TITLE></HEAD><TT>[dat]</TT>", "window=med_rec")
+		user.client_mob() << browse("<HEAD><TITLE>Medical Records</TITLE></HEAD><TT>[dat]</TT>", "window=med_rec")
 
 
 

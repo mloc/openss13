@@ -36,8 +36,8 @@ obj/machinery/atmoalter/siphs
  *  fullairsiphon/air_vent  -   Air Regulator - Vent on floor, same as fullairsiphon but cannot hold a tank.
  *
  *	scrubbers				- 	Scrubber - Can hold a tank. Starts empty. Automatic process removes toxins from air and stores in gas content.
- *  scubbers/port			-   Portable Scrubber - same as scrubbers but pushable.
- *	scubbers/air_filter		- 	Air Filter - Vent on floor, same as scrubbers but cannot hold a tank.
+ *  scrubbers/port			-   Portable Scrubber - same as scrubbers but pushable.
+ *	scrubbers/air_filter	- 	Air Filter - Vent on floor, same as scrubbers but cannot hold a tank.
  */
 
 	// new siphon object, create the gas content and set maximum capacity
@@ -212,7 +212,7 @@ obj/machinery/atmoalter/siphs
 						use_power(50, ENVIRON)
 
 					if (T)
-						if (T.firelevel > 900000.0)
+						if (T.firelevel > config.min_gas_for_fire)
 							src.f_time = world.time + 300		// shut off automatic operation for 30 seconds if fire present
 						else
 							if (world.time > src.f_time)
@@ -273,7 +273,7 @@ obj/machinery/atmoalter/siphs
 		if (src.t_status == 4)
 			at = "Automatic On <A href='?src=\ref[src];t=3'>Stop</A>"
 		var/dat = text("<TT><B>Canister Valves</B> []<BR>\n\t<FONT color = 'blue'><B>Contains/Capacity</B> [] / []</FONT><BR>\n\tUpper Valve Status: [] []<BR>\n\t\t<A href='?src=\ref[];tp=-[]'>M</A> <A href='?src=\ref[];tp=-10000'>-</A> <A href='?src=\ref[];tp=-1000'>-</A> <A href='?src=\ref[];tp=-100'>-</A> <A href='?src=\ref[];tp=-1'>-</A> [] <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=100'>+</A> <A href='?src=\ref[];tp=1000'>+</A> <A href='?src=\ref[];tp=10000'>+</A> <A href='?src=\ref[];tp=[]'>M</A><BR>\n\tPipe Valve Status: []<BR>\n\t\t<A href='?src=\ref[];cp=-[]'>M</A> <A href='?src=\ref[];cp=-10000'>-</A> <A href='?src=\ref[];cp=-1000'>-</A> <A href='?src=\ref[];cp=-100'>-</A> <A href='?src=\ref[];cp=-1'>-</A> [] <A href='?src=\ref[];cp=1'>+</A> <A href='?src=\ref[];cp=100'>+</A> <A href='?src=\ref[];cp=1000'>+</A> <A href='?src=\ref[];cp=10000'>+</A> <A href='?src=\ref[];cp=[]'>M</A><BR>\n<BR>\n\n<A href='?src=\ref[];mach_close=siphon'>Close</A><BR>\n\t</TT>", (!( src.alterable ) ? "<B>Valves are locked. Unlock with wrench!</B>" : "You can lock this interface with a wrench."), num2text(src.gas.tot_gas(), 10), num2text(src.maximum, 10), (src.t_status == 4 ? text("[]", at) : text("[]", tt)), (src.holding ? text("<BR>(<A href='?src=\ref[];tank=1'>Tank ([]</A>)", src, src.holding.gas.tot_gas()) : null), src, num2text(max_valve, 7), src, src, src, src, src.t_per, src, src, src, src, src, num2text(max_valve, 7), ct, src, num2text(max_valve, 7), src, src, src, src, src.c_per, src, src, src, src, src, num2text(max_valve, 7), user)
-		user << browse(dat, "window=siphon;size=600x300")
+		user.client_mob() << browse(dat, "window=siphon;size=600x300")
 		return
 
 
@@ -332,7 +332,7 @@ obj/machinery/atmoalter/siphs
 			src.updateDialog()
 			src.add_fingerprint(usr)
 		else
-			usr << browse(null, "window=canister")
+			usr.client_mob() << browse(null, "window=canister")
 			return
 		return
 
@@ -373,9 +373,9 @@ obj/machinery/atmoalter/siphs
 		else if (istype(W, /obj/item/weapon/wrench))		// lock/unlock the interface
 			src.alterable = !( src.alterable )
 			if (src.alterable)
-				user << "\blue You unlock the interface!"
+				user.client_mob() << "\blue You unlock the interface!"
 			else
-				user << "\blue You lock the interface!"
+				user.client_mob() << "\blue You lock the interface!"
 
 
 	/*
@@ -509,7 +509,7 @@ obj/machinery/atmoalter/siphs
 				if (istype(T, /turf))
 					if (locate(/obj/move, T))
 						T = locate(/obj/move, T)
-					if (T.firelevel < 900000.0)
+					if (T.firelevel < config.min_gas_for_fire)
 						src.gas.turf_add_all_oxy(T)
 
 				else
@@ -555,7 +555,7 @@ obj/machinery/atmoalter/siphs
 					if(4.0)								// 4 = automatic mode
 						if( !portable() ) use_power(50, ENVIRON)
 						if (T)
-							if (T.firelevel > 900000.0)
+							if (T.firelevel > config.min_gas_for_fire)
 								src.f_time = world.time + 300	// disable automatic mode for 30 seconds if a fire present
 							else
 								if (world.time > src.f_time)
@@ -568,10 +568,7 @@ obj/machinery/atmoalter/siphs
 			// Pipe valve status handled by /obj/machinery/connector/process()
 
 			src.setstate()
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
-				//Foreach goto(654)
+			src.updateDialog()
 			return
 
 

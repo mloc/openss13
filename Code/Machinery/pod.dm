@@ -79,6 +79,8 @@ obj/machinery/pod
 
 	// Eject from pod - place player behind pod and restore view
 
+	//I left these all as regular .client since the verbs won't work if the mob doesn't have the client anyhow (a remote-controlled mob with no client won't be able to use the verbs). --shadowlord13
+
 	verb/eject()
 		set src = usr.loc
 
@@ -127,8 +129,8 @@ obj/machinery/pod
 						M.client.perspective = EYE_PERSPECTIVE
 						M.client.eye = src
 				for(var/mob/O in viewers(src, null))
-					if ((O.client && !( O.blinded )))
-						O << text("\blue <B> [] loads [] into []!</B>", H, H.pulling, src)
+					if (O.hasClient() && (!( O.blinded )))
+						O.client_mob() << text("\blue <B> [] loads [] into []!</B>", H, H.pulling, src)
 				H.pulling = null
 		return
 
@@ -144,8 +146,8 @@ obj/machinery/pod
 		if (istype(A, /atom/movable))
 			A.loc = src.loc
 			for(var/mob/O in viewers(src, null))
-				if ((O.client && !( O.blinded )))
-					O << text("\blue <B> [] unloads [] from []!</B>", usr, A, src)
+				if (O.hasClient() && (!( O.blinded )))
+					O.client_mob() << text("\blue <B> [] unloads [] from []!</B>", usr, A, src)
 				//Foreach goto(54)
 			if (ismob(A))
 				var/mob/M = A

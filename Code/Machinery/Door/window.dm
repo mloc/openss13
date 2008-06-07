@@ -88,6 +88,9 @@ obj/machinery/door/window
 			return
 
 		var/obj/item/weapon/card/id/card				// check if user is human and wearing ID
+		if (istype(user, /mob/drone))
+			if (user:controlledBy != null)
+				user = user:controlledBy
 		if (istype(user, /mob/human))
 			var/mob/human/H = user
 			card = H.wear_id

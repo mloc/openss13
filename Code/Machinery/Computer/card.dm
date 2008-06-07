@@ -146,7 +146,7 @@ obj/machinery/computer/card
 				dat = text("<TT><B>Identification Card Modifier</B><BR>\n<I>Please Insert the cards into the slots</I><BR>\nTarget: <A href='?src=\ref[];modify=1'>[]</A><BR>\nConfirm Identity: <A href='?src=\ref[];scan=1'>[]</A><BR>\n-----------------<BR>\n[]<BR>\n<BR>\n<BR>\n<A href='?src=\ref[];mode=1'>Access Crew Manifest</A><BR>\n</TT>", src, (src.modify ? text("[]", src.modify.name) : "----------"), src, (src.scan ? text("[]", src.scan.name) : "----------"), d1, src)
 			else
 				dat = text("<TT><B>[]</B><BR>\n<I>[]</I><BR>\n[] <A href='?src=\ref[];modify=1'>[]</A><BR>\n[] <A href='?src=\ref[];scan=1'>[]</A><BR>\n-----------------<BR>\n[]<BR>\n<BR>\n<BR>\n<A href='?src=\ref[];mode=1'>[]</A><BR>\n</TT>", stars("Identification Card Modifier"), stars("Please Insert the cards into the slots"), stars("Target:"), src, (src.modify ? text("[]", stars(src.modify.name)) : "----------"), stars("Confirm Identity:"), src, (src.scan ? text("[]", stars(src.scan.name)) : "----------"), d1, src, stars("Access Crew Manifest"))
-		user << browse(dat, "window=id_com;size=400x500")
+		user.client_mob() << browse(dat, "window=id_com;size=400x500")
 
 
 	// Handle topic links from interaction window
@@ -155,7 +155,7 @@ obj/machinery/computer/card
 		..()
 
 		if(stat & (NOPOWER|BROKEN))
-			usr << browse(null, "window=id_com")
+			usr.client_mob() << browse(null, "window=id_com")
 			return
 
 		if(usr.restrained() || usr.lying)
@@ -164,7 +164,7 @@ obj/machinery/computer/card
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 			if (!istype(usr, /mob/ai))		
-				usr << "\red You don't have the dexterity to do this!"
+				usr.client_mob() << "\red You don't have the dexterity to do this!"
 				return
 		if ((usr.stat || usr.restrained()))
 			if (!istype(usr, /mob/ai))
@@ -206,7 +206,7 @@ obj/machinery/computer/card
 							src.authenticated = 1
 				else if (!href_list["print"])
 					if ((!( src.authenticated ) && (istype(usr, /mob/ai))) && (!src.modify))
-						usr << "You can't modify an ID without an ID inserted to modify. Once one is in the modify slot on the computer, you can log in."
+						usr.client_mob() << "You can't modify an ID without an ID inserted to modify. Once one is in the modify slot on the computer, you can log in."
 			
 			if (href_list["vo"])
 				if (src.authenticated)
@@ -274,13 +274,11 @@ obj/machinery/computer/card
 			if (src.modify)
 				src.modify.name = "[src.modify.registered]'s ID Card ([src.modify.access_level]>[src.modify.lab_access]-[src.modify.engine_access]-[src.modify.air_access])"
 
-			for(var/mob/M in viewers(1, src))
-				if ((M.client && M.machine == src))
-					src.attack_hand(M)
+			src.updateDialog()
 
 			src.add_fingerprint(usr)
 		else
-			usr << browse(null, "window=id_com")
+			usr.client_mob() << browse(null, "window=id_com")
 
 
 	// Called when area power state changes

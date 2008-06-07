@@ -136,7 +136,7 @@ obj/machinery/power
 
 			for(var/obj/cable/LC in T)
 				if(LC.d1 == dirn || LC.d2 == dirn)
-					user << "There's already a cable at that position."
+					user.client_mob() << "There's already a cable at that position."
 					return
 
 			var/obj/cable/NC = new(T)

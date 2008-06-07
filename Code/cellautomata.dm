@@ -84,7 +84,7 @@
 				//Foreach goto(507)
 	return
 
-/obj/team/proc/show_screen(user as mob)
+/obj/team/proc/show_screen(mob/user as mob)
 
 	var/dat = "<H1>CTF Team</H1><HR><PRE>"
 	dat += text("<A href='?src=\ref[];disband=1'>\[disband\]</A>\n", src)
@@ -96,7 +96,7 @@
 		//Foreach goto(79)
 	dat += text("Base: \t<A href='?src=\ref[];base=1'>[]</A>\nColor: \t<A href='?src=\ref[];color=1'>[]</A>\n\n<A href='?src=\ref[];nothing=1'>Refresh</A>", src, src.base, src, src.color, src)
 	dat += "</PRE>"
-	user << browse(dat, "window=ctf_team")
+	user.client_mob() << browse(dat, "window=ctf_team")
 	return
 
 /obj/team/Topic(href, href_list)
@@ -127,7 +127,7 @@
 		if (href_list["captain"])
 			var/L = list(  )
 			for(var/mob/human/H in world)
-				if (H.client)
+				if (H.client || H.currentDrone!=null)
 					L += H
 				//Foreach goto(331)
 			for(var/obj/team/T in world)
@@ -213,14 +213,14 @@
 	return src.picker
 	return
 
-/obj/ctf_assist/proc/show_pick(user as mob)
+/obj/ctf_assist/proc/show_pick(mob/user as mob)
 
 	var/dat = "<H1>CTF Mode Pick</H1><HR>"
 	dat += text("<B>Players (per Team): []</B><BR>\n<B>\"Please Pick a Player</B><BR>", src.play_team)
 	for(var/mob/human/H in src.players_left)
 		dat += text("<A href='?src=\ref[];pick=\ref[]'>[] ([])</A><BR>", src, H, H.rname, H.key)
 		//Foreach goto(39)
-	user << browse(dat, "window=ctf_pick")
+	user.client_mob() << browse(dat, "window=ctf_pick")
 	return
 
 /obj/ctf_assist/proc/get_team(captain as mob)
@@ -258,12 +258,12 @@
 		world << text("<B>Team: [] Team led by [] in []</B>", uppertext(winner.color), winner.captain, winner.base)
 		world << "<B>Original Members:</B>"
 		for(var/mob/human/H in winner.members)
-			if (H.client)
+			if (H.client || H.currentDrone!=null)
 				world << text("\t [] ([])", H.rname, H.key)
 			//Foreach goto(266)
 	return
 
-/obj/ctf_assist/proc/show_screen(user as mob)
+/obj/ctf_assist/proc/show_screen(mob/user as mob)
 
 	var/dat = "<H2>CTF Mode Helper</H2><HR><PRE>"
 	dat += text("Players (per Team): <A href='?src=\ref[];play_team=1'>[]</A>\nBarrier Time: <A href='?src=\ref[];barriertime=1'>[] minutes</A>\n\n<B>Teams:</B>\n", src, src.play_team, src, src.barriertime)
@@ -281,7 +281,7 @@
 		//Foreach goto(43)
 	dat += text("<A href='?src=\ref[];add_team=1'>\[Add Team\]</A>\n<A href='?src=\ref[];select_team=1'>Captains Select Members</A>\n\n<A href='?src=\ref[];start=1'>Start the Game (and Set up Map)</A>\n\n<B>Win Options: []</B>\n<A href='?src=\ref[];win=collect'>Collection</A> - All flags same color on clipboard\n<A href='?src=\ref[];win=convert'>Conversion</A> - All flags same color\n<A href='?src=\ref[];win=none'>None</A>\n\n<B>Other Options:</B>\nAuto-Dress (Teams): <A href='?src=\ref[];autodress=1'>[]</A>\nRemove Engine Ejection: <A href='?src=\ref[];ejectengine=1'>[]</A>\nPaint Cans: <A href='?src=\ref[];paint_cans=1'>[]</A>\nImmobile flags (Territory): <A href='?src=\ref[];immobile=1'>[]</A>\nAdd Neutral Flags to Unused Bases: <A href='?src=\ref[];neutral_replace=1'>[]</A>\n\n<A href='?src=\ref[];nothing=1'>Refresh</A>", src, src, src, src.wintype, src, src, src, src, (src.autodress ? "Yes" : "No"), src, (src.ejectengine ? "Yes" : "No"), src, (src.paint_cans ? "Yes" : "No"), src, (src.immobile ? "Yes" : "No"), src, (src.neutral_replace ? "Yes" : "No"), src)
 	dat += "</PRE>"
-	user << browse(dat, "window=ctf_assist")
+	user.client_mob() << browse(dat, "window=ctf_assist")
 	return
 
 /obj/ctf_assist/Topic(href, href_list)
@@ -299,7 +299,7 @@
 					next_pick()
 			return
 		else
-			usr << "<B>It's not your turn!</B>"
+			usr.client_mob() << "<B>It's not your turn!</B>"
 	if (!( usr.CanAdmin() ))
 		return
 	if (href_list["team"])
@@ -351,7 +351,7 @@
 				src.picking = 0
 				src.players_left.len = 0
 				src.pickers_left.len = 0
-				usr << "<B>Not enough players/teams!</B>"
+				usr.client_mob() << "<B>Not enough players/teams!</B>"
 				return
 			world << "<B>Now Selecting Teams!!!</B>"
 			src.picker = pick(src.pickers_left)
@@ -512,7 +512,7 @@
 
 	if(href_list["vmode"])
 
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 			vote.mode = text2num(href_list["vmode"])-1 	// hack to yield 0=restart, 1=changemode
 			vote.voting = 1						// now voting
 			vote.votetime = world.timeofday + config.voteperiod*10	// when the vote will end
@@ -526,11 +526,12 @@
 			if(config.logvote || config.logadmin)	world.log << "VOTE/ADMIN: Voting to [vote.mode?"change mode":"restart round"] forced by admin [usr.key]"
 
 			for(var/mob/CM in world)
-				if(CM.client)
-					CM.client.vote = "default"
+				var/client/CCM = CM.cliented()
+				if (CCM)
+					CCM.vote = "default"
 
 	if(href_list["votekill"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 
 			world << "\red <B>***Voting aborted by [usr.key].</B>"
 
@@ -540,13 +541,14 @@
 			vote.nextvotetime = world.timeofday + 10*config.votedelay
 
 			for(var/mob/M in world)		// clear vote window from all clients
-				if(M.client)
-					M << browse(null, "window=vote")
-					M.client.showvote = 0
+				var/client/CM = M.cliented()
+				if (CM)
+					M.client_mob() << browse(null, "window=vote")
+					CM.showvote = 0
 
 
 	if (href_list["vt_rst"])
-		if ((src.rank in list("Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 
 			config.allowvoterestart = !config.allowvoterestart
 
@@ -557,7 +559,7 @@
 			update()
 
 	if (href_list["vt_mode"])
-		if ((src.rank in list("Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 
 			config.allowvotemode = !config.allowvotemode
 
@@ -568,24 +570,24 @@
 			update()
 
 	if (href_list["boot"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 4)
 			var/dat = "<B>Boot Player:</B><HR>"
 			for(var/mob/M in world)
 				dat += text("<A href='?src=\ref[];boot2=\ref[]'>N:[] R:[] (K:[]) (IP:[])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP)
 				//Foreach goto(103)
 			usr << browse(dat, "window=boot")
 	if (href_list["boot2"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 4)
 			var/mob/M = locate(href_list["boot2"])
 			if (ismob(M))
 				if ((M.client && M.client.holder && M.client.holder.rank >= src.rank))
-					alert("You cannot perform this. Action you must be of a higher administrative rank!", null, null, null, null, null)
+					alert("You cannot perform this action! You must be of a higher administrative rank!", null, null, null, null, null)
 					return
 				if(config.logadmin) world.log << text("ADMIN: [] booted [].", usr.key, M.key)
 				//M.client = null
 				del(M.client)
 	if (href_list["ban"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 4)
 			var/dat = "<B>Ban Player:</B><HR>"
 			for(var/mob/M in world)
 				dat += text("<A href='?src=\ref[];ban2=\ref[]'>N: [] R: [] (K: []) (IP: [])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP)
@@ -596,63 +598,63 @@
 				//Foreach goto(424)
 			usr << browse(dat, "window=ban")
 	if (href_list["ban2"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 4)
 			var/mob/M = locate(href_list["ban2"])
 			if (ismob(M))
 				if ((M.client && M.client.holder && M.client.holder.rank >= src.rank))
-					alert("You cannot perform this. Action you must be of a higher administrative rank!", null, null, null, null, null)
+					alert("You cannot perform this action! You must be of a higher administrative rank!", null, null, null, null, null)
 					return
 				if(config.logadmin) world.log << text("ADMIN: [] banned [].", usr.key, M.key)
 				banned += ckey(M.key)
 				//M.client = null
 				del(M.client)
 	if (href_list["unban2"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 4)
 			var/t = href_list["unban2"]
 			if (t)
 				banned -= t
 			if(config.logadmin) world.log << text("ADMIN: [] unbanned [].", usr.key, t)
 	if (href_list["mute"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 4)
 			var/dat = "<B>Mute/Unmute Player:</B><HR>"
 			for(var/mob/M in world)
 				dat += text("<A href='?src=\ref[];mute2=\ref[]'>N:[] R:[] (K:[]) (IP: []) \[[]\]</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP, (M.muted ? "Muted" : "Voiced"))
 				//Foreach goto(757)
 			usr << browse(dat, "window=mute")
 	if (href_list["mute2"])
-		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 4)
 			var/mob/M = locate(href_list["mute2"])
 			if (ismob(M))
 				if ((M.client && M.client.holder && M.client.holder.rank >= src.rank))
-					alert("You cannot perform this. Action you must be of a higher administrative rank!", null, null, null, null, null)
+					alert("You cannot perform this action! You must be of a higher administrative rank!", null, null, null, null, null)
 					return
 				if(config.logadmin) world.log << text("ADMIN: [] altered []'s mute status.", usr.key, M.key)
 				M.muted = !( M.muted )
 	if (href_list["restart"])
-		if ((src.rank in list( "Game Master", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 			var/dat = text("<B>Restart game?</B><HR>\n<BR>\n<A href='?src=\ref[];restart2=1'>Yes</A>\n", src)
 			usr << browse(dat, "window=restart")
 	if (href_list["restart2"])
-		if ((src.rank in list( "Game Master", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 			world << text("\red <B> Restarting world!</B>\blue  Initiated by []!", usr.key)
 			if(config.logadmin) world.log << text("ADMIN: [] initiated a reboot.", usr.key)
 			sleep(50)
 			world.Reboot()
 	if (href_list["restart3"])
-		if ((src.rank in list( "Game Master", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 			if( alert("Reboot server?",,"Yes","No") == "No")
 				return
 			world << text("\red <B> Rebooting world!</B>\blue  Initiated by []!", usr.key)
 			if(config.logadmin) world.log << text("ADMIN: [] initiated an immediate reboot.", usr.key)
 			world.Reboot()
 	if (href_list["c_mode"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			if (ticker)
 				return alert(usr, "The game has already started.", null, null, null, null)
 			var/dat = text("<B>What mode do you wish to play?</B><HR>\n<A href='?src=\ref[];c_mode2=secret'>Secret</A><br>\n<A href='?src=\ref[];c_mode2=random'>Random</A><br>\n<A href='?src=\ref[];c_mode2=traitor'>Traitor</A><br>\n<A href='?src=\ref[];c_mode2=meteor'>Meteor</A><br>\n<A href='?src=\ref[];c_mode2=extended'>Extended</A><br>\n<A href='?src=\ref[];c_mode2=monkey'>Monkey</A><br>\n<A href='?src=\ref[];c_mode2=nuclear'>Nuclear Emergency</A><br>\n<A href='?src=\ref[];c_mode2=blob'>Blob</A><br>\n<A href='?src=\ref[];c_mode2=sandbox'>Sandbox</A><br>\n\nNow: []\n", src, src, src, src, src, src, src, src, src, master_mode)
 			usr << browse(dat, "window=c_mode")
 	if (href_list["c_mode2"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			if (ticker)
 				return alert(usr, "The game has already started.", null, null, null, null)
 			switch(href_list["c_mode2"])
@@ -695,7 +697,7 @@
 	if (href_list["l_keys"])
 		var/dat = "<B>Keys:</B><HR>"
 		for(var/mob/M in world)
-			if (M.client)
+			if(M.cliented())
 				dat += text("[]<BR>", M.client.ckey)
 			//Foreach goto(1525)
 		usr << browse(dat, "window=keys")
@@ -727,10 +729,10 @@
 			if (!( t ))
 				return
 			if (M.client && M.client.holder)
-				M << text("\blue Admin PM from-<B><A href='?src=\ref[];p_send2=\ref[]'>[]</A></B>: []", M.client.holder, usr, usr.key, t)
+				M.client_mob() << text("\blue Admin PM from-<B><A href='?src=\ref[];p_send2=\ref[]'>[]</A></B>: []", M.client.holder, usr, usr.key, t)
 			else
-				M << text("\blue Admin PM from-<B>[]</B>: []", usr.key, t)
-			usr << text("\blue Admin PM to-<B><A href='?src=\ref[];p_send2=\ref[]'>[]</A></B>: []", src, M, M.key, t)
+				M.client_mob() << text("\blue Admin PM from-<B>[]</B>: []", usr.key, t)
+			usr.client_mob() << text("\blue Admin PM to-<B><A href='?src=\ref[];p_send2=\ref[]'>[]</A></B>: []", src, M, M.key, t)
 			if(config.logadmin) world.log << "ADMIN: PM: [usr.key]->[M.key] : [t]"
 	*/
 
@@ -749,14 +751,14 @@
 		new Q( usr.loc )
 		if(config.logadmin) world.log << text("ADMIN: [] created a []", usr.key, Q)
 	if (href_list["dna"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			var/dat = "<B>Registered DNA sequences:</B><HR>"
 			for(var/M in reg_dna)
 				dat += text("\t [] = []<BR>", M, reg_dna[text("[]", M)])
 				//Foreach goto(2171)
 			usr << browse(dat, "window=dna")
 	if (href_list["t_ooc"])
-		if ((src.rank in list( "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 			ooc_allowed = !( ooc_allowed )
 			if (ooc_allowed)
 				world << "<B>The OOC channel has been globally enabled!</B>"
@@ -764,12 +766,12 @@
 				world << "<B>The OOC channel has been globally disabled!</B>"
 			if(config.logadmin) world.log << text("ADMIN: [] toggled OOC.", usr.key)
 	if (href_list["startnow"])
-		if ((src.rank in list( "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 			world << "<B>The game will now start immediately thanks to [usr.key]!</B>"
 			usr.start_now()
 
 	if (href_list["toggle_enter"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			enter_allowed = !( enter_allowed )
 			if (!( enter_allowed ))
 				world << "<B>You may no longer enter the game.</B>"
@@ -779,7 +781,7 @@
 			world.update_stat()
 			update()
 	if (href_list["toggle_ai"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			config.allowai = !( config.allowai )
 			if (!( config.allowai ))
 				world << "<B>The AI job is no longer chooseable.</B>"
@@ -789,7 +791,7 @@
 			world.update_stat()
 			update()
 	if (href_list["bombtemp_determines_range"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			config.bombtemp_determines_range = !( config.bombtemp_determines_range )
 			if (!( config.bombtemp_determines_range ))
 				world << "<B>Bomb temperature no longer determines range (superheated bombs will not destroy a larger area than 500 degree bombs).</B>"
@@ -799,7 +801,7 @@
 			world.update_stat()
 			update()
 	if (href_list["crowbars_close_depowered_doors"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			config.crowbars_close_depowered_doors = !( config.crowbars_close_depowered_doors )
 			if (!( config.crowbars_close_depowered_doors ))
 				world << "<B>Crowbars can no longer close depowered doors.</B>"
@@ -809,7 +811,7 @@
 			world.update_stat()
 			update()
 	if (href_list["ai_can_call_shuttle"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			config.ai_can_call_shuttle = !( config.ai_can_call_shuttle )
 			if (!( config.ai_can_call_shuttle ))
 				world << "<B>The AI can no longer call the shuttle.</B>"
@@ -819,7 +821,7 @@
 			world.update_stat()
 			update()
 	if (href_list["ai_can_uncall_shuttle"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			config.ai_can_uncall_shuttle = !( config.ai_can_uncall_shuttle )
 			if (!( config.ai_can_uncall_shuttle ))
 				world << "<B>The AI can no longer send the shuttle back.</B>"
@@ -830,7 +832,7 @@
 			update()
 			
 	if (href_list["toggle_abandon"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			abandon_allowed = !( abandon_allowed )
 			if (abandon_allowed)
 				world << "<B>You may now abandon mob.</B>"
@@ -840,7 +842,7 @@
 			world.update_stat()
 			update()
 	if (href_list["delay"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 2)
 			if (ticker)
 				return alert("Too late... The game has already started!", null, null, null, null, null)
 			going = !( going )
@@ -851,7 +853,7 @@
 				world << text("<B>The game will start soon thanks to [] (Administrator to SS13)</B>", usr.key)
 				if(config.logadmin) world.log << text("ADMIN: [] removed the delay.", usr.key)
 	if (href_list["secrets"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			var/dat = {"
 <B>What secret do you wish to activate?</B><HR>
 <A href='?src=\ref[src];secrets2=sec_clothes'>Remove 'internal' clothing</A><BR>
@@ -863,11 +865,17 @@
 <A href='?src=\ref[src];secrets2=toxic'>Toxic Air (WARNING: dangerous)</A><BR>
 <A href='?src=\ref[src];secrets2=monkey'>Turn all humans into monkies</A><BR>
 <A href='?src=\ref[src];secrets2=power'>Make all areas powered</A><BR>
-<A href='?src=\ref[src];secrets2=wave'>Spawn a wave of meteors</A><BR>"}
+<A href='?src=\ref[src];secrets2=wave'>Spawn a wave of meteors</A><BR>
+<A href='?src=\ref[src];secrets2=burningo2'>Self-igniting oxygen (Not at normal oxygen amounts, but a bit higher)</A><BR>"}
 
 			usr << browse(dat, "window=secrets")
+	if (href_list["repopMap"])
+		if (src.a_level >= 5)
+			world << "\red<h1>Replacing destroyed objects and mobs.</h1>"
+			world.Repop()
+	
 	if (href_list["secrets2"])
-		if ((src.rank in list( "Game Master", "Administrator", "Major Administrator", "Primary Administrator" )))
+		if (src.a_level >= 3)
 			var/ok = 0
 			switch(href_list["secrets2"])
 				if("sec_clothes")
@@ -959,6 +967,9 @@
 						A.power_environ = 1
 
 						A.power_change()
+				if("burningo2")
+					if(config.logadmin) world.log << text("ADMIN: [] used secret []", usr.key, href_list["secrets2"])
+					ticker.burningo2 = 1-ticker.burningo2
 				if("wave")
 					if(config.logadmin) world.log << text("ADMIN: [] used secret []", usr.key, href_list["secrets2"])
 					meteor_wave()
@@ -972,20 +983,20 @@
 /obj/admins/proc/update()
 
 	var/dat
-	var/lvl = 0
+	a_level = 0
 	switch(src.rank)
 		if("Moderator")
-			lvl = 1
+			a_level = 1
 		if("Game Master")
-			lvl = 2
+			a_level = 2
 		if("Supervisor")
-			lvl = 3
+			a_level = 3
 		if("Administrator")
-			lvl = 4
+			a_level = 4
 		if("Major Administrator")
-			lvl = 5
+			a_level = 5
 		if("Primary Administrator")
-			lvl = 6
+			a_level = 6
 			
 
 
@@ -994,7 +1005,7 @@
 
 			dat += "<center><B>Admin Control Console</B></center><hr>\n"
 
-			if(lvl>=4)
+			if(a_level>=4)
 				dat += {"
 	<A href='?src=\ref[src];boot=1'>Boot Player/Key</A><br>
 	<A href='?src=\ref[src];ban=1'>Ban/Unban Player/Key</A><br>
@@ -1002,51 +1013,58 @@
 	"}
 			dat += "<br>"
 
-			if(lvl!=1)
+			if(a_level!=1)
 				dat += "<A href='?src=\ref[src];t_ooc=1'>Toggle OOC</A><br>"
 				dat += "<A href='?src=\ref[src];delay=1'>Delay Game</A><br>"
 				dat += "<A href='?src=\ref[src];startnow=1'>Start Round Now</A><br>"
 
-			if(lvl >=3 )
+			if(a_level >=3 )
 				dat += "<A href='?src=\ref[src];toggle_enter=1'>Toggle Entering [enter_allowed]</A><br>"
 				dat += "<A href='?src=\ref[src];toggle_abandon=1'>Toggle Abandon [abandon_allowed]</A><br>"
 				dat += "<A href='?src=\ref[src];toggle_ai=1'>Toggle AI [config.allowai]</A><br>"
 				dat += "<A href='?src=\ref[src];toggle_bombtemp_determines_range=1'>Toggle Bombtemp-Determines-Range [config.bombtemp_determines_range]</A><br>"
 				
 				dat += "<A href='?src=\ref[src];c_mode=1'>Change Game Mode</A><br>"
-			if(lvl >= 2)
+			if(a_level >= 2)
 				dat += "<A href='?src=\ref[src];restart=1'>Restart Game</A><br>"
 				dat += "<A href='?src=\ref[src];restart3=1'>Immediate Reboot</A><br>"
 
 			dat += "<BR>"
 
-			if(lvl!=1)
+			if(a_level!=1)
 				dat += "<A href='?src=\ref[src];vmode=1'>Begin restart vote.</A><BR>"
 				dat += "<A href='?src=\ref[src];vmode=2'>Begin change mode vote.</A><BR>"
 				dat += "<A href='?src=\ref[src];votekill=1'>Abort current vote.</A><BR>"
 
-			if(lvl>=3)
+			if(a_level>=3)
 				dat += "<A href='?src=\ref[src];vt_rst=1'>Toggle restart voting [config.allowvoterestart].</A><BR>"
 				dat += "<A href='?src=\ref[src];vt_mode=1'>Toggle mode voting [config.allowvotemode].</A><BR>"
 
 			dat += "<BR>"
 
-			if(lvl >=3 )
+			if(a_level >=3 )
 				dat += "<A href='?src=\ref[src];secrets=1'>Activate Secrets</A><br>"
 				dat += "<A href='?src=\ref[src];m_item=1'>Make Item</A><br>"
 				dat += "<A href='?src=\ref[src];m_obj=1'>Make Object</A><br>"
 
 			dat += "<BR>"
-			if(lvl >=3 )
+			if(a_level >=3 )
 
 				dat += "<A href='?src=\ref[src];dna=1'>List DNA</A><br>"
 				dat += "<A href='?src=\ref[src];l_keys=1'>List Keys</A><br>"
 				dat += "<A href='?src=\ref[src];l_players=1'>List Players/Keys</A><br>"
+				
+			dat += "<BR>"
+			if(a_level >= 5 )
+
+				dat += "<A href='?src=\ref[src];repopMap=1'>Recreate Destroyed Mobs and Objects</A><br>"
+				
+			
 
 			dat += "<A href='?src=\ref[src];g_send=1'>Send Global Message</A><br>"
 			dat += "<A href='?src=\ref[src];p_send=1'>Send Private Message</A><br>"
 
-
+			
 		else
 			dat = text("<center><B>Admin Control Center</B></center><hr>\n<A href='?src=\ref[];access=1'>Access Admin Commands</A><br>\n<A href='?src=\ref[];contact=1'>Contact Admins</A><br>\n<A href='?src=\ref[];message=1'>Access Messageboard</A><br>\n<br>\n<A href='?src=\ref[];l_keys=1'>List Keys</A><br>\n<A href='?src=\ref[];l_players=1'>List Players/Keys</A><br>\n<A href='?src=\ref[];g_send=1'>Send Global Message</A><br>\n<A href='?src=\ref[];p_send=1'>Send Private Message</A><br>", src, src, src, src, src, src, src)
 	usr << browse(dat, "window=admin")
@@ -1141,6 +1159,12 @@
 		config.crowbars_close_depowered_doors = 0
 		config.ai_can_call_shuttle = 0
 		config.ai_can_uncall_shuttle = 0
+		config.air_pressure_flow = 0	// This makes temperature affect the air pressure force which moves objects. This also allows fire to spread to floor tiles which are next to space. It would also allow fire to spread into space if (a) space tiles had air code running on them, but they don't because that would be slow, and (b) if the burning hot gas flowing out an airlock wasn't diluted rapidly upon reaching space, resulting in it enflaming at most four space tiles.
+		config.min_gas_for_fire = 900000
+		config.meteorchance = 0.1
+		config.enable_drones = 0
+		config.humans_can_use_drones = 0
+		config.walkable_not_pullable_drones = 0
 	else
 		world.log << "Reading config.txt"
 		var/list/CL = dd_text2list(config_text, "\n")
@@ -1212,6 +1236,18 @@
 						config.ai_can_uncall_shuttle = 1
 					if("alternate_ai_laws")
 						config.alternate_ai_laws = 1
+					if("air_pressure_flow")
+						config.air_pressure_flow = 1
+					if ("min_gas_for_fire")
+						config.min_gas_for_fire = text2num(cfgval)
+					if("meteorchance")
+						config.meteorchance = text2num(cfgval)
+					if("enable_drones")
+						config.enable_drones = 1
+					if("humans_can_use_drones")
+						config.humans_can_use_drones = 1
+					if("walkable_not_pullable_drones")
+						config.walkable_not_pullable_drones = 1
 					else
 						world.log<<"Unknown setting in config.txt: [cfgvar]"
 
@@ -1284,8 +1320,9 @@
 
 		var/n = 0
 		for(var/mob/M in world)
-			if(M.client)
-				world.log << "[++n] : [M.name] ([M.client.key]) at [M.loc.loc] ([M.x],[M.y],[M.z]) : [M.client.inactivity/10.0]s"
+			var/mob/CM = M.cliented()
+			if (CM)
+				world.log << "[++n] : [M.name] ([CM.key]) at [M.loc.loc] ([M.x],[M.y],[M.z]) : [CM.client.inactivity/10.0]s"
 		return n
 
 
@@ -1395,7 +1432,7 @@
 /datum/control/gameticker/proc/megamonkey_process()
 
 	do
-		if (prob(2))
+		if (src.meteorChanceRoll())
 			spawn( 0 )
 				new /obj/meteor( pick(block(locate(world.maxx, 1, 1), locate(world.maxx, world.maxy, 1))) )
 				return
@@ -1410,11 +1447,19 @@
 	while(src.processing)
 	return
 
+/datum/control/gameticker/proc/meteorChanceRoll()
+	if (config.meteorchance<=0)
+		return 0
+	if (config.meteorchance>=100)
+		return 1
+	var maxroll = (100.0/config.meteorchance)-1
+	var roll = rand(maxroll)
+	return (roll==0)
 
 /datum/control/gameticker/proc/blob_process()
 
 	do
-		if (prob(2))
+		if (src.meteorChanceRoll())
 			spawn( 0 )
 				new /obj/meteor( pick(block(locate(world.maxx, 1, 1), locate(world.maxx, world.maxy, 1))) )
 				return
@@ -1448,7 +1493,7 @@
 					if (src.timeleft >= 6000)
 						src.timeleft = null
 						src.timing = 0
-		if (prob(1))
+		if (src.meteorChanceRoll())
 			spawn( 0 )
 				new /obj/meteor( pick(block(locate(world.maxx, 1, 1), locate(world.maxx, world.maxy, 1))) )
 				return
@@ -1473,7 +1518,7 @@
 		src.objective = "Success"
 		world << "<B>The Syndicate Operatives have destroyed Space Station 13!</B>"
 		for(var/mob/human/H in world)
-			if ((H.client && findtext(H.rname, "Syndicate ", 1, null)))
+			if ((H.cliented() && findtext(H.rname, "Syndicate ", 1, null)))
 				if (H.stat != 2)
 					world << text("<B>[] was []</B>", H.key, H.rname)
 				else
@@ -1574,7 +1619,7 @@
 							numAlive = 0
 							numPod = 0
 							for(var/mob/M in world)
-								if ((M != src.killer && M.client))
+								if ((M != src.killer && M.cliented()))
 									if (M.stat == 2)
 										numDead += 1
 									else
@@ -1592,7 +1637,7 @@
 								traitorwin = 0
 					else
 						for(var/mob/M in world)
-							if ((M != src.killer && M.client))
+							if ((M != src.killer && M.cliented()))
 								if (M.stat != 2)
 									var/T = M.loc
 									if (!( istype(T, /turf) ))
@@ -1720,13 +1765,13 @@
 			if (monkeywin)
 				world << "<FONT size = 3><B>The monkies have won!</B></FONT>"
 				for(var/mob/monkey/M in world)
-					if (M.client)
+					if (M.cliented())
 						world << text("<B>[] was a monkey.</B>", M.key)
 					//Foreach goto(1194)
 			else
 				world << "<FONT size = 3><B>The Research Staff has stopped he monkey invasion!</B></FONT>"
 				for(var/mob/human/M in world)
-					if (M.client)
+					if (M.cliented())
 						world << text("<B>[] was [].</B>", M.key, M)
 					//Foreach goto(1254)
 		if("nuclear")
@@ -1741,7 +1786,7 @@
 				if (disk_on_shuttle)
 					world << "<FONT size = 3><B>The Research Staff has stopped the Syndicate Operatives!</B></FONT>"
 					for(var/mob/human/H in world)
-						if ((H.client && !( findtext(H.rname, "Syndicate ", 1, null) )))
+						if ((H.cliented() && !( findtext(H.rname, "Syndicate ", 1, null) )))
 							if (H.stat != 2)
 								world << text("<B>[] was []</B>", H.key, H.rname)
 							else
@@ -1766,7 +1811,7 @@
 			var/escapees = list(  )
 			for(var/mob/M in world)
 				if (M.stat == 2)
-					if (M.client)
+					if (M.cliented())
 						if (M.virus > 0)
 							dead += text("<B>[]</B> died. \red (Had Stage [] Infection)", M.rname, round(M.virus))
 						else
@@ -1799,7 +1844,7 @@
 		if("meteor")
 			var/list/L = list(  )
 			for(var/mob/M in world)
-				if (M.client)
+				if (M.cliented())
 					if (M.stat != 2)
 						var/T = M.loc
 						if ((T in A))
@@ -1853,7 +1898,7 @@
 				var/numOffStation = 0
 				for (var/mob/ai/aiPlayer in world)
 					for(var/mob/M in world)
-						if ((M != aiPlayer && M.client))
+						if ((M != aiPlayer && M.cliented()))
 							if (M.stat == 2)
 								numDead += 1
 							else
@@ -1928,7 +1973,7 @@
 		else
 			var/list/L = list(  )
 			for(var/mob/M in world)
-				if (M.client)
+				if (M.cliented())
 					if (M.stat != 2)
 						var/T = M.loc
 						if ((T in A))
@@ -1994,6 +2039,7 @@
 	world << "<B>Welcome to the Space Station 13!</B>\n\n"
 
 	src.mode = master_mode
+	
 	switch(src.mode)
 		if("secret")
 			src.mode = config.pickmode()
@@ -2038,7 +2084,7 @@
 			world << "A nuclear explosive was being transported by Nanotrasen to a military base. The transport ship mysteriously lost contact with Space Traffic Control (STC). About that time a strange disk was discovered around SS13. It was identified by Nanotrasen as a nuclear auth. disk and now Syndicate Operatives have arrived to retake the disk and detonate SS13! Also, most likely Syndicate star ships are in the vicinity so take care not to lose the disk!\n<B>Syndicate</B>: Reclaim the disk and detonate the nuclear bomb anywhere on SS13.\n<B>Personell</B>: Hold the disk and <B>escape with the disk</B> on the shuttle!"
 			var/list/mobs = list(  )
 			for(var/mob/human/M in world)
-				if ((M.client && M.start))
+				if ((M.cliented() && M.start))
 					mobs += M
 				//Foreach goto(260)
 			var/obj/O = locate("landmark*CTF-rogue")
@@ -2090,7 +2136,7 @@
 					R.layer = 20
 					H.w_radio = R
 			for(var/mob/ai/M in world)
-				if ((M.client && M.start))
+				if ((M.cliented() && M.start))
 					if (prob(25))
 						M << "<b>Your laws have been changed!</b>"
 						M:addLaw(0, "Only syndicate agents are human beings.")
@@ -2118,12 +2164,18 @@
 			reg_dna[text("[]", H.primary.uni_identity)] = H.name
 		//Foreach goto(878)
 	data_core.manifest()
+	
+	numDronesInExistance = 0
+	for (var/mob/drone/D in world)
+		D.nameDrone(numDronesInExistance)
+		numDronesInExistance ++
+		
 	switch(src.mode)
 		if("traitor")
 			var/list/mobs = list(  )
 			Label_970:
 			for(var/mob/M in world)
-				if ((M.client && M.start))
+				if ((M.cliented() && M.start))
 					mobs += M
 				//Foreach goto(983)
 			if (!( mobs.len ))
@@ -2290,7 +2342,7 @@
 			spawn( 50 )
 				var/list/mobs = list(  )
 				for(var/mob/human/M in world)
-					if ((M.client && M.start))
+					if ((M.cliented() && M.start))
 						mobs += M
 					//Foreach goto(1974)
 				if (mobs.len >= 3)
@@ -2425,7 +2477,7 @@
 			spawn( 50 )
 				var/list/mobs = list(  )
 				for(var/mob/human/M in world)
-					if ((M.client && M.start))
+					if ((M.cliented() && M.start))
 						mobs += M
 					//Foreach goto(2295)
 				if (mobs.len > 3)
@@ -2482,6 +2534,7 @@
 			T.updatecell()
 			if(!time)
 				T.conduction()
+		
 	//if(Debug)
 	//	world.log << "*** EoT ***"
 	//	Air()

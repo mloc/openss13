@@ -172,6 +172,8 @@
 		src.updatecell = !( D.density )
 		if (!( src.updatecell ))
 			return
+
+
 	src.checkfire = !( src.checkfire )
 	if (src.checkfire)
 		if (cellcontrol.var_swap)
@@ -186,7 +188,7 @@
 			var/burn = src.firelevel >= 10
 			for(var/atom/S in src.FindTurfs())
 				var/obj/move/T = S
-				if (istype(T, /turf/space))
+				if ((!config.air_pressure_flow) && istype(T, /turf/space))
 					space = 1
 				else
 					divideby++
@@ -196,10 +198,12 @@
 					tosl_gas += T.osl_gas
 					ton2 += T.on2
 					totemp += T.temp
-					if (T.firelevel >= 900000.0)
+					if (T.firelevel >= config.min_gas_for_fire)
 						burn = 1
+					if ((config.air_pressure_flow) && istype(T, /turf/space))
+						space = 1
 					//Foreach continue //goto(158)
-			if (space)
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -224,7 +228,7 @@
 					src.overlays = null
 			if (burn)
 				src.firelevel = src.oxygen + src.poison
-			if (src.firelevel >= 900000.0)
+			if (src.firelevel >= config.min_gas_for_fire)
 				src.icon_state = "burning"
 				src.luminosity = 2
 				if (src.oxygen > 5000)
@@ -264,7 +268,7 @@
 			var/burn = src.firelevel >= 10
 			for(var/atom/S in src.FindTurfs())
 				var/obj/move/T = S
-				if (istype(T, /turf/space))
+				if ((!config.air_pressure_flow) && istype(T, /turf/space))
 					space = 1
 				else
 					divideby++
@@ -274,10 +278,12 @@
 					tosl_gas += T.tsl_gas
 					ton2 += T.tn2
 					totemp += T.ttemp
-					if (T.firelevel >= 900000.0)
+					if (T.firelevel >= config.min_gas_for_fire)
 						burn = 1
+					if ((config.air_pressure_flow) && istype(T, /turf/space))
+						space = 1
 					//Foreach continue //goto(744)
-			if (space)
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -302,7 +308,7 @@
 					src.overlays = null
 			if (burn)
 				src.firelevel = src.oxygen + src.poison
-			if (src.firelevel >= 900000.0)
+			if (src.firelevel >= config.min_gas_for_fire)
 				src.icon_state = "burning"
 				src.luminosity = 2
 				if (src.oxygen > 5000)
@@ -342,15 +348,18 @@
 			var/ton2 = src.n2
 			var/totemp = src.temp
 			var/space = 0
+			var/burn = src.firelevel >= 10
 			src.airdir = null
 			src.airforce = 0
 			var/adiff = null
+			var/airtemp = 0
 			for(var/atom/S in src.FindTurfs())
 				var/obj/move/T = S
-				if (istype(T, /turf/space))
+				if ((!config.air_pressure_flow) && istype(T, /turf/space))
 					space = 1
 					src.airforce = src.oxygen + src.n2 + src.poison + src.co2 + 25000
 					src.airdir = get_dir(src, T)
+					airtemp = src.temp
 				else
 					divideby++
 					total += T.oldoxy
@@ -360,10 +369,20 @@
 					ton2 += T.on2
 					totemp += T.otemp
 					adiff = src.oldoxy + src.oldco2 + src.on2 - (T.oldoxy + T.oldco2 + T.on2)
+					if (T.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = get_dir(src, T)
-					//Foreach continue //goto(1356)
+						airtemp = src.otemp
+					if ((config.air_pressure_flow) && istype(T, /turf/space))
+						space = 1
+
+
+			if (config.air_pressure_flow && abs(airtemp-(20.0+T0C))>5)
+				var/tempForce = airtemp / (20.0+T0C)
+				src.airforce = src.airforce * tempForce
+
 			if (src.airforce > 25000)
 				for(var/atom/movable/AM as mob|obj in src.loc)
 					if ((!( AM.anchored ) && AM.weight <= src.airforce))
@@ -371,7 +390,8 @@
 							step(AM, src.airdir)
 							return
 					//Foreach goto(1559)
-			if (space)
+
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -410,15 +430,18 @@
 			var/ton2 = src.n2
 			var/totemp = src.temp
 			var/space = 0
+			var/burn = src.firelevel >= 10
 			src.airdir = null
 			src.airforce = 0
 			var/adiff = null
+			var/airtemp = 0
 			for(var/atom/S in src.FindTurfs())
 				var/obj/move/T = S
-				if (istype(T, /turf/space))
+				if ((!config.air_pressure_flow) && istype(T, /turf/space))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = get_dir(src, T)
+					airtemp = src.temp
 				else
 					divideby++
 					total += T.tmpoxy
@@ -428,10 +451,19 @@
 					ton2 += T.tn2
 					totemp += T.ttemp
 					adiff = src.tmpoxy + src.tmpco2 + src.tn2 - (T.tmpoxy + T.tmpco2 + T.tn2)
+					if (T.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = get_dir(src, T)
-					//Foreach continue //goto(1927)
+						airtemp = src.otemp
+					if ((config.air_pressure_flow) && istype(T, /turf/space))
+						space = 1
+
+			if (config.air_pressure_flow && abs(airtemp-(20.0+T0C))>5)
+				var/tempForce = airtemp / (20.0+T0C)
+				src.airforce = src.airforce * tempForce
+
 			if (src.airforce > 25000)
 				for(var/atom/movable/AM as mob|obj in src.loc)
 					if ((!( AM.anchored ) && AM.weight <= src.airforce))
@@ -439,7 +471,9 @@
 							step(AM, src.airdir)
 							return
 					//Foreach goto(2130)
-			if (space)
+
+
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -469,7 +503,7 @@
 			src.osl_gas = src.sl_gas
 			src.on2 = src.n2
 			src.otemp = src.temp
-	if ((locate(/obj/effects/water, src.loc) || src.firelevel < 900000.0))
+	if ((locate(/obj/effects/water, src.loc) || src.firelevel < config.min_gas_for_fire))
 		src.firelevel = 0
 		//cool due to water
 		temp += (T20C - temp) / FIRERATE
@@ -914,6 +948,10 @@ turf/proc/tot_old_gas()
 	//if(tag && Debug)
 	//	world.log << "T[tag]=[tot_gas()] Old=[tot_old_gas()] Tmp=[tot_tmp_gas()]"
 
+	if (ticker.burningo2)
+		if (src.oxygen > 0 || src.poison > 0)
+			if (src.firelevel == 0)
+				src.firelevel = src.oxygen + src.poison
 
 	src.checkfire = !( src.checkfire )
 	if (src.checkfire)
@@ -943,14 +981,14 @@ turf/proc/tot_old_gas()
 					tosl_gas += T.osl_gas
 					ton2 += T.on2
 					totemp += T.otemp
-					if (T.firelevel >= 900000.0)
+					if (T.firelevel >= config.min_gas_for_fire)
 						burn = 1
 					//Foreach continue //goto(113)
 			*/
 
 
 			if(airN)
-				if(istype(linkN, /turf/space))
+				if(istype(linkN, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir1
 				else
@@ -961,10 +999,10 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkN.osl_gas
 					ton2    += linkN.on2
 					totemp  += linkN.otemp
-					if (linkN.firelevel >= 900000.0)
+					if (linkN.firelevel >= config.min_gas_for_fire)
 						burn = 1
 			if(airS)
-				if(istype(linkS, /turf/space))
+				if(istype(linkS, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir1
 				else
@@ -975,10 +1013,10 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkS.osl_gas
 					ton2    += linkS.on2
 					totemp  += linkS.otemp
-					if (linkS.firelevel >= 900000.0)
+					if (linkS.firelevel >= config.min_gas_for_fire)
 						burn = 1
 			if(airE)
-				if(istype(linkE, /turf/space))
+				if(istype(linkE, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir1
 				else
@@ -989,10 +1027,10 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkE.osl_gas
 					ton2    += linkE.on2
 					totemp  += linkE.otemp
-					if (linkE.firelevel >= 900000.0)
+					if (linkE.firelevel >= config.min_gas_for_fire)
 						burn = 1
 			if(airW)
-				if(istype(linkW, /turf/space))
+				if(istype(linkW, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir1
 				else
@@ -1003,12 +1041,14 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkW.osl_gas
 					ton2    += linkW.on2
 					totemp  += linkW.otemp
-					if (linkW.firelevel >= 900000.0)
+					if (linkW.firelevel >= config.min_gas_for_fire)
 						burn = 1
 
 			Enddir1:
+			if((!space) && config.air_pressure_flow && (istype(src.linkN, /turf/space) || istype(src.linkS, /turf/space) || istype(src.linkE, /turf/space) || istype(src.linkW, /turf/space) || istype(src, /turf/space)))
+				space = 1
 
-			if (space)
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -1033,7 +1073,7 @@ turf/proc/tot_old_gas()
 					src.overlays = null
 			if (burn)
 				src.firelevel = src.oxygen + src.poison
-			if (src.firelevel >= 900000.0)
+			if (src.firelevel >= config.min_gas_for_fire)
 				src.icon_state = "burning"
 				src.luminosity = 2
 				if (src.oxygen > 5000)
@@ -1091,13 +1131,13 @@ turf/proc/tot_old_gas()
 					tosl_gas += T.tsl_gas
 					ton2 += T.tn2
 					totemp += T.ttemp
-					if (T.firelevel >= 900000.0)
+					if (T.firelevel >= config.min_gas_for_fire)
 						burn = 1
 					//Foreach continue //goto(705)
 			*/
 
 			if(airN)
-				if(istype(linkN, /turf/space))
+				if(istype(linkN, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir2
 				else
@@ -1108,10 +1148,10 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkN.tsl_gas
 					ton2    += linkN.tn2
 					totemp  += linkN.ttemp
-					if (linkN.firelevel >= 900000.0)
+					if (linkN.firelevel >= config.min_gas_for_fire)
 						burn = 1
 			if(airS)
-				if(istype(linkS, /turf/space))
+				if(istype(linkS, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir2
 				else
@@ -1122,10 +1162,10 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkS.tsl_gas
 					ton2    += linkS.tn2
 					totemp  += linkS.ttemp
-					if (linkS.firelevel >= 900000.0)
+					if (linkS.firelevel >= config.min_gas_for_fire)
 						burn = 1
 			if(airE)
-				if(istype(linkE, /turf/space))
+				if(istype(linkE, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir2
 				else
@@ -1136,10 +1176,10 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkE.tsl_gas
 					ton2    += linkE.tn2
 					totemp  += linkE.ttemp
-					if (linkE.firelevel >= 900000.0)
+					if (linkE.firelevel >= config.min_gas_for_fire)
 						burn = 1
 			if(airW)
-				if(istype(linkW, /turf/space))
+				if(istype(linkW, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					goto Enddir2
 				else
@@ -1150,13 +1190,14 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkW.tsl_gas
 					ton2    += linkW.tn2
 					totemp  += linkW.ttemp
-					if (linkW.firelevel >= 900000.0)
+					if (linkW.firelevel >= config.min_gas_for_fire)
 						burn = 1
 
 			Enddir2:
+			if((!space) && config.air_pressure_flow && (istype(src.linkN, /turf/space) || istype(src.linkS, /turf/space) || istype(src.linkE, /turf/space) || istype(src.linkW, /turf/space) || istype(src, /turf/space)))
+				space = 1
 
-
-			if (space)
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -1181,7 +1222,7 @@ turf/proc/tot_old_gas()
 					src.overlays = null
 			if (burn)
 				src.firelevel = src.oxygen + src.poison
-			if (src.firelevel >= 900000.0)
+			if (src.firelevel >= config.min_gas_for_fire)
 				src.icon_state = "burning"
 				src.luminosity = 2
 				if (src.oxygen > 5000)
@@ -1225,16 +1266,19 @@ turf/proc/tot_old_gas()
 			var/tosl_gas = src.sl_gas
 			var/ton2 = src.n2
 			var/totemp = src.temp
+			var/burn = src.firelevel >= 10
 			var/space = 0
 			src.airdir = null
 			src.airforce = 0
 			var/adiff = null
+			var/airtemp = 0
 			/*
 			for(var/turf/T in src.FindLinkedTurfs())
 				if (istype(T, /turf/space))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = get_dir(src, T)
+					airtemp = src.temp
 					break // *****RM
 				else
 					divideby++
@@ -1244,18 +1288,22 @@ turf/proc/tot_old_gas()
 					tosl_gas += T.osl_gas
 					ton2 += T.on2
 					totemp += T.otemp
+					if (T.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.oldoxy + src.oldco2 + src.on2 - (T.oldoxy + T.oldco2 + T.on2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = get_dir(src, T)
+						airtemp = src.otemp
 					//Foreach continue //goto(1317)
 
 			*/
 			if(airN)
-				if(istype(linkN, /turf/space))
+				if(istype(linkN, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = NORTH
+					airtemp = src.temp
 					goto Enddir3
 				else
 					divideby++
@@ -1265,15 +1313,19 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkN.osl_gas
 					ton2    += linkN.on2
 					totemp  += linkN.otemp
+					if (linkN.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.oldoxy + src.oldco2 + src.on2 - (linkN.oldoxy + linkN.oldco2 + linkN.on2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = NORTH
+						airtemp = src.otemp
 			if(airS)
-				if(istype(linkS, /turf/space))
+				if(istype(linkS, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = get_dir(src, SOUTH)
+					airtemp = src.temp
 					goto Enddir3
 				else
 					divideby++
@@ -1283,15 +1335,19 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkS.osl_gas
 					ton2    += linkS.on2
 					totemp  += linkS.otemp
+					if (linkS.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.oldoxy + src.oldco2 + src.on2 - (linkS.oldoxy + linkS.oldco2 + linkS.on2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = SOUTH
+						airtemp = src.otemp
 			if(airE)
-				if(istype(linkE, /turf/space))
+				if(istype(linkE, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = EAST
+					airtemp = src.temp
 					goto Enddir3
 				else
 					divideby++
@@ -1301,15 +1357,19 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkE.osl_gas
 					ton2    += linkE.on2
 					totemp  += linkE.otemp
+					if (linkE.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.oldoxy + src.oldco2 + src.on2 - (linkE.oldoxy + linkE.oldco2 + linkE.on2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = EAST
+						airtemp = src.otemp
 			if(airW)
-				if(istype(linkW, /turf/space))
+				if(istype(linkW, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = get_dir(src, WEST)
+					airtemp = src.temp
 					goto Enddir3
 				else
 					divideby++
@@ -1319,12 +1379,22 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkW.osl_gas
 					ton2    += linkW.on2
 					totemp  += linkW.otemp
+					if (linkS.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.oldoxy + src.oldco2 + src.on2 - (linkW.oldoxy + linkW.oldco2 + linkW.on2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = WEST
+						airtemp = src.otemp
 
 			Enddir3:
+
+			if((!space) && config.air_pressure_flow && (istype(src.linkN, /turf/space) || istype(src.linkS, /turf/space) || istype(src.linkE, /turf/space) || istype(src.linkW, /turf/space) || istype(src, /turf/space)))
+				space = 1
+
+			if (config.air_pressure_flow && abs(airtemp-(20.0+T0C))>5)
+				var/tempForce = airtemp / (20.0+T0C)
+				src.airforce = src.airforce * tempForce
 
 			if (src.airforce > 25000)
 				for(var/atom/movable/AM in src)
@@ -1334,7 +1404,7 @@ turf/proc/tot_old_gas()
 							return
 					//Foreach goto(1518)
 
-			if (space)
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -1377,14 +1447,17 @@ turf/proc/tot_old_gas()
 			var/ton2 = src.n2
 			var/totemp = src.temp
 			var/space = 0
+			var/burn = src.firelevel >= 10
 			src.airdir = null
 			src.airforce = 0
 			var/adiff = null
+			var/airtemp = 0
 			/*for(var/turf/T in src.FindLinkedTurfs())
 				if (istype(T, /turf/space))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = get_dir(src, T)
+					airtemp = src.temp
 					break // *****RM
 				else
 					divideby++
@@ -1394,19 +1467,23 @@ turf/proc/tot_old_gas()
 					tosl_gas += T.tsl_gas
 					ton2 += T.tn2
 					totemp += T.ttemp
+					if (T.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.tmpoxy + src.tmpco2 + src.tn2 - (T.tmpoxy + T.tmpco2 + T.tn2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = get_dir(src, T)
+						airtemp = src.ttemp
 					//Foreach continue //goto(1872)
 
 			*/
 
 			if(airN)
-				if(istype(linkN, /turf/space))
+				if(istype(linkN, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = NORTH
+					airtemp = src.temp
 					goto Enddir4
 				else
 					divideby++
@@ -1416,15 +1493,19 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkN.tsl_gas
 					ton2    += linkN.tn2
 					totemp  += linkN.ttemp
+					if (linkN.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.tmpoxy + src.tmpco2 + src.tn2 - (linkN.tmpoxy + linkN.tmpco2 + linkN.tn2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = NORTH
+						airtemp = src.ttemp
 			if(airS)
-				if(istype(linkS, /turf/space))
+				if(istype(linkS, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = get_dir(src, SOUTH)
+					airtemp = src.temp
 					goto Enddir4
 				else
 					divideby++
@@ -1434,15 +1515,19 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkS.tsl_gas
 					ton2    += linkS.tn2
 					totemp  += linkS.ttemp
+					if (linkS.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.tmpoxy + src.tmpco2 + src.tn2 - (linkS.tmpoxy + linkS.tmpco2 + linkS.tn2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = SOUTH
+						airtemp = src.ttemp
 			if(airE)
-				if(istype(linkE, /turf/space))
+				if(istype(linkE, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = EAST
+					airtemp = src.temp
 					goto Enddir4
 				else
 					divideby++
@@ -1452,15 +1537,19 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkE.tsl_gas
 					ton2    += linkE.tn2
 					totemp  += linkE.ttemp
+					if (linkE.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.tmpoxy + src.tmpco2 + src.tn2 - (linkE.tmpoxy + linkE.tmpco2 + linkE.tn2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = EAST
+						airtemp = src.ttemp
 			if(airW)
-				if(istype(linkW, /turf/space))
+				if(istype(linkW, /turf/space) && (!config.air_pressure_flow))
 					space = 1
 					src.airforce = src.oxygen + src.poison + src.n2 + src.co2 + 25000
 					src.airdir = get_dir(src, WEST)
+					airtemp = src.temp
 					goto Enddir4
 				else
 					divideby++
@@ -1470,13 +1559,22 @@ turf/proc/tot_old_gas()
 					tosl_gas+= linkW.tsl_gas
 					ton2    += linkW.tn2
 					totemp  += linkW.ttemp
+					if (linkW.firelevel >= config.min_gas_for_fire)
+						burn = 1
 					adiff = src.tmpoxy + src.tmpco2 + src.tn2 - (linkW.tmpoxy + linkW.tmpco2 + linkW.tn2)
 					if (adiff > src.airforce)
 						src.airforce = adiff
 						src.airdir = WEST
+						airtemp = src.ttemp
 
 
 			Enddir4:
+			if((!space) && config.air_pressure_flow && (istype(src.linkN, /turf/space) || istype(src.linkS, /turf/space) || istype(src.linkE, /turf/space) || istype(src.linkW, /turf/space) || istype(src, /turf/space)))
+				space = 1
+
+			if (config.air_pressure_flow && abs(airtemp-(20.0+T0C))>5)
+				var/tempForce = airtemp / (20.0+T0C)
+				src.airforce = src.airforce * tempForce
 
 			if (src.airforce > 25000)
 				for(var/atom/movable/AM as mob|obj in src)
@@ -1485,7 +1583,7 @@ turf/proc/tot_old_gas()
 							step(AM, src.airdir)
 							return
 					//Foreach goto(2073)
-			if (space)
+			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
 				src.co2 = 0
@@ -1521,7 +1619,7 @@ turf/proc/tot_old_gas()
 			//	world.log << "Tot[tag]=[total+tpoison+tco2+tosl_gas+ton2]  /  [divideby]"
 			//	world.log << "T[tag]=[tot_gas()] .Old=[tot_old_gas()]"
 
-	if ((locate(/obj/effects/water, src) || src.firelevel < 900000.0))
+	if ((locate(/obj/effects/water, src) || src.firelevel < config.min_gas_for_fire))
 		src.firelevel = 0
 		//cool due to water
 		temp += (T20C - temp) / FIRERATE

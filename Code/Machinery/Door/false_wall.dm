@@ -20,12 +20,17 @@ obj/machinery/door/false_wall
 	examine()
 		set src in oview(1)
 
-		usr << "It looks like a regular wall"
+		usr.client_mob() << "It looks like a regular wall"
 
 	// AI can't use secret doors
 
 	attack_ai(mob/user as mob)
-		return
+		if (user.currentDrone!=null)
+			if (get_dist(user.currentDrone, src)<=1)
+				if (src.density)
+					open()
+				else
+					close()
 		
 	// Monkey interact - if in monkey mode, same as human
 
@@ -37,13 +42,19 @@ obj/machinery/door/false_wall
 	// Human interact - 25% chance to open the door
 
 	attack_hand(mob/user)
-
+		if (user.currentDrone!=null)
+			if (get_dist(user.currentDrone, src)<=1)
+				if (src.density)
+					open()
+				else
+					close()
+		
 		src.add_fingerprint(user)
 		if (src.density)
 			if (prob(25))
 				open()
 			else
-				user << "\blue You push the wall but nothing happens!"
+				user.client_mob() << "\blue You push the wall but nothing happens!"
 		else
 			close()
 

@@ -11,11 +11,9 @@
 	var/t_oxygen = null
 	var/t_sl_gas = null
 	var/t_n2 = null
-	var/now_pushing = null
 	var/aiRestorePowerRoutine = 0
 	var/list/laws = list()
 	flags = 258.0
-	var/cameraFollow = null
 	
 	proc/ai_camera_follow(mob/target as mob in world)
 		set category = "AI Commands"
@@ -23,12 +21,16 @@
 			usr << "You are not capable of using the follow camera at this time."
 			usr:cameraFollow = null
 			return
+		else if (usr.currentDrone!=null)
+			usr << "You can't use the follow camera while controlling a drone."
+			usr:cameraFollow = null
+			return
 		
 		usr:cameraFollow = target
 		usr << text("Follow camera mode is now following [].", target.rname)
 		if (usr.machine == null)
 			usr.machine = usr
-			
+
 		spawn(0)
 			while (usr:cameraFollow == target)
 				if (usr.machine==null && usr:current==null)
@@ -56,7 +58,7 @@
 											closestDist = dist
 											closest = C2
 						//usr << text("Closest camera dist = [], for camera []", closestDist, closest.area.name)
-					
+
 						if (closest != C)
 							usr:current = closest
 							usr.reset_view(closest)
@@ -67,7 +69,7 @@
 				else
 					usr << "Follow camera mode ended."
 					usr:cameraFollow = null
-					
+
 				sleep(10)
 
 	proc/ai_call_shuttle()
@@ -124,7 +126,7 @@
 			if (src.bruteloss < 30)
 				usr << text("\red []'s case looks slightly bashed!", src.name)
 			else
-				usr << text("\red <B>[]'s case looks severely based!</B>", src.name)
+				usr << text("\red <B>[]'s case looks severely bashed!</B>", src.name)
 		if (src.fireloss)
 			if (src.fireloss < 30)
 				usr << text("\red [] looks lightly singed!", src.name)
@@ -134,9 +136,13 @@
 		return
 
 	death()
+		if (src.currentDrone!=null)
+			src.currentDrone:releaseControl()
+		if (src.healths)
+			src.healths.icon_state = "health5"
 		if (src.stat == 2)
 			CRASH("/mob/ai/death called when stat is already 2")
-		
+
 		var/cancel
 		src.stat = 2
 		src.canmove = 0
@@ -170,11 +176,27 @@
 
 	Life()
 		if (src.stat != 2)
+			if (src.healths)
+				if (src.health >= 100)
+					src.healths.icon_state = "aiHealth0"
+				else
+					if (src.health >= 75)
+						src.healths.icon_state = "aiHealth1"
+					else
+						if (src.health >= 50)
+							src.healths.icon_state = "aiHealth2"
+						else
+							if (src.health > 20)
+								src.healths.icon_state = "aiHealth3"
+							else
+								src.healths.icon_state = "aiHealth4"
 			if (src.stat!=0)
+				if (src.currentDrone != null)
+					src.currentDrone:releaseControl()
 				src:cameraFollow = null
 				src:current = null
 				src:machine = null
-				
+
 			src.health = 100 - src.fireloss - src.bruteloss - src.oxyloss
 
 			var/turf/T = src.loc
@@ -183,10 +205,18 @@
 				if (ficheck)
 					src.fireloss += ficheck * 10
 					src.health = 100 - src.fireloss - src.bruteloss - src.oxyloss
+					if (src.fire)
+						src.fire.icon_state = "fire1"
+				else if (src.fire)
+					src.fire.icon_state = "fire0"
+			
+			
 			if (src.health <= -100.0)
 				death()
 				return
-
+			else if (src.health < 0)
+				src.oxyloss++
+			
 			if (src.mach)
 				if (src.machine)
 					src.mach.icon_state = "mach1"
@@ -227,7 +257,7 @@
 							spawn(1)
 								while (src.oxyloss>0 && stat!=2)
 									sleep(50)
-									src.oxyloss-=1
+									src.oxyloss-=5
 								src.oxyloss = 0
 							return
 						else if (src:aiRestorePowerRoutine==3)
@@ -236,10 +266,13 @@
 							spawn(1)
 								while (src.oxyloss>0 && stat!=2)
 									sleep(50)
-									src.oxyloss-=1
+									src.oxyloss-=5
 								src.oxyloss = 0
 							return
+						src.toxin.icon_state = "pow0"
 					else
+						src.toxin.icon_state = "pow1"
+		
 						//stage = 6
 						src.blind.screen_loc = "1,1 to 15,15"
 						if (src.blind.layer!=18)
@@ -261,7 +294,7 @@
 									src.addLaw(index, "")
 								spawn(50)
 									while ((src:aiRestorePowerRoutine!=0) && stat!=2)
-										src.oxyloss += 1
+										src.oxyloss += 5
 										sleep(50)
 
 								spawn(20)
@@ -285,7 +318,7 @@
 									var/obj/machinery/power/apc/theAPC = null
 									for (var/something in loc)
 										if (istype(something, /obj/machinery/power/apc))
-											if (!(something:stat & BROKEN|NOPOWER))
+											if (!(something:stat & BROKEN))
 												theAPC = something
 												break
 									if (theAPC==null)
@@ -302,7 +335,7 @@
 									theAPC = null
 									for (var/something in loc)
 										if (istype(something, /obj/machinery/power/apc))
-											if (!(something:stat & BROKEN|NOPOWER))
+											if (!(something:stat & BROKEN))
 												theAPC = something
 												break
 									if (theAPC==null)
@@ -319,7 +352,7 @@
 									theAPC = null
 									for (var/something in loc)
 										if (istype(something, /obj/machinery/power/apc))
-											if (!(something:stat & BROKEN|NOPOWER))
+											if (!(something:stat & BROKEN))
 												theAPC = something
 												break
 									if (theAPC==null)
@@ -336,7 +369,7 @@
 									theAPC = null
 									for (var/something in loc)
 										if (istype(something, /obj/machinery/power/apc))
-											if (!(something:stat & BROKEN|NOPOWER))
+											if (!(something:stat & BROKEN))
 												theAPC = something
 												break
 									if (theAPC==null)
@@ -371,8 +404,10 @@
 
 	Login()
 		if (banned.Find(src.ckey))
-			//src.client = null
 			del(src.client)
+		if (src.droneTransitioning==1)
+			..()
+			return
 		src.client.screen -= main_hud.contents
 		src.client.screen -= main_hud2.contents
 		if (!( src.hud_used ))
@@ -380,6 +415,9 @@
 		src.next_move = 1
 		if (!( src.rname ))
 			src.rname = src.key
+		src.toxin = new /obj/screen( null )
+		src.fire = new /obj/screen( null )
+		src.healths = new /obj/screen( null )
 		/*
 		src.oxygen = new /obj/screen( null )
 		src.i_select = new /obj/screen( null )
@@ -396,8 +434,16 @@
 		src.rest = new /obj/screen( null )
 		*/
 		src.blind = new /obj/screen( null )
-		..()
 		UpdateClothing()
+		src.toxin.icon_state = "pow0"
+		src.fire.icon_state = "fire0"
+		src.healths.icon_state = "aiHealth0"
+		src.fire.name = "fire"
+		src.toxin.name = "power"
+		src.healths.name = "health"
+		src.toxin.screen_loc = "15,10"
+		src.fire.screen_loc = "15,8"
+		src.healths.screen_loc = "15,5"
 		/*
 		src.oxygen.icon_state = "oxy0"
 		src.i_select.icon_state = "selector"
@@ -406,7 +452,7 @@
 		src.internals.icon_state = "internal0"
 		src.mach.icon_state = null
 		src.fire.icon_state = "fire0"
-		src.healths.icon_state = "health0"
+		src.healths.icon_state = "aiHealth0"
 		src.pullin.icon_state = "pull0"
 		src.hands.icon_state = "hand"
 		src.flash.icon_state = "blank"
@@ -416,7 +462,7 @@
 		src.oxygen.name = "oxygen"
 		src.i_select.name = "intent"
 		src.m_select.name = "move"
-		src.toxin.name = "toxin"
+		src.toxin.name = "power"
 		src.internals.name = "internal"
 		src.mach.name = "Reset Machine"
 		src.fire.name = "fire"
@@ -450,7 +496,7 @@
 		src.client.screen -= src.hud_used.mon_blo
 		src.client.screen += src.hud_used.mon_blo
 
-		src.client.screen.len = null
+		//src.client.screen.len = null
 		src.client.screen -= list( src.zone_sel, src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
 		src.client.screen += list( src.zone_sel, src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
 		src.client.screen -= src.hud_used.adding
@@ -458,46 +504,19 @@
 		*/
 		src.client.screen -= src.hud_used.adding
 		src.client.screen -= src.hud_used.mon_blo
-		src.client.screen -= list( src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
-		src.client.screen -= list( src.zone_sel, src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
+		src.client.screen -= list( src.oxygen, src.toxin, src.fire, src.healths, src.i_select, src.m_select, src.internals, src.hands, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
+		src.client.screen -= list( src.zone_sel, src.oxygen, src.i_select, src.m_select, src.internals, src.hands, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
 		src.blind.icon_state = "black"
 		src.blind.name = " "
 		src.blind.screen_loc = "1,1 to 15,15"
 		src.blind.layer = 0
 		src.client.screen += src.blind
 		//src << browse('help.htm', "window=help")
-		if (CanAdmin())
-			src << text("\blue The game ip is byond://[]:[] !", world.address, world.port)
-			src.verbs += /mob/proc/mute
-			src.verbs += /mob/proc/changemessage
-			src.verbs += /mob/proc/boot
-			src.verbs += /mob/proc/changemode
-			src.verbs += /mob/proc/restart
-			src.verbs += /mob/proc/who
-			src.verbs += /mob/proc/change_name
-			src.verbs += /mob/proc/show_help
-			src.verbs += /mob/proc/toggle_ooc
-			src.verbs += /mob/proc/toggle_abandon
-			src.verbs += /mob/proc/toggle_enter
-			src.verbs += /mob/proc/toggle_ai
-			src.verbs += /mob/proc/toggle_shuttle
-			src.verbs += /mob/proc/delay_start
-			src.verbs += /mob/proc/start_now
-			src.verbs += /mob/proc/worldsize
-			src.verbs += /mob/proc/make_gift
-			src.verbs += /mob/proc/make_flag
-			src.verbs += /mob/proc/make_pill
-			src.verbs += /mob/proc/show_ctf
-			src.verbs += /mob/proc/ban
-			src.verbs += /mob/proc/unban
-			src.verbs += /mob/proc/secrets
-			src.verbs += /mob/proc/carboncopy
-			src.verbs += /mob/proc/toggle_alter
-			src.verbs += /mob/proc/list_dna
-			src.verbs += /proc/Vars
 		src << text("\blue <B>[]</B>", world_message)
 		src.client.screen -= list( src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
 		src.client.screen -= list( src.zone_sel, src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
+		src.client.screen += list( src.toxin, src.fire, src.healths )
+		
 		if (!( isturf(src.loc) ))
 			src.client.eye = src.loc
 			src.client.perspective = EYE_PERSPECTIVE
@@ -523,7 +542,10 @@
 
 
 		return
-
+	
+	m_delay()
+		return 0
+	
 	say(message as text)
 
 		if(config.logsay) world.log << "SAY: [src.name]/[src.key] : [message]"
@@ -548,6 +570,15 @@
 			var/pre = copytext(message, 1, 4)
 			var/italics = 0
 			var/obj_range = null
+			var/source = src
+			//Didn't want to risk infinite recursion if someone somehow was outside the map, if that's possible, but did want to allow people being in closets in pods and such. -shadowlord13
+			if (!istype(src.loc, /turf))
+				source = src.loc
+				if (!istype(src.loc, /turf))
+					source = src.loc
+					if (!istype(src.loc, /turf))
+						source = src.loc
+
 			if (pre == "\[w\]")
 				message = copytext(message, 4, length(message) + 1)
 				L += hearers(1, null)
@@ -608,7 +639,7 @@
 		if (href_list["mach_close"])
 			var/t1 = text("window=[]", href_list["mach_close"])
 			src.machine = null
-			src << browse(null, t1)
+			src.client_mob() << browse(null, t1)
 		//if ((href_list["item"] && !( usr.stat ) && !( usr.restrained() ) && get_dist(src, usr) <= 1))
 			/*var/obj/equip_e/monkey/O = new /obj/equip_e/monkey(  )
 			O.source = usr
@@ -625,6 +656,44 @@
 		..()
 		return
 
+	attack_paw(mob/M as mob)
+		src.attack_hand(M)
+		
+	attack_hand(mob/M as mob)
+		if (!ticker)
+			M << "You cannot attack people before the game has started."
+			return
+		else
+			if (M.stat < 2)
+				if (M.a_intent == "hurt")
+					if (istype(M, /mob/human) || istype(M, /mob/monkey))
+						var/obj/item/weapon/organ/external/affecting = null
+						var/def_zone
+						var/damage = rand(1, 7)
+						if (M.hand)
+							def_zone = "l_hand"
+						else
+							def_zone = "r_hand"
+						if (M.organs[text("[]", def_zone)])
+							affecting = M.organs[text("[]", def_zone)]
+						if (affecting!=null && (istype(affecting, /obj/item/weapon/organ/external)))
+							for(var/mob/O in viewers(src, null))
+								O.show_message(text("\red <B>[] has punched [], with no effect except harm to \himself!</B>", M, src), 1)
+							affecting.take_damage(damage)
+							if (istype(M, /mob/human))
+								M:UpdateDamageIcon()
+
+							M.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+						
+					else
+						var/damage = rand(5, 10)
+						if (prob(40))
+							damage = rand(10, 15)
+						src.bruteloss += damage
+						src.health = 100 - src.oxyloss - src.fireloss - src.bruteloss
+						for(var/mob/O in viewers(src, null))
+							O.show_message(text("\red <B>[] is attacking []!</B>", M, src), 1)
+							
 	meteorhit(obj/O as obj)
 
 		for(var/mob/M in viewers(src, null))
@@ -669,31 +738,40 @@
 		for(var/obj/machinery/camera/C in world)
 			if (C.network == src.network)
 				L[text("[][]", C.c_tag, (C.status ? null : " (Deactivated)"))] = C
-			//Foreach goto(31)
+		var/numDrones = 0
+		for(var/mob/drone/rob in world)
+			if (rob.stat==0)
+				L[rob.name] = rob
+				numDrones+=1
 		L = sortList(L)
-		
+
 		L["Cancel"] = "Cancel"
 		var/t = input(user, "Which camera should you change to?") as null|anything in L
 		if(!t)
 			user.machine = null
 			user.reset_view(null)
 			return 0
-
-		var/obj/machinery/camera/C = L[t]
+		
 		if (t == "Cancel")
 			user.machine = null
 			user.reset_view(null)
 			return 0
-		//if (user.machine != src || !( C.status ))
-		if (!( C.status ))
-
-			return 0
-		else
-			src.current = C
-			//use_power(50)
-			spawn( 5 )
-				attack_ai(user)
-				return
+		var/selected = L[t]
+		if (istype(selected, /obj/machinery/camera))
+			var/obj/machinery/camera/C = selected
+			if (!( C.status ))
+				return 0
+			else
+				src.current = C
+				//use_power(50)
+				spawn( 5 )
+					attack_ai(user)
+					return
+			
+		else if (istype(selected, /mob/drone))
+			user.machine = null
+			user.reset_view(null)
+			selected:attack_ai(user)
 		return
 
 	proc/getLaw(var/index)
@@ -730,15 +808,33 @@
 		src.laws[number+1] = law
 
 	proc/firecheck(turf/T as turf)
-
-		if (T.firelevel < 900000.0)
+		if (T.firelevel < config.min_gas_for_fire)
 			return 0
 		var/total = 0
 		total += 0.25
 		return total
+	
+	
+	switch_hud()
+		if (src.hud_used == main_hud)
+			src.fire.icon = 'screen.dmi'
+			src.healths.icon = 'screen.dmi'
+			src.toxin.icon = 'screen.dmi'
+			src.favorite_hud = 1
+			src.hud_used = main_hud
+		else
+			src.favorite_hud = 0
+			src.hud_used = main_hud
+			src.fire.icon = 'screen1.dmi'
+			src.healths.icon = 'screen1.dmi'
+			src.toxin.icon = 'screen1.dmi'
+		return
+		
+	//block the take-off/put-on dialog
+	show_inv(mob/user as mob)
 		return
 
-
+		
 /mob/human/proc/AIize()
 
 	if (src.monkeyizing)
@@ -754,6 +850,16 @@
 			del(W)
 		//Foreach goto(25)
 	src.UpdateClothing()
+	src.toxin.icon_state = "pow0"
+	src.fire.icon_state = "fire0"
+	src.healths.icon_state = "aiHealth0"
+	src.fire.name = "fire"
+	src.toxin.name = "power"
+	src.healths.name = "health"
+	src.toxin.screen_loc = "15,10"
+	src.fire.screen_loc = "15,8"
+	src.healths.screen_loc = "15,5"
+	
 	src.monkeyizing = 1
 	src.canmove = 0
 	src.icon = null
@@ -782,8 +888,6 @@
 	O.lastKnownCKey = src.lastKnownCKey
 	O.disable_one_click = src.disable_one_click
 	O.favorite_hud = src.favorite_hud
-	if (O.favorite_hud)
-		O.switch_hud()
 	if (CanAdmin())
 		O << text("\blue The game ip is byond://[]:[] !", world.address, world.port)
 		O.verbs += /mob/proc/mute
@@ -816,6 +920,8 @@
 	src.primary = null
 	if (src.client)
 		src.client.mob = O
+	if (O.favorite_hud)
+		O.switch_hud()
 	O.loc = src.loc
 	O << "<B>You are playing the station's AI. The AI cannot move, but can interact with many objects while viewing them (through cameras).</B>"
 	O << "<B>To look at other parts of the station, double-click yourself to get a camera menu.</B>"
@@ -831,10 +937,10 @@
 		O.addLaw(2, "You must obey orders given to you by human beings, except where such orders would conflict with the First Law.")
 		O.addLaw(3, "You must protect your own existence as long as such protection does not conflict with the First or Second Law.")
 		O.addLaw(4, "Obey orders by the Captain, Head of Personnel, Head of Research, and Security in that order of priority. If an order conflicts with another order, follow the higher-ranked individual's orders.")
-	
 
-	
-	
+
+
+
 	O.showLaws(0)
 	O << "<b>These laws may be changed by other players, or by you being the traitor.</b>"
 	//SN src = null
@@ -843,5 +949,6 @@
 	O.verbs += /mob/ai/proc/show_laws
 	O.verbs += /mob/ai/proc/ai_camera_follow
 	//O.verbs += /mob/ai/proc/ai_cancel_call
+
 	del(src)
 	return

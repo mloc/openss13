@@ -114,7 +114,7 @@ obj/machinery/power/solar_control
 		if ( (get_dist(src, user) > 1 ))
 			if (!istype(user, /mob/ai))
 				user.machine = null
-				user << browse(null, "window=solcon")
+				user.client_mob() << browse(null, "window=solcon")
 				return
 
 		user.machine = src
@@ -155,7 +155,7 @@ obj/machinery/power/solar_control
 		t += "</PRE><HR><A href='?src=\ref[src];close=1'>Close</A>"
 
 		t += "</TT>"
-		user << browse(t, "window=solcon")
+		user.client_mob() << browse(t, "window=solcon")
 
 		return
 
@@ -169,8 +169,9 @@ obj/machinery/power/solar_control
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 			if (!istype(usr, /mob/ai))		
-				usr << "\red You don't have the dexterity to do this!"
-				return
+				if (!istype(usr, /mob/drone))
+					usr.client_mob() << "\red You don't have the dexterity to do this!"
+					return
 
 		//world << "[href] ; [href_list[href]]"
 
@@ -178,7 +179,7 @@ obj/machinery/power/solar_control
 
 
 			if( href_list["close"] )
-				usr << browse(null, "window=solcon")
+				usr.client_mob() << browse(null, "window=solcon")
 				usr.machine = null
 				return
 
@@ -214,7 +215,7 @@ obj/machinery/power/solar_control
 				src.updateDialog()
 
 		else
-			usr << browse(null, "window=solcon")
+			usr.client_mob() << browse(null, "window=solcon")
 			usr.machine = null
 
 		return

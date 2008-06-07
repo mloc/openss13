@@ -140,7 +140,7 @@ obj/machinery/freezer
 			else
 				t2 = text("<A href = '?src=\ref[];cool=1'>Cool</A> Stopped", src)
 			var/dat = text("<HTML><HEAD></HEAD><BODY><TT><BR>\n\t\t<B>Temperature</B>: []<BR>\n\t\t<B>Transfer Status</B>: []<BR>\n\t\t   <B>Chemicals Used</B>: []<BR>\n\t\t<B>Freezer status</B>: []<BR>\n\t\t   <A href='?src=\ref[];cp=-5'>-</A> <A href='?src=\ref[];cp=-1'>-</A> [] <A href='?src=\ref[];cp=1'>+</A> <A href='?src=\ref[];cp=5'>+</A><BR>\n<BR>\n\t[]<BR>\n<BR>\n<BR>\n\t<A href='?src=\ref[];mach_close=freezer'>Close</A><BR>\n\t</TT></BODY></HTML>", src.temperature-T0C, (src.transfer ? text("Transfering <A href='?src=\ref[];transfer=0'>Stop</A>", src) : text("<A href='?src=\ref[];transfer=1'>Transfer</A> Stopped", src)), t1, t2, src, src, src.c_used, src, src, d1, user)
-			user << browse(dat, "window=freezer;size=400x500")
+			user.client_mob() << browse(dat, "window=freezer;size=400x500")
 		else
 			var/d1 = null
 			if (locate(/obj/item/weapon/flasks, src))
@@ -169,7 +169,7 @@ obj/machinery/freezer
 			else
 				t2 = text("<A href = '?src=\ref[];cool=1'>Cool</A> []", src, stars("Stopped"))
 			var/dat = text("<HTML><HEAD></HEAD><BODY><TT><BR>\n\t\t<B>[]</B>: []<BR>\n\t\t<B>[]</B>: []<BR>\n\t\t   <B>[]</B>: []<BR>\n\t\t<B>[]</B>: []<BR>\n\t\t   <A href='?src=\ref[];cp=-5'>-</A> <A href='?src=\ref[];cp=-1'>-</A> [] <A href='?src=\ref[];cp=1'>+</A> <A href='?src=\ref[];cp=5'>+</A><BR>\n<BR>\n\t[]<BR>\n<BR>\n<BR>\n\t<A href='?src=\ref[];mach_close=freezer'>Close</A>\n\t</TT></BODY></HTML>", stars("Temperature"), src.temperature-T0C, stars("Transfer Status"), (src.transfer ? text("Transfering <A href='?src=\ref[];transfer=0'>Stop</A>", src) : text("<A href='?src=\ref[];transfer=1'>Transfer</A> Stopped", src)), stars("Chemicals Used"), t1, stars("Freezer status"), t2, src, src, src.c_used, src, src, d1, user)
-			user << browse(dat, "window=freezer;size=400x500")
+			user.client_mob() << browse(dat, "window=freezer;size=400x500")
 
 
 	// Handle topic links from interaction window
@@ -178,7 +178,7 @@ obj/machinery/freezer
 		..()
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 			if (!istype(usr, /mob/ai))		
-				usr << "\red You don't have the dexterity to do this!"
+				usr.client_mob() << "\red You don't have the dexterity to do this!"
 				return
 		if ((usr.stat || usr.restrained()))
 			if (!istype(usr, /mob/ai))		
@@ -223,7 +223,7 @@ obj/machinery/freezer
 		if (!( istype(F, /obj/item/weapon/flasks) ))
 			return
 		if (src.contents.len >= 3)
-			user << "\blue All slots are full!"
+			user.client_mob() << "\blue All slots are full!"
 			return
 		else
 			user.drop_item()

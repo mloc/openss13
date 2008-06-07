@@ -45,9 +45,9 @@ obj/machinery/power/monitor
 			var/obj/item/weapon/card/id/I = W
 			if (I.check_access(access, allowed))
 				control = !control
-				user << "You [ control ? "enable" : "disable"] remote APC control."
+				user.client_mob() << "You [ control ? "enable" : "disable"] remote APC control."
 			else
-				user << "\red Access denied."
+				user.client_mob() << "\red Access denied."
 		else
 			attack_hand(user)		// otherwise interact as usual
 
@@ -58,7 +58,7 @@ obj/machinery/power/monitor
 		if ( (get_dist(src, user) > 1 ) || (stat & (BROKEN|NOPOWER)) )
 			if (!istype(user, /mob/ai))	
 				user.machine = null
-				user << browse(null, "window=powcomp")
+				user.client_mob() << browse(null, "window=powcomp")
 				return
 
 
@@ -106,7 +106,7 @@ obj/machinery/power/monitor
 
 		t += "<BR><HR><A href='?src=\ref[src];close=1'>Close</A></TT>"
 
-		user << browse(t, "window=powcomp;size=450x740")
+		user.client_mob() << browse(t, "window=powcomp;size=450x740")
 
 
 	// Handle topic links from the interaction window
@@ -117,8 +117,9 @@ obj/machinery/power/monitor
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 			if (!istype(usr, /mob/ai))
-				usr << "\red You don't have the dexterity to do this!"
-				return
+				if (!istype(usr, /mob/drone))
+					usr.client_mob() << "\red You don't have the dexterity to do this!"
+					return
 
 		if (( (get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai))))
 			usr.machine = src
@@ -131,11 +132,11 @@ obj/machinery/power/monitor
 					if ((M.client && M.machine == src))
 						src.interact(M)
 			else if( href_list["close"] )
-				usr << browse(null, "window=powcomp")
+				usr.client_mob() << browse(null, "window=powcomp")
 				usr.machine = null
 				return
 		else
-			usr << browse(null, "window=powcomp")
+			usr.client_mob() << browse(null, "window=powcomp")
 			usr.machine = null
 
 	// Timed process - use power, update window to viewers

@@ -31,10 +31,13 @@ obj/machinery/firealarm
 	attackby(obj/item/weapon/W, mob/user)
 		if (istype(W, /obj/item/weapon/wirecutters))
 			src.detecting = !( src.detecting )
+			var/list/observers = viewers(user, null)
 			if (src.detecting)
-				viewers(user, null) << "\red [user] has reconnected [src]'s detecting unit!"
+				for (var/mob/M in observers)
+					M.client_mob() << "\red [user] has reconnected [src]'s detecting unit!"
 			else
-				viewers(user, null) << "\red [user] has disconnected [src]'s detecting unit!"
+				for (var/mob/M in observers)
+					M.client_mob() << "\red [user] has disconnected [src]'s detecting unit!"
 		else
 			src.alarm()
 		src.add_fingerprint(user)
@@ -109,7 +112,7 @@ obj/machinery/firealarm
 			var/second = src.time % 60
 			var/minute = (src.time - second) / 60
 			var/dat = text("<HTML><HEAD></HEAD><BODY><TT><B>Fire alarm</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
-			user << browse(dat, "window=firealarm")
+			user.client_mob() << browse(dat, "window=firealarm")
 		else
 			A = A.loc
 			if (A.fire)
@@ -123,7 +126,7 @@ obj/machinery/firealarm
 			var/second = src.time % 60
 			var/minute = (src.time - second) / 60
 			var/dat = text("<HTML><HEAD></HEAD><BODY><TT><B>[]</B> []\n<HR>\nTimer System: []<BR>\nTime Left: [][] <A href='?src=\ref[];tp=-30'>-</A> <A href='?src=\ref[];tp=-1'>-</A> <A href='?src=\ref[];tp=1'>+</A> <A href='?src=\ref[];tp=30'>+</A>\n</TT></BODY></HTML>", stars("Fire alarm"), d1, d2, (minute ? text("[]:", minute) : null), second, src, src, src, src)
-			user << browse(dat, "window=firealarm")
+			user.client_mob() << browse(dat, "window=firealarm")
 		return
 
 
@@ -154,7 +157,7 @@ obj/machinery/firealarm
 			src.updateDialog()
 			src.add_fingerprint(usr)
 		else
-			usr << browse(null, "window=firealarm")
+			usr.client_mob() << browse(null, "window=firealarm")
 			return
 		return
 

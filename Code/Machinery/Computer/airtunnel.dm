@@ -112,7 +112,7 @@ obj/machinery/computer/airtunnel
 		dat += "<A href='?src=\ref[src];release=1'>RELEASE (Siphons only)</A> <A href='?src=\ref[src];siphon=1'>Siphon (Siphons only)</A> <A href='?src=\ref[src];stop_siph=1'>Stop</A> <A href='?src=\ref[src];auto=1'>Regulate</A><BR>"
 		dat += "<BR><BR><A href='?src=\ref[user];mach_close=computer'>Close</A></TT></BODY></HTML>"
 
-		user << browse(dat, "window=computer;size=400x500")
+		user.client_mob() << browse(dat, "window=computer;size=400x500")
 
 
 	// Handle topic links from interaction window
@@ -123,8 +123,9 @@ obj/machinery/computer/airtunnel
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 			if (!istype(usr, /mob/ai))
-				usr << "\red You don't have the dexterity to do this!"
-				return
+				if (!istype(usr, /mob/drone))
+					usr.client_mob() << "\red You don't have the dexterity to do this!"
+					return
 		if ((usr.stat || usr.restrained()))
 			if (!istype(usr, /mob/ai))
 				return

@@ -21,9 +21,9 @@ obj/machinery/computer/data
 		set src in oview(1)
 
 		for(var/x in src.topics)
-			usr << "[x], \..."
+			usr.client_mob() << "[x], \..."
 
-		usr << ""
+		usr.client_mob() << ""
 		src.add_fingerprint(usr)
 		return
 
@@ -34,9 +34,9 @@ obj/machinery/computer/data
 		set src in oview(1)
 
 		if (src.topics[text("[]", topic)])
-			usr << "<B>[topic]</B>\n\t [src.topics["[topic]"]]"
+			usr.client_mob() << "<B>[topic]</B>\n\t [src.topics["[topic]"]]"
 		else
-			usr << "Unable to find- [topic]"
+			usr.client_mob() << "Unable to find- [topic]"
 		src.add_fingerprint(usr)
 		return
 
@@ -81,7 +81,7 @@ obj/machinery/computer/data
 			display()
 				set src in oview(1)
 
-				usr << "<B>Research Information:</B>"
+				usr.client_mob() << "<B>Research Information:</B>"
 				..()
 				return
 
@@ -108,7 +108,7 @@ obj/machinery/computer/data
 			display()
 				set src in oview(1)
 
-				usr << "<B>Research Log:</B>"
+				usr.client_mob() << "<B>Research Log:</B>"
 				..()
 				return
 

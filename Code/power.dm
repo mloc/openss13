@@ -35,9 +35,9 @@
 	set src in view(1)
 	if(usr && !usr.stat)
 		if(maxcharge == 1000)
-			usr << "[desc]\nThe charge meter reads [round(src.percent() )]%."
+			usr.client_mob() << "[desc]\nThe charge meter reads [round(src.percent() )]%."
 		else
-			usr << "A high-capacity rechargable electrochemical power cell.\nThe charge meter reads [round(src.percent() )]%."
+			usr.client_mob() << "A high-capacity rechargable electrochemical power cell.\nThe charge meter reads [round(src.percent() )]%."
 
 
 
@@ -167,7 +167,11 @@ atom/proc/electrocute(mob/user, prb, netnum)
 		if(PN.avail > 10000)
 			user.burn(5e7/prot)
 
-		user << "\red <B>You feel a powerful shock course through your body!</B>"
+		if (istype(user, /mob/drone))
+			user.client_mob() << "\red <B>The drone has been electrocuted!</B>"
+			user:releaseControl(0)	
+		else
+			user << "\red <B>You feel a powerful shock course through your body!</B>"
 		sleep(1)
 
 		user.stunned = 120/prot
@@ -177,9 +181,9 @@ atom/proc/electrocute(mob/user, prb, netnum)
 			if(M == user)
 				continue
 			if (!( M.blinded ))
-				M << text("\red [user.name] was shocked by the [src.name]!")
+				M.client_mob() << text("\red [user.name] was shocked by the [src.name]!")
 			else
-				M << "\red You hear a heavy electrical crack."
+				M.client_mob() << "\red You hear a heavy electrical crack."
 		return 1
 	return 0
 
@@ -238,11 +242,11 @@ atom/proc/electrocute(mob/user, prb, netnum)
 	set src in view(1)
 
 	if(amount == 1)
-		usr << "A short piece of power cable."
+		usr.client_mob() << "A short piece of power cable."
 	else if(amount == 1)
-		usr << "A piece of power cable."
+		usr.client_mob() << "A piece of power cable."
 	else
-		usr << "A coil of power cable. There are [amount] lengths of cable in the coil."
+		usr.client_mob() << "A coil of power cable. There are [amount] lengths of cable in the coil."
 
 
 
@@ -251,25 +255,25 @@ atom/proc/electrocute(mob/user, prb, netnum)
 	if( istype(W, /obj/item/weapon/wirecutters) && src.amount > 1)
 		src.amount--
 		new/obj/item/weapon/cable_coil(user.loc, 1)
-		user << "You cut a piece off the cable coil."
+		user.client_mob() << "You cut a piece off the cable coil."
 		src.updateicon()
 		return
 
 	else if( istype(W, /obj/item/weapon/cable_coil) )
 		var/obj/item/weapon/cable_coil/C = W
 		if(C.amount == MAXCOIL)
-			user << "The coil is too long, you cannot add any more cable to it."
+			user.client_mob() << "The coil is too long, you cannot add any more cable to it."
 			return
 
 		if( (C.amount + src.amount <= MAXCOIL) )
 			C.amount += src.amount
-			user << "You join the cable coils together."
+			user.client_mob() << "You join the cable coils together."
 			C.updateicon()
 			del(src)
 			return
 
 		else
-			user << "You transfer [MAXCOIL - src.amount ] length\s of cable from one coil to the other."
+			user.client_mob() << "You transfer [MAXCOIL - src.amount ] length\s of cable from one coil to the other."
 			src.amount -= (MAXCOIL-C.amount)
 			src.updateicon()
 			C.amount = MAXCOIL
@@ -298,11 +302,11 @@ atom/proc/electrocute(mob/user, prb, netnum)
 		return
 
 	if(get_dist(F,user) > 1)
-		user << "You can't lay cable at a place that far away."
+		user.client_mob() << "You can't lay cable at a place that far away."
 		return
 
 	if(F.intact)		// if floor is intact, complain
-		user << "You can't lay cable there unless the floor tiles are removed."
+		user.client_mob() << "You can't lay cable there unless the floor tiles are removed."
 		return
 
 	else
@@ -315,7 +319,7 @@ atom/proc/electrocute(mob/user, prb, netnum)
 
 		for(var/obj/cable/LC in F)
 			if(LC.d1 == dirn || LC.d2 == dirn)
-				user << "There's already a cable at that position."
+				user.client_mob() << "There's already a cable at that position."
 				return
 
 		var/obj/cable/C = new(F)
@@ -344,7 +348,7 @@ atom/proc/electrocute(mob/user, prb, netnum)
 		return
 
 	if(get_dist(C, user) > 1)		// make sure it's close enough
-		user << "You can't lay cable at a place that far away."
+		user.client_mob() << "You can't lay cable at a place that far away."
 		return
 
 
@@ -355,7 +359,7 @@ atom/proc/electrocute(mob/user, prb, netnum)
 
 	if(C.d1 == dirn || C.d2 == dirn)		// one end of the clicked cable is pointing towards us
 		if(U.intact)						// can't place a cable if the floor is complete
-			user << "You can't lay cable there unless the floor tiles are removed."
+			user.client_mob() << "You can't lay cable there unless the floor tiles are removed."
 			return
 		else
 			// cable is pointing at us, we're standing on an open tile
@@ -365,7 +369,7 @@ atom/proc/electrocute(mob/user, prb, netnum)
 
 			for(var/obj/cable/LC in U)		// check to make sure there's not a cable there already
 				if(LC.d1 == fdirn || LC.d2 == fdirn)
-					user << "There's already a cable at that position."
+					user.client_mob() << "There's already a cable at that position."
 					return
 
 			var/obj/cable/NC = new(U)
@@ -393,7 +397,7 @@ atom/proc/electrocute(mob/user, prb, netnum)
 			if(LC == C)			// skip the cable we're interacting with
 				continue
 			if(LC.d1 == nd1 || LC.d2 == nd1 || LC.d1 == nd2 || LC.d2 == nd2)	// make sure no cable matches either direction
-				user << "There's already a cable at that position."
+				user.client_mob() << "There's already a cable at that position."
 				return
 		C.shock(user, 25)
 		del(C)

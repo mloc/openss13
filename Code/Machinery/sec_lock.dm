@@ -70,7 +70,7 @@ Keycard: [src.scan ? "<A href='?src=\ref[src];card=1'>[src.scan.name]</A>" : "<A
 <A href='?src=\ref[src];em_cl=1'>Emergency Close</A><BR>
 <A href='?src=\ref[src];em_op=1'>Emergency Open</A><BR>"}
 
-			user << browse(dat, "window=sec_lock")
+			user.client_mob() << browse(dat, "window=sec_lock")
 		return
 
 
@@ -89,12 +89,13 @@ Keycard: [src.scan ? "<A href='?src=\ref[src];card=1'>[src.scan.name]</A>" : "<A
 
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 			if (!istype(usr, /mob/ai))
-				usr << "\red You don't have the dexterity to do this!"
-				return
+				if (!istype(usr, /mob/drone))
+					usr.client_mob() << "\red You don't have the dexterity to do this!"
+					return
 		if ((usr.stat || usr.restrained()))
 			return
 		if ((!( src.d1 ) || !( src.d2 )))
-			usr << "\red Error: Cannot interface with door security!"
+			usr.client_mob() << "\red Error: Cannot interface with door security!"
 			return
 		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf)) || (istype(usr, /mob/ai))))
 			usr.machine = src

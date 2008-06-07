@@ -123,7 +123,7 @@ var
 </li><li>Fixed exceptions from clicking things which dropped the active held item while you had someone grabbed in your active hand. If you try to click a closet with someone grabbed, you stuff them in it now. If you try to click a table or rack, you don't do anything. Previously all of these caused you to lose the grip and caused an exception (because when it told the grip to be dropped, it deleted itself, and then it tried to move null).
 </li><li>Many many things which could take someone from being 'dead' to being 'unconscious' have been fixed. These were all cases where stat was being set to 1 without being checked to see if it was 2. Mind you, it wasn't terribly easy to actually resurrect someone with this, since they always immediately died again due to all the damage they had taken, but it did cause them to get (Dead) (Dead) (Dead) (Dead) spammed at the end of their corpse's name if they were thwacked repeatedly. Also, related stuff that would say they were stunned, weakened, etc, should also not happen (unless I missed some).
 </li><li>Syndicate mini-station is more rectangular-ish, and the forcefield around it is more circle-ish. The forcefield is also thicker and completely encases the mini-station, making it harder to teleport inside.
-</li><li>Un-nerfed meteor chance in non-meteor modes a bit from 0.5 to 1 (originally 2.0 before it was nerfed to 0.5).
+</li><li>Un-nerfed meteor chance in non-meteor modes a bit ... well, it was really at 0%, so this is technically still an un-nerfing. Now it's at 0.1% chance each second.
 </li><li>Added an alternate_ai_laws config variable, which gives the AI some more reasonable laws. It also has some more law adjustments when it's the traitor.
 </li><li>Merged in a number of changes from the goons' svn (but not all of them - I didn't take all of them, and I probably missed a bunch because I didn't try to compare any of the code which was moved in the openss13 code reorganizations). Changes that I merged in include:
 <ul><li>Anesthetic tanks have 700000 N2O and 1000000 oxygen in them now, instead of 1000 N2O and no oxygen
@@ -154,6 +154,18 @@ var
 </li><li>Fixed a bug which was causing the air tank dialog to not update when you switched gas flow off (so it still said 'stop gas flow' instead of 'restore gas flow').
 </li><li>You shouldn't be able to knock out, stun, paralyze, etc, the AI anymore.
 </li><li>Timer/igniters now actually ignite when the timer finishes.
+</li><li>Added air_pressure_flow to config.txt, which, if enabled (it's disabled by default), makes a few changes to air stuff: Air pressure and temperature will affect how strongly things are pushed/pulled between tiles, and air and fire processing will occur on tiles which are adjacent to space. This is disabled by default because it would be slightly slower and the only really notable thing it does is letting tiles next to space burn.
+</li><li>Added admin panel secret for making air ignite itself if it reaches a sufficient amount of oxygen (initially for testing purposes).
+</li><li>Added a config var for the amount of gas needed for a fire in a tile to keep going, or for it to spread to another tile, with the config.txt variable named min_gas_for_fire. (If you're bored, change it from 900000 to 9000, start a game, and light an igniter to set the station on fire. Eventually it'll consume all the oxygen *without destroying the floors* because the temperature won't get hot enough (in most places) to harm them. Or use the air-ignites-self secret :P)
+</li><li>Added a METEORCHANCE config.txt variable and fixed the meteor chance stuff. Previous attempts to put the chance below 1% per second were resulting in no meteors at all, due to BYOND's prob function not liking numbers like 0.5. (The config file's chance doesn't affect meteor mode or sandbox mode, which always have 100% and 0% respectively)
+</li><li>The AI can no longer be: fed pills, handcuffed, injected with a syringe, shaken to wake up, have CPR applied, be knocked out or stunned by being struck by an air tank, eyedropped, treated with ointment, treated with a bruise pack, health-analyzed, sleepypenned, affected by flashes or flashbangs, or aggressively grabbed or strangled. Additionally, punching the AI will harm your active hand instead of harming the AI. You can still shoot it or whack it with actual objects.
+</li><li>The AI has a HUD icon for power or loss thereof, a fire icon, and a damage icon. (There isn't a hud background under them, so they just float over a few tiles on the right side of the map)
+</li><li>Fixed a bug: If you had flipped the main breaker off on the AI's APC, it was unable to find the APC to hack it. Now it can.
+</li><li>The privs required to see links on the admin panel should match up now with the privs required to use those links. Previously it was possible - even likely for lower priv levels - that you could try to do something and the admin panel would simply ignore you (Of course, if I made a mistake and it's still broken, it will still ignore you. Er... I guess we don't want to give anyone trying to trick the system any hints or something like that).
+</li><li>Deactivating cameras *should* cause anyone looking through it to get notified of the deactivation, and to then get kicked out of the camera. (This needs to be tested)
+</li><li>Maintenance drones for the AI or station personnel to control (optional, see config.txt). It has the standard tools (wirecutters, crowbar, screwdriver, welder), and a gripper which is kind of like a robo-hand, for manipulating things, or picking up and carrying or using one other item, and drone control stations (for humans). There are three drones on SS13, one in a closet east of the EVA room, one in a closet attached to engine storage, and one in atmospherics in the room with all the gas tanks. There are currently two drone control stations, one in the engine room and one in southwest atmospherics (Security doesn't have one because (a) they're ridiculously easy to break into, and (b) these are maintenance drones).
+</li><li>Electrician's toolboxes now have a pair of insulated gloves in them (replacing one of the coils of wires).
+</li><li>You should no longer be able to open the take-off/put-on dialog on AIs (or drones).
 </ul>
 
 <p><B>Version 40.93.2H9.6</B>
@@ -410,7 +422,9 @@ var
 	list/airlockIndexToWireColor
 	list/airlockWireColorToIndex
 	list/airlockFeatureNames = list("IdScan", "Main power In", "Main power Out", "Drop door bolts", "Backup power In", "Backup power Out", "Power assist", "AI Control", "Electrify")
-
+	
+	numDronesInExistance = 0
+	
 world
 	mob = /mob/human
 	turf = /turf/space

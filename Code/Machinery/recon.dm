@@ -96,7 +96,7 @@ obj/machinery/recon
 		if (usr.stat)
 			return
 		if (locate(/mob, src))
-			usr << "There is no room! You can only fit one person."
+			usr.client_mob() << "There is no room! You can only fit one person."
 			return
 		var/mob/M = usr
 		if (M.client)
@@ -117,10 +117,10 @@ obj/machinery/recon
 			var/mob/human/H = usr
 			if ((H.pulling && !( H.pulling.anchored )))
 				if (!( istype(H.pulling, /obj/item/weapon) ))
-					usr << "You may only place items in."
+					usr.client_mob() << "You may only place items in."
 				else
 					if ((locate(/mob, src) && ismob(H.pulling)))
-						usr << "There is no room! You can only fit one person."
+						usr.client_mob() << "There is no room! You can only fit one person."
 					else
 						H.pulling.loc = src
 						if (ismob(H.pulling))
@@ -129,8 +129,8 @@ obj/machinery/recon
 								M.client.perspective = EYE_PERSPECTIVE
 								M.client.eye = src
 						for(var/mob/O in viewers(src, null))
-							if ((O.client && !( O.blinded )))
-								O << text("\blue <B> [] loads [] into []!</B>", H, H.pulling, src)
+							if (O.hasClient() && (!( O.blinded )))
+								O.client_mob() << text("\blue <B> [] loads [] into []!</B>", H, H.pulling, src)
 							//Foreach goto(204)
 						H.pulling = null
 
@@ -146,8 +146,8 @@ obj/machinery/recon
 		if (istype(A, /atom/movable))
 			A.loc = src.loc
 			for(var/mob/O in view(src, null))
-				if ((O.client && !( O.blinded )))
-					O << text("\blue <B> [] unloads [] from []!</B>", usr, A, src)
+				if ((!( O.blinded )))
+					O.client_mob() << text("\blue <B> [] unloads [] from []!</B>", usr, A, src)
 				//Foreach goto(53)
 			if (ismob(A))
 				var/mob/M = A

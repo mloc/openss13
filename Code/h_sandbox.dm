@@ -44,7 +44,7 @@ datum/hSB
 				hsbpanel += "- <a href=\"?\ref[src];hsb=[T]\">[hrefs[T]]</a><br>"
 			if(hsboxspawn)
 				hsbpanel += "- <a href=\"?\ref[src];hsb=hsbobj\">Spawn Object</a><br><br>"
-			usr << browse(hsbpanel, "window=hsbpanel")
+			usr.client_mob() << browse(hsbpanel, "window=hsbpanel")
 	Topic(href, href_list)
 		if(!(src.owner == usr.ckey)) return
 		if(href_list["hsb"])
@@ -105,7 +105,7 @@ datum/hSB
 
 					hsb.loc = usr.loc
 					hsb.loc.buildlinks()
-					usr << "<b>Sandbox:  Created an airlock requiring at least [r_access]>[r_lab]-[r_engine]-[r_air] access."
+					usr.client_mob() << "<b>Sandbox:  Created an airlock requiring at least [r_access]>[r_lab]-[r_engine]-[r_air] access."
 				if("hsbregulator")
 					var/obj/machinery/atmoalter/siphs/fullairsiphon/hsb = new/obj/machinery/atmoalter/siphs/fullairsiphon/air_vent
 					hsb.loc = usr.loc

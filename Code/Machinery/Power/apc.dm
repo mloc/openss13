@@ -110,11 +110,11 @@ obj/machinery/power/apc
 		if(stat & BROKEN) return
 
 		if(usr && !usr.stat)
-			usr << "A control terminal for the area electrical systems."
+			usr.client_mob() << "A control terminal for the area electrical systems."
 			if(opened)
-				usr << "The cover is open and the power cell is [ cell ? "installed" : "missing"]."
+				usr.client_mob() << "The cover is open and the power cell is [ cell ? "installed" : "missing"]."
 			else
-				usr << "The cover is closed."
+				usr.client_mob() << "The cover is closed."
 
 
 	// Update the APC icon to show the three base states (normal, opened with cell, opened without cell)
@@ -156,48 +156,48 @@ obj/machinery/power/apc
 				updateicon()
 			else
 				if(coverlocked)
-					user << "The cover is locked and cannot be opened."
+					user.client_mob() << "The cover is locked and cannot be opened."
 				else
 					opened = 1
 					updateicon()
 
 		else if	(istype(W, /obj/item/weapon/cell) && opened)	// trying to put a cell inside
 			if(cell)
-				user << "There is a power cell already installed."
+				user.client_mob() << "There is a power cell already installed."
 			else
 				user.drop_item()
 				W.loc = src
 				cell = W
-				user << "You insert the power cell."
+				user.client_mob() << "You insert the power cell."
 				chargecount = 0
 
 			updateicon()
 		else if (istype(W, /obj/item/weapon/card/id) )			// trying to unlock the interface with an ID card
 
 			if(opened)
-				user << "You must close the cover to swipe an ID card."
+				user.client_mob() << "You must close the cover to swipe an ID card."
 			else
 				var/obj/item/weapon/card/id/I = W
 				if (I.check_access(access, allowed))
 					locked = !locked
-					user << "You [ locked ? "lock" : "unlock"] the APC interface."
+					user.client_mob() << "You [ locked ? "lock" : "unlock"] the APC interface."
 					updateicon()
 				else
-					user << "\red Access denied."
+					user.client_mob() << "\red Access denied."
 
 		else if (istype(W, /obj/item/weapon/card/emag) )		// trying to unlock with an emag card
 
 			if(opened)
-				user << "You must close the cover to swipe an ID card."
+				user.client_mob() << "You must close the cover to swipe an ID card."
 			else
 				flick("apc-spark", src)
 				sleep(6)
 				if(prob(50))
 					locked = !locked
-					user << "You [ locked ? "lock" : "unlock"] the APC interface."
+					user.client_mob() << "You [ locked ? "lock" : "unlock"] the APC interface."
 					updateicon()
 				else
-					user << "You fail to [ locked ? "unlock" : "lock"] the APC interface."
+					user.client_mob() << "You fail to [ locked ? "unlock" : "lock"] the APC interface."
 
 
 	// Attack with hand - remove cell (if present and cover open) or interact with the APC
@@ -224,7 +224,7 @@ obj/machinery/power/apc
 				cell.updateicon()
 
 				src.cell = null
-				user << "You remove the power cell."
+				user.client_mob() << "You remove the power cell."
 				charging = 0
 				src.updateicon()
 
@@ -240,7 +240,7 @@ obj/machinery/power/apc
 		if ( (get_dist(src, user) > 1 ))
 			if (!istype(user, /mob/ai))
 				user.machine = null
-				user << browse(null, "window=apc")
+				user.client_mob() << browse(null, "window=apc")
 				return
 
 		user.machine = src
@@ -327,7 +327,7 @@ obj/machinery/power/apc
 		t += "<BR><HR><A href='?src=\ref[src];close=1'>Close</A>"
 
 		t += "</TT>"
-		user << browse(t, "window=apc")
+		user.client_mob() << browse(t, "window=apc")
 		return
 
 
@@ -366,7 +366,7 @@ obj/machinery/power/apc
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
 			if (!istype(usr, /mob/ai))		
-				usr << "\red You don't have the dexterity to do this!"
+				usr.client_mob() << "\red You don't have the dexterity to do this!"
 				return
 
 		if (( (get_dist(src, usr) <= 1 && istype(src.loc, /turf))) || (istype(usr, /mob/ai)))
@@ -409,14 +409,14 @@ obj/machinery/power/apc
 				updateicon()
 				update()
 			else if( href_list["close"] )
-				usr << browse(null, "window=apc")
+				usr.client_mob() << browse(null, "window=apc")
 				usr.machine = null
 				return
 
 
 			src.updateDialog()
 		else
-			usr << browse(null, "window=apc")
+			usr.client_mob() << browse(null, "window=apc")
 			usr.machine = null
 
 		return

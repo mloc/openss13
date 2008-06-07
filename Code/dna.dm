@@ -28,19 +28,19 @@
 		var/dat = text("<I>Please Insert the cards into the slots</I><BR>\n\t\t\t\tFunction Disk: <A href='?src=\ref[];scan=1'>[]</A><BR>\n\t\t\t\tTarget Disk: <A href='?src=\ref[];modify=1'>[]</A><BR>\n\t\t\t\tAux. Data Disk: <A href='?src=\ref[];modify2=1'>[]</A><BR>\n\t\t\t\t\t(Not always used!)<BR>\n\t\t\t\t[]", src, (src.scan ? text("[]", src.scan.name) : "----------"), src, (src.modify ? text("[]", src.modify.name) : "----------"), src, (src.modify2 ? text("[]", src.modify2.name) : "----------"), (src.scan ? text("<A href='?src=\ref[];execute=1'>Execute Function</A>", src) : "No function disk inserted!"))
 		if (src.temp)
 			dat = text("[]<BR><BR><A href='?src=\ref[];clear=1'>Clear Message</A>", src.temp, src)
-		user << browse(dat, "window=dna_comp")
+		user.client_mob() << browse(dat, "window=dna_comp")
 	else
 		var/dat = text("<I>[]</I><BR>\n\t\t\t\t[] <A href='?src=\ref[];scan=1'>[]</A><BR>\n\t\t\t\t[] <A href='?src=\ref[];modify=1'>[]</A><BR>\n\t\t\t\t[] <A href='?src=\ref[];modify2=1'>[]</A><BR>\n\t\t\t\t\t(Not always used!)<BR>\n\t\t\t\t[]", stars("Please Insert the cards into the slots"), stars("Function Disk:"), src, (src.scan ? text("[]", src.scan.name) : "----------"), stars("Target Disk:"), src, (src.modify ? text("[]", src.modify.name) : "----------"), stars("Aux. Data Disk:"), src, (src.modify2 ? text("[]", src.modify2.name) : "----------"), (src.scan ? text("<A href='?src=\ref[];execute=1'>[]</A>", src, stars("Execute Function")) : stars("No function disk inserted!")))
 		if (src.temp)
 			dat = text("[]<BR><BR><A href='?src=\ref[];clear=1'>[]", stars(src.temp), src, stars("Clear Message</A>"))
-		user << browse(dat, "window=dna_comp")
+		user.client_mob() << browse(dat, "window=dna_comp")
 	return
 
 /obj/machinery/computer/dna/Topic(href, href_list)
 	..()
 	if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-		if (!istype(usr, /mob/ai))
-			usr << "\red You don't have the dexterity to do this!"
+		if (!istype(usr, /mob/ai) && !istype(usr, /mob/drone))
+			usr.client_mob() << "\red You don't have the dexterity to do this!"
 			return
 	if ((usr.stat || usr.restrained()))
 		return
@@ -250,14 +250,15 @@
 	if (usr.stat != 0)
 		return
 	if (src.occupant)
-		usr << "\blue <B>The scanner is already occupied!</B>"
+		usr.client_mob() << "\blue <B>The scanner is already occupied!</B>"
 		return
 	if (usr.abiotic())
-		usr << "\blue <B>Subject cannot have abiotic items on.</B>"
+		usr.client_mob() << "\blue <B>Subject cannot have abiotic items on.</B>"
 		return
 	usr.pulling = null
-	usr.client.perspective = EYE_PERSPECTIVE
-	usr.client.eye = src
+	if (usr.client)
+		usr.client.perspective = EYE_PERSPECTIVE
+		usr.client.eye = src
 	usr.loc = src
 	src.occupant = usr
 	src.icon_state = "scanner_1"
@@ -268,15 +269,15 @@
 	src.add_fingerprint(usr)
 	return
 
-/obj/machinery/dna_scanner/attackby(obj/item/weapon/grab/G as obj, user as mob)
+/obj/machinery/dna_scanner/attackby(obj/item/weapon/grab/G as obj, mob/user as mob)
 
 	if ((!( istype(G, /obj/item/weapon/grab) ) || !( ismob(G.affecting) )))
 		return
 	if (src.occupant)
-		user << "\blue <B>The scanner is already occupied!</B>"
+		user.client_mob() << "\blue <B>The scanner is already occupied!</B>"
 		return
 	if (G.affecting.abiotic())
-		user << "\blue <B>Subject cannot have abiotic items on.</B>"
+		user.client_mob() << "\blue <B>Subject cannot have abiotic items on.</B>"
 		return
 	var/mob/M = G.affecting
 	if (M.client)
@@ -621,7 +622,7 @@
 /obj/machinery/scan_console/attack_ai(user as mob)
 	return src.attack_hand(user)
 
-/obj/machinery/scan_console/attack_hand(user as mob)
+/obj/machinery/scan_console/attack_hand(mob/user as mob)
 
 	if(stat & (NOPOWER|BROKEN) )
 		return
@@ -654,14 +655,14 @@
 			 	(src.scan ? text("<A href='?src=\ref[];u_dat=1'>Upload Data</A>", src) : "No disk to upload"),
 			 	((src.data || src.func || src.special) ? text("<A href='?src=\ref[];c_dat=1'>Clear Data</A><BR><A href='?src=\ref[];e_dat=1'>Execute Data</A><BR>Function Type: [][]<BR>Data: []", src, src, src.func, (src.special ? text("-[]", src.special) : null), src.data) : "No data uploaded"))
 			dat += text("<BR><BR><A href='?src=\ref[];mach_close=scanner'>Close</A>", user)
-	user << browse(dat, "window=scanner;size=400x500")
+	user.client_mob() << browse(dat, "window=scanner;size=400x500")
 	return
 
 /obj/machinery/scan_console/Topic(href, href_list)
 	..()
 	if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-		if (!istype(usr, /mob/ai))		
-			usr << "\red You don't have the dexterity to do this!"
+		if (!istype(usr, /mob/ai) && !istype(usr, /mob/drone))
+			usr.client_mob() << "\red You don't have the dexterity to do this!"
 			return
 	if ((usr.stat || usr.restrained()))
 		return
@@ -750,6 +751,9 @@
 					if (M.client)
 						M << "Transferring..."
 						M.client.mob = O
+					if (M.currentDrone!=null)
+						O.currentDrone = M.currentDrone
+						O.currentDrone:controlledBy = O
 					O << "Neural Sequencing Complete!"
 					O.loc = src
 					src.occupant = O
@@ -772,6 +776,9 @@
 					if (M.client)
 						M << "Transferring..."
 						M.client.mob = O
+					if (M.currentDrone!=null)
+						O.currentDrone = M.currentDrone
+						O.currentDrone:controlledBy = O
 					O << "Neural Sequencing Complete!"
 					O.loc = src
 					O << "Genetic Transversal Complete!"
@@ -881,14 +888,15 @@
 	if (usr.stat != 0)
 		return
 	if (src.occupant)
-		usr << "\blue <B>The scanner is already occupied!</B>"
+		usr.client_mob() << "\blue <B>The scanner is already occupied!</B>"
 		return
 	if (usr.abiotic())
-		usr << "\blue <B>Subject cannot have abiotic items on.</B>"
+		usr.client_mob() << "\blue <B>Subject cannot have abiotic items on.</B>"
 		return
 	usr.pulling = null
-	usr.client.perspective = EYE_PERSPECTIVE
-	usr.client.eye = src
+	if (usr.client)
+		usr.client.perspective = EYE_PERSPECTIVE
+		usr.client.eye = src
 	usr.loc = src
 	src.occupant = usr
 	src.icon_state = "restruct_1"
@@ -906,15 +914,15 @@
 	src.go_out()
 	return
 
-/obj/machinery/restruct/attackby(obj/item/weapon/grab/G as obj, user as mob)
+/obj/machinery/restruct/attackby(obj/item/weapon/grab/G as obj, mob/user as mob)
 
 	if ((!( istype(G, /obj/item/weapon/grab) ) || !( ismob(G.affecting) )))
 		return
 	if (src.occupant)
-		user << "\blue <B>The machine is already occupied!</B>"
+		user.client_mob() << "\blue <B>The machine is already occupied!</B>"
 		return
 	if (G.affecting.abiotic())
-		user << "\blue <B>Subject cannot have abiotic items on.</B>"
+		user.client_mob() << "\blue <B>Subject cannot have abiotic items on.</B>"
 		return
 	var/mob/M = G.affecting
 	if (M.client)

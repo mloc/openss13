@@ -245,13 +245,15 @@ Pipe Valve Status: [ct]<BR>
 <A href='?src=\ref[user];mach_close=canister'>Close</A><BR>
 </TT>"}
 
-		user << browse(dat, "window=canister;size=600x300")
+		user.client_mob() << browse(dat, "window=canister;size=600x300")
 		return
 
 
 	// Process topic link from interaction window
 
 	Topic(href, href_list)
+		usr.client_mob() << "Topic on canister, usr is [usr], src is [src], usr.client_mob() is [usr.client_mob()], href is ([href]), href_list is ([href_list])."
+	
 		..()
 		if (usr.stat || usr.restrained())
 			return
@@ -306,7 +308,7 @@ Pipe Valve Status: [ct]<BR>
 			update_icon()
 
 		else
-			usr << browse(null, "window=canister")
+			usr.client_mob() << browse(null, "window=canister")
 
 
 	// Attack by an object

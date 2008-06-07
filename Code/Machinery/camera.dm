@@ -27,6 +27,20 @@ obj/machinery/camera
 				for(var/mob/O in viewers(user, null))
 					O.show_message("\red [user] has deactivated [src]!", 1)
 				src.icon_state = "camera1"
+				//check if anyone is looking through the camera
+				for (var/mob/M in world)
+					if (istype(M, /mob/ai))
+						if (M:current == src)
+							M.show_message("\red [user] has deactivated [src]!", 1)
+							M:current = null
+							M.reset_view(null)
+					else
+						if (M.machine!=null && istype(M.machine, /obj/machinery/computer/security))
+							if (M.machine:current == src)
+								M.show_message("\red [user] has deactivated [src]!", 1)
+								M.machine:current = null
+								M.machine = null
+								M.reset_view(null)
 			else
 				for(var/mob/O in viewers(user, null))
 					O.show_message("\red [user] has reactivated [src]!", 1)

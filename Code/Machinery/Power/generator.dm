@@ -134,7 +134,7 @@ obj/machinery/power/generator
 
 		if ( (get_dist(src, user) > 1 ) && (!istype(user, /mob/ai)))
 			user.machine = null
-			user << browse(null, "window=teg")
+			user.client_mob() << browse(null, "window=teg")
 			return
 
 		user.machine = src
@@ -158,7 +158,7 @@ obj/machinery/power/generator
 		t += "<BR><HR><A href='?src=\ref[src];close=1'>Close</A>"
 
 		t += "</PRE>"
-		user << browse(t, "window=teg;size=460x300")
+		user.client_mob() << browse(t, "window=teg;size=460x300")
 		return
 
 
@@ -170,9 +170,10 @@ obj/machinery/power/generator
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			if (!istype(usr, /mob/ai))		
-				usr << "\red You don't have the dexterity to do this!"
-				return
+			if (!istype(usr, /mob/ai))	
+				if (!istype(usr, /mob/drone))			
+					usr.client_mob() << "\red You don't have the dexterity to do this!"
+					return
 
 		//world << "[href] ; [href_list[href]]"
 
@@ -180,7 +181,7 @@ obj/machinery/power/generator
 
 
 			if( href_list["close"] )
-				usr << browse(null, "window=teg")
+				usr.client_mob() << browse(null, "window=teg")
 				usr.machine = null
 				return
 
@@ -247,7 +248,7 @@ obj/machinery/power/generator
 
 			src.updateDialog()
 		else
-			usr << browse(null, "window=teg")
+			usr.client_mob() << browse(null, "window=teg")
 			usr.machine = null
 
 		return

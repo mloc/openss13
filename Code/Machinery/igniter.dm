@@ -66,7 +66,7 @@ obj/machinery/igniter
 			var/turf/T = src.loc
 			if (locate(/obj/move, T))
 				T = locate(/obj/move, T)
-			if (T.firelevel < 900000.0)
+			if (T.firelevel < config.min_gas_for_fire)
 				T.firelevel = T.poison
 
 

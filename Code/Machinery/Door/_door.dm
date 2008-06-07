@@ -84,13 +84,19 @@ obj/machinery/door
 	// Attack with hand. If human and wearing an ID, same as attacking with the ID
 
 	attack_hand(mob/user as mob)
+		if (istype(user, /mob/drone))
+			if (user:controlledBy != null)
+				user = user:controlledBy
+				
 		if(istype(user, /mob/human))
 			var/mob/human/H = user
 			if(H.wear_id)
 				attackby(H.wear_id, user)
 		else if(istype(user, /mob/ai))
 			attackby(user, user)
-
+		
+		
+		
 	// Does it accept IDs?
 
 	proc/acceptsIDs()
