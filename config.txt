@@ -69,13 +69,36 @@ NODEADVOTE
 #
 # Comment this out if you don't want the AI job to be available, or if you're using a map which doesn't have an AI spawnpoint.
 ALLOWAI
+
 # Comment this out if you don't want higher-temperature (than 500) bombs to have extended range
 #BOMBTEMP_DETERMINES_RANGE
+
 # Comment this out if you don't want crowbars to be able to close depowered doors.
 CROWBARS_CLOSE_DEPOWERED_DOORS
+
 # Comment this out if you don't want the AI to be able to call the shuttle
 AI_CAN_CALL_SHUTTLE
+
 # Comment this out if you don't want the AI to be able to send the shuttle back
 #AI_CAN_UNCALL_SHUTTLE
+
 # Comment this out to get the original Asimov-based Laws instead
 ALTERNATE_AI_LAWS
+
+# This makes temperature affect the air pressure force which moves objects. This also allows fire to spread to floor tiles which are next to space. It would also allow fire to spread into space if (a) space tiles had air code running on them, but they don't because that would be slow, and (b) if the burning hot gas flowing out an airlock wasn't diluted rapidly upon reaching space, resulting in it enflaming at most four space tiles.
+# AIR_PRESSURE_FLOW
+
+# This sets the amount of gas needed for a fire in a tile to keep going, or for it to spread to another tile. The default is 900,000 units.
+MIN_GAS_FOR_FIRE 900000
+
+# This is the percent chance in NON-meteor mode that a meteor will be spawned in a particular second. The standard value used to be 2, which was a 2% chance each second that a meteor would be spawned somewhere. Numbers with decimals do work here. The chance cannot go above 100, or below 0. Meteor mode always has one meteor per second (100%). Sandbox mode never has meteors (0%).
+METEORCHANCE 0.1
+
+# Comment this out to disable the remote-controllable maintenance drone
+ENABLE_DRONES
+
+# Comment this out to disallow humans from controlling drones
+HUMANS_CAN_USE_DRONES
+
+# If this isn't commented out, drones can't be pulled or pushed, but drones and other non-drone mobs can walk through the same tiles. (If it is commented out, you can push and pull drones just like you can other people, but you can't walk through the same tiles as them)
+#WALKABLE_NOT_PULLABLE_DRONES

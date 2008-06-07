@@ -107,6 +107,7 @@
 #include "Code\Machinery\Computer\card.dm"
 #include "Code\Machinery\Computer\communications.dm"
 #include "Code\Machinery\Computer\data.dm"
+#include "Code\Machinery\Computer\drone_control.dm"
 #include "Code\Machinery\Computer\engine.dm"
 #include "Code\Machinery\Computer\hologram.dm"
 #include "Code\Machinery\Computer\med_data.dm"
@@ -131,5 +132,6 @@
 #include "Code\Machinery\Power\terminal.dm"
 #include "Code\Machinery\Power\turbine.dm"
 #include "Code\mob\ai.dm"
+#include "Code\mob\drone.dm"
 // END_INCLUDE
 
