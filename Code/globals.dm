@@ -104,7 +104,7 @@ var
 
 	world_message = "Welcome to OpenSS13!"
 	savefile_ver = "4"
-	SS13_version = "1.0 [Development Version]"
+	SS13_version = "1.0 \[Development Version]"
 	changes = {"<FONT color='blue'><B>Changes from base version 40.93.2</B></FONT><BR>
 <HR>
 <!--

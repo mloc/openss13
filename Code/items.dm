@@ -5419,8 +5419,7 @@
 	return
 
 /obj/weldfueltank/attackby(obj/item/weapon/weldingtool/W, mob/user)
-
-	if (!( istype(W, /obj/item/weapon/weldingtool) ))
+	if (!istype(W, /obj/item/weapon/weldingtool))
 		return
 	W.weldfuel = 20
 	W.suffix = text("[][]", (W == src ? "equipped " : ""), W.weldfuel)
@@ -5428,10 +5427,8 @@
 	return
 
 /obj/weldfueltank/ex_act(severity)
-
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
@@ -5445,7 +5442,6 @@
 				var/turf/T = src.loc
 				T.poison += 1600000
 				T.oxygen += 1600000
-				//SN src = null
 				del(src)
 				return
 		else
@@ -5459,8 +5455,7 @@
 		del(src)
 
 /obj/watertank/attackby(obj/item/weapon/extinguisher/W, mob/user)
-
-	if (!( istype(W, /obj/item/weapon/extinguisher) ))
+	if (!istype(W, /obj/item/weapon/extinguisher))
 		return
 	W.waterleft = 20
 	W.suffix = text("[][]", (user.equipped() == src ? "equipped " : ""), W.waterleft)
@@ -5468,21 +5463,17 @@
 	return
 
 /obj/watertank/ex_act(severity)
-
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				new /obj/effects/water(src.loc)
 				del(src)
 				return
 		if(3.0)
 			if (prob(5))
-				//SN src = null
 				new /obj/effects/water(src.loc)
 				del(src)
 				return
@@ -5492,81 +5483,49 @@
 /obj/watertank/blob_act()
 	if(prob(25))
 		new /obj/effects/water(src.loc)
-
 		del(src)
 
 /obj/d_girders/attackby(obj/item/weapon/W, mob/user)
-
 	if (istype(W, /obj/item/weapon/sheet/metal))
 		if (W:amount < 1)
-			//W = null
 			del(W)
 			return
-		new /obj/machinery/door/false_wall( src.loc )
+		new /obj/machinery/door/false_wall(src.loc)
 		W:amount--
 		if (W:amount < 1)
-			//W = null
 			del(W)
 		user.client_mob() << "\blue Keep in mind when you open it that it MAY be difficult to slide at first so keep trying."
-		//SN src = null
 		del(src)
-		return
-	else
-		if (istype(W, /obj/item/weapon/screwdriver))
-			new /obj/item/weapon/sheet/metal( src.loc )
-			//SN src = null
-			del(src)
-			return
-	return
+	else if (istype(W, /obj/item/weapon/screwdriver))
+		new /obj/item/weapon/sheet/metal(src.loc)
+		del(src)
 
 /obj/barrier/New()
-
 	var/t = 1800
 	if (ctf)
 		t = round(ctf.barriertime * 600)
-	spawn( t )
-		//SN src = null
-		del(src)
-		return
-		return
-	return
+	spawn(t) del(src)
 
 /obj/portal/Bumped(atom/movable/M)
-
-	spawn( 0 )
-		src.teleport(M)
-		return
-	return
+	spawn(0) src.teleport(M)
 
 /obj/portal/HasEntered(atom/movable/AM)
-
-	spawn( 0 )
-		src.teleport(AM)
-		return
-	return
+	spawn(0) src.teleport(AM)
 
 /obj/portal/New()
-
-	spawn( 300 )
-		//SN src = null
-		del(src)
-		return
-		return
-	return
+	spawn(300) del(src)
 
 /obj/portal/proc/teleport(atom/movable/M)
-
 	if (M.anchored)
 		return
 	if (src.icon_state == "portal1")
 		return
 	if (!( src.target ))
-		//SN src = null
 		del(src)
 		return
 	var/obj/effects/sparks/O = new /obj/effects/sparks( src.target )
 	O.dir = pick(1, 2, 4, 8)
-	spawn( 0 )
+	spawn(0)
 		O.Life()
 		return
 	if (istype(M, /atom/movable))
@@ -5584,51 +5543,36 @@
 			M.loc = null
 		else
 			M.loc = locate(tx, ty, src.target.z)
-	return
 
 /obj/effects/water/New()
-
 	..()
 	var/turf/T = src.loc
 	if (istype(T, /turf))
 		T.firelevel = 0
-	spawn( 70 )
-		//SN src = null
-		del(src)
-		return
-
-	return
+	spawn(70) del(src)
 
 /obj/effects/water/Del()
-
 	var/turf/T = src.loc
 	if (istype(T, /turf))
 		T.firelevel = 0
 	..()
-	return
 
 /obj/effects/water/Move(turf/newloc)
-
 	var/turf/T = src.loc
 	if (istype(T, /turf))
 		T.firelevel = 0
 	if (--src.life < 1)
-		//SN src = null
 		del(src)
 	if(newloc.density)
 		return 0
-
-
 	.=..()
 
 /mob/attackby(obj/item/weapon/W, mob/user)
-
 	var/shielded = 0
 	for(var/obj/item/weapon/shield/S in src)
 		if (S.active)
 			shielded = 1
 		else
-			//Foreach continue //goto(22)
 	if (locate(/obj/item/weapon/grab, src))
 		var/mob/safe = null
 		if (istype(src.l_hand, /obj/item/weapon/grab))
@@ -5642,17 +5586,12 @@
 		if (safe)
 			return safe.attackby(W, user)
 	if ((!( shielded ) || !( W.flags ) & 32))
-		spawn( 0 )
-			W.attack(src, user)
-			return
-	return
+		spawn(0) W.attack(src, user)
 
 /atom/proc/MouseDrop_T()
-
 	return
 
 /atom/proc/attack_hand(mob/user)
-
 	return
 
 /atom/proc/attack_paw(mob/user)
@@ -5717,20 +5656,17 @@
 	return
 
 /atom/Click()
-	//world << "atom.Click() on [src] by [usr] : src.type is [src.type]"
 	if (!usr.disable_one_click)
 		return DblClick()
 
 /atom/DblClick()
 	if (world.time <= usr:lastDblClick+2)
-		//world << "BLOCKED atom.DblClick() on [src] by [usr] : src.type is [src.type]"
 		return
 	else
-		//world << "atom.DblClick() on [src] by [usr] : src.type is [src.type]"
 		usr:lastDblClick = world.time
 
 	..()
-	// I changed everything in this function from using usr to user before I found out that you can actually change the value of usr. --shadowlord13
+	// I changed everything in this function from using usr to user before I found out that you can actually change the value of usr.
 	var/mob/user = usr
 	if (user.currentDrone!=null)
 		user = user.currentDrone
@@ -5763,24 +5699,22 @@
 	if (((!user.canmove) && (!istype(user, /mob/ai))) || user.stat != 0)
 
 		return
-	/* This line broke my mental parser. --Stephen001 */
 	if ((!(src in user.contents) && (((!(isturf(src)) && (!(isturf(src.loc)) && (src.loc && !(isturf(src.loc.loc))))) || !(isturf(user.loc))) && (src.loc != user.loc && (!(istype(src, /obj/screen)) && !(user.contents.Find(src.loc)))))))
 		return
-	/* How's this? --shadowlord13 */
+	/* Breaks double-clicking on an equipment slot to place an item there, unfortunately. */
 	/*
-	//If the dclicked item is in our inventory
+	// If the dclicked item is in our inventory
 	if (!(src in user.contents))
-		//If the item is not a turf, and it is not on a turf, and it is inside something else which is not in a turf
+		// If the item is not a turf, and it is not on a turf, and it is inside something else which is not in a turf
 		if (!(isturf(src)) && (!(isturf(src.loc)) && (src.loc && !(isturf(src.loc.loc)))))
 			return
-		//If not, if we are inside some item instead of on a turf, and the dclicked item is not in the same place as us, and the dclicked item is not a screen object, and the dclicked item is not inside an item in our inventory.
+		// If not, if we are inside some item instead of on a turf, and the dclicked item is not in the same place as us, and the dclicked item is not a screen object,
+		// and the dclicked item is not inside an item in our inventory.
 		else if	((!(isturf(user.loc))) && (src.loc != user.loc && (!(istype(src, /obj/screen)) && !(user.contents.Find(src.loc)))))
 			return
 	*/
 
-
-	/* Surely src.loc == user is redundant? --Stephen001 */
-	/* That's checking to see if it's being held/worn or something like that, methinks --shadowlord13 */
+	/* That's checking to see if it's being held/worn or something like that, methinks. */
 	var/t5 = (get_dist(src, user) <= 1 || src.loc == user)
 	if (istype(user, /mob/ai))
 		t5 = 1
@@ -5799,12 +5733,10 @@
 				return
 		else
 			return
-	/* Suggested fix by shadowlord13 for Bug #1952091. --Stephen001 */
+	/* Suggested fix for Bug #1952091. */
 	var/turf/turfLoc = (istype(src, /turf) ? src : src.loc)
 	
-	/* Seems like a pretty important expression. Dare I fathom what it checks? --Stephen001 */
-	/* flag 16 in this case apparently disables the distance check and the alternate 'is in contents' check in the var/t5 line.
-		It's used on guns, for instance. --shadowlord13 */
+	/* flag 16 in this case apparently disables the distance check and the alternate 'is in contents' check in the var/t5 line.	It's used on guns, for instance. */
 	if (((t5 || (W && (W.flags & 16))) && !(istype(src, /obj/screen))))
 		if (user.next_move < world.time)
 			user.prev_move = user.next_move
@@ -5888,7 +5820,6 @@
 			del(D)
 			if (!(ok))
 				return 0
-		user << "Debug message: W [W] t5 [t5] src [src] user [user]"
 		if (!user.restrained())
 			if (W)
 				if (t5)
@@ -5924,7 +5855,6 @@
 			if (!( user.restrained() ))
 				if ((W && !( istype(src, /obj/screen) )))
 					src.attackby(W, user)
-
 					if (W)
 						W.afterattack(src, user)
 				else
