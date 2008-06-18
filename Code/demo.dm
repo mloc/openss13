@@ -115,7 +115,7 @@
 					M.stunned = time
 			M.stat = 1
 			for(var/mob/O in viewers(M, null))
-				if ((!( O.blinded )))
+				if (O.hasClient() && (!( O.blinded )))
 					O.client_mob() << text("\red <B>[] has been knocked unconscious!</B>", M)
 				//Foreach goto(169)
 			M.client_mob() << text("\red <B>This was a []% hit. Roleplay it! (personality/memory change if the hit was severe enough)</B>", time * 100 / 120)
@@ -1512,7 +1512,11 @@
 
 /obj/stool/chair/e_chair/verb/toggle_power()
 	set src in oview(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	if ((usr.stat || usr.restrained() || !( usr.canmove ) || usr.lying))
 		return
 	src.on = !( src.on )
@@ -1618,7 +1622,11 @@
 
 /obj/stool/chair/verb/rotate()
 	set src in oview(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	src.dir = turn(src.dir, 90)
 	if (src.dir == NORTH)
 		src.layer = FLY_LAYER
@@ -1661,10 +1669,9 @@
 /obj/stool/chair/attack_hand(mob/user as mob)
 
 	if (istype(user, /mob/drone))
-		if (istype(user, /mob/drone))
-			if (user.equipped())
-				user.client_mob() << "You need to be using the gripper to buckle someone in."
-				return
+		if (user.equipped())
+			user.client_mob() << "You need to be using the gripper to buckle someone in."
+			return
 	for(var/mob/M in src.loc)
 		if (M.buckled)
 			if (M != user)
@@ -1957,7 +1964,11 @@
 
 /obj/window/verb/rotate()
 	set src in oview(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	if (src.anchored)
 		usr.client_mob() << "It is fastened to the floor; therefore, you can't rotate it!"
 		return 0

@@ -155,9 +155,11 @@ obj/machinery/cryo_cell
 
 	verb/move_eject()
 		set src in oview(1)
-
-		if (usr.stat != 0)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr.client_mob() << "You can't reach [src]."
 			return
+
 		src.go_out()
 		add_fingerprint(usr)
 
@@ -168,7 +170,10 @@ obj/machinery/cryo_cell
 
 	verb/move_inside()
 		set src in oview(1)
-
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr.client_mob() << "You can't reach [src]."
+			return
 		if (usr.stat != 0 || stat & NOPOWER)
 			return
 		if (src.occupant)
@@ -227,9 +232,9 @@ obj/machinery/cryo_cell
 	// AI interact
 	attack_ai(mob/user)
 		return src.attack_hand(user)
-	
+
 	// Human interact, show status window of machine and occupant
-	
+
 	attack_hand(mob/user)
 
 		if(stat & NOPOWER)
@@ -347,7 +352,7 @@ obj/machinery/cryo_cell
 		else
 			usr.client_mob() << "User too far?"
 		return
-		
+
 	// Called to remove the occupant of a cell
 	// Reset the view back to normal
 

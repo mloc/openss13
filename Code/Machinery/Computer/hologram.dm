@@ -131,7 +131,9 @@ Blue (0-255): <A href='?src=\ref[src];h_b=-300'>\[0\]</A> <A href='?src=\ref[src
 			else if (href_list["temp"])
 				src.temp = null
 
-			src.updateDialog()
+			for(var/mob/M in viewers(1, src))
+				if ((M.client && M.machine == src))
+					src.show_console(M)
 
 
 /*

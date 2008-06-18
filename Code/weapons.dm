@@ -63,12 +63,12 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src)
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src.master)
 		src.add_fingerprint(usr)
 	else
 		usr.client_mob() << browse(null, "window=infra_sensor")
@@ -178,15 +178,12 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src)
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				for(var/mob/M in viewers(1, src.master))
-					if (M.client)
-						src.attack_self(M)
-					//Foreach goto(310)
+				src.updateSelfDialog(src.master)
 	else
 		usr.client_mob() << browse(null, "window=prox")
 		return
@@ -321,12 +318,12 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src)
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src.master)
 	else
 		usr.client_mob() << browse(null, "window=infra")
 		return
@@ -407,12 +404,12 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				updateDialog()
+				src.updateSelfDialog(src)
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src.master)
 	else
 		//If it's not timing, reset the icon so it doesn't look like it's still about to go off.
 		src.c_state(0)
@@ -507,12 +504,12 @@
 			if (istype(src.loc, /mob))
 				attack_self(src.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src)
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
 			else
-				src.updateDialog()
+				src.updateSelfDialog(src.master)
 		src.add_fingerprint(usr)
 	else
 		usr.client_mob() << browse(null, "window=timer")
@@ -989,7 +986,11 @@
 
 /obj/item/weapon/assembly/m_i_ptank/verb/Arm()
 	set src in view(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	usr.show_message("\blue The proximity sensor has been armed with a delay of 15 seconds.", 1)
 
 	src.icon_state = "m_i_ptank2"

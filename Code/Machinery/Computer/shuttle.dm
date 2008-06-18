@@ -16,11 +16,15 @@ obj/machinery/computer/shuttle
 		access = "2000"						// ID card access level needed to authorize
 
 
-	// Restabalize verb
+	// Restabilize verb
 	// Set all shuttle locations to standard atmosphere
 
-	verb/restabalize()
+	verb/restabilize()
 		set src in oview(1)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr.client_mob() << "You can't reach [src]."
+			return
 
 		world << "\red <B>Restabilizing shuttle atmosphere!</B>"
 		var/A = locate(/area/shuttle)
@@ -55,6 +59,10 @@ obj/machinery/computer/shuttle
 
 	verb/hijack()
 		set src in oview(1)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr.client_mob() << "You can't reach [src]."
+			return
 
 		if ((!( ticker ) || ticker.shuttle_location != shuttle_z))
 			return

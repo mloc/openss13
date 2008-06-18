@@ -18,8 +18,9 @@ obj/machinery/computer/prison_shuttle
 
 	verb/take_off()
 		set src in oview(1)
-
-		if ((usr.stat || usr.restrained()))
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr.client_mob() << "You can't reach [src]."
 			return
 		src.add_fingerprint(usr)
 
@@ -64,12 +65,15 @@ obj/machinery/computer/prison_shuttle
 				usr.client_mob() << "\blue There is an obstructing shuttle!"
 
 
-	// Restabalize verb
+	// Restabilize verb
 	// Set all shuttle locations to standard atmosphere settings
 
-	verb/restabalize()
+	verb/restabilize()
 		set src in oview(1)
-
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr.client_mob() << "You can't reach [src]."
+			return
 		var/list/observers = viewers(null, null)
 		for (var/mob/who in observers)
 			who.client_mob() << "\red <B>Restabilizing prison shuttle atmosphere!</B>"

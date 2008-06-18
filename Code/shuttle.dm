@@ -94,7 +94,11 @@
 
 /obj/shuttle/door/verb/open()
 	set src in oview(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	src.add_fingerprint(usr)
 	if (src.operating)
 		return
@@ -114,6 +118,10 @@
 
 /obj/shuttle/door/proc/close()
 	set src in oview(1)
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
 
 	src.add_fingerprint(usr)
 	if (src.operating)

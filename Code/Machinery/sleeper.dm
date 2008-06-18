@@ -30,7 +30,9 @@ obj/machinery/sleeper
 	verb/eject()
 		set src in oview(1)
 
-		if (usr.stat != 0)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr << "You can't reach [src]."
 			return
 		src.go_out()
 		add_fingerprint(usr)
@@ -43,7 +45,9 @@ obj/machinery/sleeper
 	verb/move_inside()
 		set src in oview(1)
 
-		if (usr.stat != 0)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr << "You can't reach [src]."
 			return
 		if (src.occupant)
 			usr.client_mob() << "\blue <B>The sleeper is already occupied!</B>"

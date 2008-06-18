@@ -33,7 +33,11 @@
 
 	if(stat & (NOPOWER|BROKEN) )
 		return
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	var/list/L = list(  )
 	for(var/obj/item/weapon/radio/R in world)
 		if (R.freq != freq)
@@ -66,6 +70,10 @@
 	set desc = "ID Tag:"
 
 	if(stat & (NOPOWER|BROKEN) )
+		return
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
 		return
 	if (t)
 		src.id = t
@@ -136,7 +144,11 @@
 /obj/machinery/teleport/station/verb/engage()
 	set src in oview(1)
 	if(stat & NOPOWER) return
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	var/atom/l = src.loc
 	var/atom/com = locate(/obj/machinery/teleport/hub, locate(l.x + 1, l.y, l.z))
 	if (com)
@@ -151,7 +163,11 @@
 /obj/machinery/teleport/station/verb/disengage()
 	set src in oview(1)
 	if(stat & NOPOWER) return
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	var/atom/l = src.loc
 	var/atom/com = locate(/obj/machinery/teleport/hub, locate(l.x + 1, l.y, l.z))
 	if (com)
@@ -166,7 +182,11 @@
 	set src in oview(1)
 
 	if(stat & NOPOWER) return
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	var/atom/l = src.loc
 	var/obj/machinery/teleport/hub/com = locate(/obj/machinery/teleport/hub, locate(l.x + 1, l.y, l.z))
 	if (com && !active)

@@ -14,7 +14,7 @@
 	var/aiRestorePowerRoutine = 0
 	var/list/laws = list()
 	flags = 258.0
-	
+
 	proc/ai_camera_follow(mob/target as mob in world)
 		set category = "AI Commands"
 		if (usr.stat>0)
@@ -25,7 +25,7 @@
 			usr << "You can't use the follow camera while controlling a drone."
 			usr:cameraFollow = null
 			return
-		
+
 		usr:cameraFollow = target
 		usr << text("Follow camera mode is now following [].", target.rname)
 		if (usr.machine == null)
@@ -116,6 +116,9 @@
 					b_loss += 30
 			else
 				return
+		src.bruteloss += b_loss
+		src.fireloss += f_loss
+		src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
 
 	examine()
 		set src in oview()
@@ -209,14 +212,14 @@
 						src.fire.icon_state = "fire1"
 				else if (src.fire)
 					src.fire.icon_state = "fire0"
-			
-			
+
+
 			if (src.health <= -100.0)
 				death()
 				return
 			else if (src.health < 0)
 				src.oxyloss++
-			
+
 			if (src.mach)
 				if (src.machine)
 					src.mach.icon_state = "mach1"
@@ -257,7 +260,7 @@
 							spawn(1)
 								while (src.oxyloss>0 && stat!=2)
 									sleep(50)
-									src.oxyloss-=5
+									src.oxyloss-=1
 								src.oxyloss = 0
 							return
 						else if (src:aiRestorePowerRoutine==3)
@@ -266,13 +269,13 @@
 							spawn(1)
 								while (src.oxyloss>0 && stat!=2)
 									sleep(50)
-									src.oxyloss-=5
+									src.oxyloss-=1
 								src.oxyloss = 0
 							return
 						src.toxin.icon_state = "pow0"
 					else
 						src.toxin.icon_state = "pow1"
-		
+
 						//stage = 6
 						src.blind.screen_loc = "1,1 to 15,15"
 						if (src.blind.layer!=18)
@@ -294,7 +297,7 @@
 									src.addLaw(index, "")
 								spawn(50)
 									while ((src:aiRestorePowerRoutine!=0) && stat!=2)
-										src.oxyloss += 5
+										src.oxyloss += 1
 										sleep(50)
 
 								spawn(20)
@@ -516,7 +519,7 @@
 		src.client.screen -= list( src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
 		src.client.screen -= list( src.zone_sel, src.oxygen, src.i_select, src.m_select, src.toxin, src.internals, src.fire, src.hands, src.healths, src.pullin, src.blind, src.flash, src.rest, src.sleep, src.mach )
 		src.client.screen += list( src.toxin, src.fire, src.healths )
-		
+
 		if (!( isturf(src.loc) ))
 			src.client.eye = src.loc
 			src.client.perspective = EYE_PERSPECTIVE
@@ -542,10 +545,10 @@
 
 
 		return
-	
+
 	m_delay()
 		return 0
-	
+
 	say(message as text)
 
 		if(config.logsay) world.log << "SAY: [src.name]/[src.key] : [message]"
@@ -570,6 +573,7 @@
 			var/pre = copytext(message, 1, 4)
 			var/italics = 0
 			var/obj_range = null
+			/*	//might be used in the future for looking into the bug(s) with hearing/saying things inside objects
 			var/source = src
 			//Didn't want to risk infinite recursion if someone somehow was outside the map, if that's possible, but did want to allow people being in closets in pods and such. -shadowlord13
 			if (!istype(src.loc, /turf))
@@ -578,7 +582,7 @@
 					source = src.loc
 					if (!istype(src.loc, /turf))
 						source = src.loc
-
+			*/
 			if (pre == "\[w\]")
 				message = copytext(message, 4, length(message) + 1)
 				L += hearers(1, null)
@@ -658,7 +662,7 @@
 
 	attack_paw(mob/M as mob)
 		src.attack_hand(M)
-		
+
 	attack_hand(mob/M as mob)
 		if (!ticker)
 			M << "You cannot attack people before the game has started."
@@ -684,7 +688,7 @@
 								M:UpdateDamageIcon()
 
 							M.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
-						
+
 					else
 						var/damage = rand(5, 10)
 						if (prob(40))
@@ -693,7 +697,7 @@
 						src.health = 100 - src.oxyloss - src.fireloss - src.bruteloss
 						for(var/mob/O in viewers(src, null))
 							O.show_message(text("\red <B>[] is attacking []!</B>", M, src), 1)
-							
+
 	meteorhit(obj/O as obj)
 
 		for(var/mob/M in viewers(src, null))
@@ -751,7 +755,7 @@
 			user.machine = null
 			user.reset_view(null)
 			return 0
-		
+
 		if (t == "Cancel")
 			user.machine = null
 			user.reset_view(null)
@@ -767,7 +771,7 @@
 				spawn( 5 )
 					attack_ai(user)
 					return
-			
+
 		else if (istype(selected, /mob/drone))
 			user.machine = null
 			user.reset_view(null)
@@ -813,8 +817,8 @@
 		var/total = 0
 		total += 0.25
 		return total
-	
-	
+
+
 	switch_hud()
 		if (src.hud_used == main_hud)
 			src.fire.icon = 'screen.dmi'
@@ -829,12 +833,12 @@
 			src.healths.icon = 'screen1.dmi'
 			src.toxin.icon = 'screen1.dmi'
 		return
-		
+
 	//block the take-off/put-on dialog
 	show_inv(mob/user as mob)
 		return
 
-		
+
 /mob/human/proc/AIize()
 
 	if (src.monkeyizing)
@@ -859,7 +863,7 @@
 	src.toxin.screen_loc = "15,10"
 	src.fire.screen_loc = "15,8"
 	src.healths.screen_loc = "15,5"
-	
+
 	src.monkeyizing = 1
 	src.canmove = 0
 	src.icon = null

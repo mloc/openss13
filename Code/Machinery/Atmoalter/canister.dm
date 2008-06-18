@@ -252,7 +252,7 @@ Pipe Valve Status: [ct]<BR>
 	// Process topic link from interaction window
 
 	Topic(href, href_list)
-		usr.client_mob() << "Topic on canister, usr is [usr], src is [src], usr.client_mob() is [usr.client_mob()], href is ([href]), href_list is ([href_list])."
+		//debug message: //usr.client_mob() << "Topic on canister, usr is [usr], src is [src], usr.client_mob() is [usr.client_mob()], href is ([href]), href_list is ([href_list])."
 	
 		..()
 		if (usr.stat || usr.restrained())

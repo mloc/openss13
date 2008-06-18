@@ -2,8 +2,8 @@
 
 //Todo:
 /*
+	re-test: Drone hears garbled speech.
 	Add throw button, intent buttons to drone GUI, button for releasing pull
-	Drone needs meteor damage, explosion damage, and laser damage
 	Drone pull/grab should only work if gripper is empty
 	Take-off dialog for taking things off others should work, except humans controlling a drone should have a high chance of failure and harming the person instead.
 	should lose drone control upon going unconscious (it's already lost upon death), and also if the user is pulled/moves away from the control station
@@ -16,15 +16,17 @@
 		
 	Held jetpack with flight system turned on doesn't work for drone - appears to be due to lack of internal air
 	
+	(Before these are implemented, the AI just has a damage bonus applied when it is controlling a drone)
 	Implement AI-controlled drone precision attacks:
-		screwdriver to heart? protected by armor (may break screwdriver tool permanently), reduced damage from other suits.
-		lit welder to eyes? protected by helmets?
-		crowbar to whack items out of opponents' hands, when there's anything in them, and send them flying. If not, does damage normally to the normal area.
-		wrench targets kneecaps for bonus damage, knocking down, etc.
+		when using screwdriver, auto-aim for heart? protected by armor (may break screwdriver tool permanently), reduced damage from other suits.
+		when using welder, auto-aim for eyes? protected by helmets?
+		when using crowbar, auto-aim to whack/pull items out of opponents' hands, when there's anything in them, and send them flying. If not, does damage normally to the normal area.
+		when using wrench, auto-aim for kneecaps for bonus damage, knocking down, etc.
 		wirecutters don't have a precision attack or even work well for attacking at all (one would think), and are likely to break if used.
 		If drone gets ahold of a laser gun or loaded revolver, an AI controller will be able to precision aim it as well.
 	Note to be very clear: If a human is controlling the drone, they do not get any of those precision bonus attacks. Those are only applied if the AI is controlling the drone.
-		
+	
+	Todo: When attempting to speak while controlling a drone, it should send the speech from the controller, unless you use [d], in which case the drone should say it.
 */
 
 /mob/drone
@@ -397,6 +399,12 @@
 						
 	abiotic()
 		return 1
+	
+	say(message as text)
+		if (src.controlledBy)
+			if (istype(src.controlledBy, /mob/human) || istype(src.controlledBy, /mob/monkey) || istype(src.controlledBy, /mob/ai))
+				usr = src.controlledBy
+				src.controlledBy.say(message)
 
 	proc/takeControl(var/mob/user)
 		if (user.client)
@@ -673,7 +681,59 @@
 	show_inv(mob/user as mob)
 		return
 
+	meteorhit(obj/O as obj)
+		for(var/mob/M in viewers(src, null))
+			M.show_message(text("\red [] has been hit by []", src, O), 1)
+			//Foreach goto(19)
+		if (src.health > 0)
+			src.bruteloss += 30
+			if ((O.icon_state == "flaming"))
+				src.fireloss += 40
+			src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+		return
+
+	las_act(flag)
+		if (flag == "bullet")
+			if (src.stat != 2)
+				src.bruteloss += 60
+				src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+				src.weakened = 10
+		if (flag)
+			if (prob(75))
+				src.stunned = 15
+			else
+				src.weakened = 15
+		else
+			if (src.stat != 2)
+				src.bruteloss += 20
+				src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+				if (prob(25))
+					src.stunned = 1
+		return
 	
+	ex_act(severity)
+		flick("flash", src.flash)
+
+		var/b_loss = 0
+		var/f_loss = 0
+		switch(severity)
+			if(1.0)
+				if (src.stat != 2)
+					b_loss += 100
+					f_loss += 100
+			if(2.0)
+				if (src.stat != 2)
+					b_loss += 60
+					f_loss += 60
+			if(3.0)
+				if (src.stat != 2)
+					b_loss += 30
+			else
+				return
+		src.bruteloss += b_loss
+		src.fireloss += f_loss
+		src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
+
 /obj/item/weapon/drone/aiInterface
 	name = "AI Interface"
 	icon = 'drone.dmi'

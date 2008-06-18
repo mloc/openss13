@@ -246,7 +246,11 @@
 
 /obj/machinery/dna_scanner/verb/move_inside()
 	set src in oview(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	if (usr.stat != 0)
 		return
 	if (src.occupant)
@@ -718,7 +722,7 @@
 
 /obj/machinery/restruct/verb/eject()
 	set src in oview(1)
-
+	
 	if (usr.stat != 0)
 		return
 	src.go_out()
@@ -727,7 +731,11 @@
 
 /obj/machinery/restruct/verb/operate()
 	set src in oview(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	src.add_fingerprint(usr)
 	if ((src.occupant && src.occupant.primary))
 		switch(src.occupant.primary.spec_identity)
@@ -884,7 +892,11 @@
 
 /obj/machinery/restruct/verb/move_inside()
 	set src in oview(1)
-
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
+	
 	if (usr.stat != 0)
 		return
 	if (src.occupant)

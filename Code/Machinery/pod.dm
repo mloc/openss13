@@ -84,7 +84,9 @@ obj/machinery/pod
 	verb/eject()
 		set src = usr.loc
 
-		if (usr.stat)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr << "You can't reach [src]."
 			return
 		var/mob/M = usr
 		M.loc = src.loc
@@ -99,14 +101,16 @@ obj/machinery/pod
 	verb/board()
 		set src in oview(1)
 
-		if (usr.stat)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr << "You can't reach [src]."
 			return
 		var/mob/M = usr
 		if (M.client)
 			M.client.perspective = EYE_PERSPECTIVE
 			M.client.eye = src
 		M.loc = src
-		return
+
 
 
 	// Load pod - whatever the player is pulling gets loaded into the pod (including other players)
@@ -125,6 +129,15 @@ obj/machinery/pod
 
 				if (ismob(H.pulling))
 					var/mob/M = H.pulling
+					var/result = src.canReach(H, null, 1)
+					if (result==0)
+						usr << "You can't reach [src]."
+						return
+					result = H.pulling.canReach(H, null, 1)
+					if (result==0)
+						usr << "You can't reach [H.pulling]."
+						return
+
 					if (M.client)
 						M.client.perspective = EYE_PERSPECTIVE
 						M.client.eye = src
@@ -141,8 +154,15 @@ obj/machinery/pod
 	verb/unload(var/atom/movable/A in src.contents)
 		set src in oview(1)
 
-		if (usr.stat)
+		var/result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr << "You can't reach [src]."
 			return
+		result = src.canReach(usr, null, 1)
+		if (result==0)
+			usr << "You can't reach [src]."
+			return
+
 		if (istype(A, /atom/movable))
 			A.loc = src.loc
 			for(var/mob/O in viewers(src, null))

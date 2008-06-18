@@ -1088,7 +1088,7 @@
 		return
 	if ((src.source.restrained() || src.source.stat))
 		return
-		
+
 	switch(src.place)
 		if("mask")
 			if (src.target.wear_mask)
@@ -2386,7 +2386,7 @@
 
 	src.show_message("\red The blob attacks you!")
 	src.damage_anywhere(damage)
-	
+
 /mob/human/proc/damage_anywhere(damage)
 	var/list/zones = list("head","chest","chest", "diaper", "l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot")
 
@@ -2931,7 +2931,7 @@
 	if (src.droneTransitioning==1)
 		..()
 		return
-	
+
 	if(config.logaccess)
 		world.log << "LOGIN: [src.key] from [src.client.address]"
 		src.lastKnownIP = src.client.address
@@ -3057,6 +3057,9 @@
 		src.verbs += /proc/Vars
 	src << text("\blue <B>[]</B>", world_message)
 	src << browse(text("[]", changes), "window=changes")
+	if (!( isturf(src.loc) ))
+		src.client.eye = src.loc
+		src.client.perspective = EYE_PERSPECTIVE
 	if (!( src.start ))
 		src.savefile_load()
 		ShowChoices()
@@ -3068,7 +3071,7 @@
 			//Foreach goto(1473)
 
 		src.loc = pick(L)
-	
+
 	return
 
 /mob/human/Bump(atom/movable/AM as mob|obj, yes)
@@ -3091,7 +3094,7 @@
 				step(AM, t)
 		src.now_pushing = null
 	return
-	
+
 /mob/human/death()
 	if (src.currentDrone!=null)
 		src.currentDrone:releaseControl()
@@ -3908,6 +3911,10 @@
 				L += hearers(1, null)
 				obj_range = 1
 				italics = 1
+			else if (pre == "\[d\]" && usr.currentDrone)
+				message = copytext(message, 4, length(message) + 1)
+				L += hearers(1, null)
+				usr = usr.currentDrone
 			else
 				if (pre == "\[l\]")
 					message = copytext(message, 4, length(message) + 1)
@@ -3952,8 +3959,20 @@
 		if (italics)
 			message = text("<I>[]</I>", message)
 		if (((src.oxygen && src.oxygen.icon_state == "oxy0") || (!( (istype(T, /turf) || istype(T, /obj/move)) ) || T.oxygen > 0)))
+			var/speakerType = src.type
+			if (istype(src, /mob/drone))
+				var/mob/drone/drone = src
+				var/mob/owner = drone.controlledBy
+				if (owner!=null)
+					speakerType = owner.type
 			for(var/mob/M in L)
-				if (istype(M, src.type) || istype(M, /mob/ai))
+				var/mobType = M.type
+				if (istype(M, /mob/drone))
+					var/mob/drone/Mdrone = M
+					var/mob/Mowner = Mdrone.controlledBy
+					if (Mowner!=null)
+						mobType = Mowner.type
+				if (istype(M, speakerType) || istype(M, /mob/ai) || (istype(M, /mob/drone) && mobType==speakerType))
 					M.show_message(text("<B>[]</B>[]: []", src.rname, alt_name, message), 2)
 				else
 					M.show_message(text("The human: []", stars(message)), 2)
@@ -3970,11 +3989,11 @@
 	return
 
 /mob/human/UpdateClothing()
-	
+
 	..()
 	if (src.monkeyizing)
 		return
-	
+
 	if (!( src.w_uniform ))
 		var/obj/item/weapon/W = src.r_store
 		if (W)
@@ -4379,11 +4398,11 @@
 	if (!ticker)
 		M << "You cannot attack people before the game has started."
 		return
-	
+
 	var/intentToApply = M.a_intent
 	var/aiControllingBonus = 0
 	var/corruptedIntent = 0
-	
+
 	if (istype(M, /mob/drone))
 		var/mob/owner = M:controlledBy
 		if (owner!=null && istype(owner, /mob/ai))
@@ -4419,7 +4438,7 @@
 							O.show_message(text("\blue [] attempted to disarm [], but completely missed!", M, src), 1)
 						return
 					//otherwise we push them down
-					
+
 	if (intentToApply == "help")
 		if (istype(M, /mob/human))
 			var/mob/human/H = M
@@ -4483,6 +4502,9 @@
 						if (src.w_uniform)
 							src.w_uniform.add_fingerprint(M)
 						var/damage = rand(1, 9)
+						//This gives a damage bonus when the AI is controlling the drone. For now, it doesn't check their weapon or target zone.
+						if (aiControllingBonus && (!corruptedIntent))
+							damage += rand(9, 18)
 						var/obj/item/weapon/organ/external/affecting = src.organs["chest"]
 						var/t = M.zone_sel.selecting
 						if ((t in list( "hair", "eyes", "mouth", "neck" )))
@@ -4835,10 +4857,11 @@
 	return
 
 /mob/human/show_inv(mob/user as mob)
-	user.machine = src
-	var/dat = text("<PRE>\n<B><FONT size=3>[]</FONT></B>\n\t<B>Head(Mask):</B> <A href='?src=\ref[];item=mask'>[]</A>\n\t\t<B>Headset:</B> <A href='?src=\ref[];item=headset'>[]</A>\n\t<B>Left Hand:</B> <A href='?src=\ref[];item=l_hand'>[]</A>\n\t<B>Right Hand:</B> <A href='?src=\ref[];item=r_hand'>[]</A>\n\t<B>Gloves:</B> <A href='?src=\ref[];item=gloves'>[]</A>\n\t<B>Eyes:</B> <A href='?src=\ref[];item=eyes'>[]</A>\n\t<B>Ears:</B> <A href='?src=\ref[];item=ears'>[]</A>\n\t<B>Head:</B> <A href='?src=\ref[];item=head'>[]</A>\n\t<B>Shoes:</B> <A href='?src=\ref[];item=shoes'>[]</A>\n\t<B>Belt:</B> <A href='?src=\ref[];item=belt'>[]</A>\n\t<B>Uniform:</B> <A href='?src=\ref[];item=uniform'>[]</A>\n\t<B>(Exo)Suit:</B> <A href='?src=\ref[];item=suit'>[]</A>\n\t<B>Back:</B> <A href='?src=\ref[];item=back'>[]</A> []\n\t<B>ID:</B> <A href='?src=\ref[];item=id'>[]</A>\n\t[]\n\t[]\n\t<A href='?src=\ref[];item=pockets'>Empty Pockets</A>\n<A href='?src=\ref[];mach_close=mob[]'>Close</A>\n</PRE>", src.name, src, (src.wear_mask ? text("[]", src.wear_mask) : "Nothing"), src, (src.w_radio ? text("[]", src.w_radio) : "Nothing"), src, (src.l_hand ? text("[]", src.l_hand) : "Nothing"), src, (src.r_hand ? text("[]", src.r_hand) : "Nothing"), src, (src.gloves ? text("[]", src.gloves) : "Nothing"), src, (src.glasses ? text("[]", src.glasses) : "Nothing"), src, (src.ears ? text("[]", src.ears) : "Nothing"), src, (src.head ? text("[]", src.head) : "Nothing"), src, (src.shoes ? text("[]", src.shoes) : "Nothing"), src, (src.belt ? text("[]", src.belt) : "Nothing"), src, (src.w_uniform ? text("[]", src.w_uniform) : "Nothing"), src, (src.wear_suit ? text("[]", src.wear_suit) : "Nothing"), src, (src.back ? text("[]", src.back) : "Nothing"), ((istype(src.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.back, /obj/item/weapon/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : ""), src, (src.wear_id ? text("[]", src.wear_id) : "Nothing"), (src.handcuffed ? text("<A href='?src=\ref[];item=handcuff'>Handcuffed</A>", src) : text("<A href='?src=\ref[];item=handcuff'>Not Handcuffed</A>", src)), (src.internal ? text("<A href='?src=\ref[];item=internal'>Remove Internal</A>", src) : ""), src, user, url_encode(src.name))
-	user << browse(dat, text("window=mob[];size=300x600", url_encode(src.name)))
-	return
+	if (istype(user, /mob/human) || istype(user, /mob/monkey) || (istype(user, /mob/drone) && user.equipped()==null)) //AI should not be able to do this, and drone can only do it if they're using the gripper
+		user.machine = src
+		var/dat = text("<PRE>\n<B><FONT size=3>[]</FONT></B>\n\t<B>Head(Mask):</B> <A href='?src=\ref[];item=mask'>[]</A>\n\t\t<B>Headset:</B> <A href='?src=\ref[];item=headset'>[]</A>\n\t<B>Left Hand:</B> <A href='?src=\ref[];item=l_hand'>[]</A>\n\t<B>Right Hand:</B> <A href='?src=\ref[];item=r_hand'>[]</A>\n\t<B>Gloves:</B> <A href='?src=\ref[];item=gloves'>[]</A>\n\t<B>Eyes:</B> <A href='?src=\ref[];item=eyes'>[]</A>\n\t<B>Ears:</B> <A href='?src=\ref[];item=ears'>[]</A>\n\t<B>Head:</B> <A href='?src=\ref[];item=head'>[]</A>\n\t<B>Shoes:</B> <A href='?src=\ref[];item=shoes'>[]</A>\n\t<B>Belt:</B> <A href='?src=\ref[];item=belt'>[]</A>\n\t<B>Uniform:</B> <A href='?src=\ref[];item=uniform'>[]</A>\n\t<B>(Exo)Suit:</B> <A href='?src=\ref[];item=suit'>[]</A>\n\t<B>Back:</B> <A href='?src=\ref[];item=back'>[]</A> []\n\t<B>ID:</B> <A href='?src=\ref[];item=id'>[]</A>\n\t[]\n\t[]\n\t<A href='?src=\ref[];item=pockets'>Empty Pockets</A>\n<A href='?src=\ref[];mach_close=mob[]'>Close</A>\n</PRE>", src.name, src, (src.wear_mask ? text("[]", src.wear_mask) : "Nothing"), src, (src.w_radio ? text("[]", src.w_radio) : "Nothing"), src, (src.l_hand ? text("[]", src.l_hand) : "Nothing"), src, (src.r_hand ? text("[]", src.r_hand) : "Nothing"), src, (src.gloves ? text("[]", src.gloves) : "Nothing"), src, (src.glasses ? text("[]", src.glasses) : "Nothing"), src, (src.ears ? text("[]", src.ears) : "Nothing"), src, (src.head ? text("[]", src.head) : "Nothing"), src, (src.shoes ? text("[]", src.shoes) : "Nothing"), src, (src.belt ? text("[]", src.belt) : "Nothing"), src, (src.w_uniform ? text("[]", src.w_uniform) : "Nothing"), src, (src.wear_suit ? text("[]", src.wear_suit) : "Nothing"), src, (src.back ? text("[]", src.back) : "Nothing"), ((istype(src.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.back, /obj/item/weapon/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : ""), src, (src.wear_id ? text("[]", src.wear_id) : "Nothing"), (src.handcuffed ? text("<A href='?src=\ref[];item=handcuff'>Handcuffed</A>", src) : text("<A href='?src=\ref[];item=handcuff'>Not Handcuffed</A>", src)), (src.internal ? text("<A href='?src=\ref[];item=internal'>Remove Internal</A>", src) : ""), src, user, url_encode(src.name))
+		user << browse(dat, text("window=mob[];size=300x600", url_encode(src.name)))
+		return
 
 /mob/proc/show_message(msg, type, alt, alt_type)
 
@@ -5029,11 +5052,10 @@
 	return
 
 /mob/proc/show_inv(mob/user as mob)
-
-	user.machine = src
-	var/dat = text("<TT>\n<B><FONT size=3>[]</FONT></B><BR>\n\t<B>Head(Mask):</B> <A href='?src=\ref[];item=mask'>[]</A><BR>\n\t<B>Left Hand:</B> <A href='?src=\ref[];item=l_hand'>[]</A><BR>\n\t<B>Right Hand:</B> <A href='?src=\ref[];item=r_hand'>[]</A><BR>\n\t<B>Back:</B> <A href='?src=\ref[];item=back'>[]</A><BR>\n\t[]<BR>\n\t[]<BR>\n\t[]<BR>\n\t<A href='?src=\ref[];item=pockets'>Empty Pockets</A><BR>\n<A href='?src=\ref[];mach_close=mob[]'>Close</A><BR>\n</TT>", src.name, src, (src.wear_mask ? text("[]", src.wear_mask) : "Nothing"), src, (src.l_hand ? text("[]", src.l_hand) : "Nothing"), src, (src.r_hand ? text("[]", src.r_hand) : "Nothing"), src, (src.back ? text("[]", src.back) : "Nothing"), ((istype(src.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.back, /obj/item/weapon/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : ""), (src.internal ? text("<A href='?src=\ref[];item=internal'>Remove Internal</A>", src) : ""), (src.handcuffed ? text("<A href='?src=\ref[];item=handcuff'>Handcuffed</A>", src) : text("<A href='?src=\ref[];item=handcuff'>Not Handcuffed</A>", src)), src, user, src.name)
-	user << browse(dat, text("window=mob[]", html_encode(src.name)))
-	return
+	if (istype(user, /mob/human) || istype(user, /mob/monkey) || (istype(user, /mob/drone) && user.equipped()==null)) //AI should not be able to do this, and drone can only do it if they're using the gripper
+		user.machine = src
+		var/dat = text("<TT>\n<B><FONT size=3>[]</FONT></B><BR>\n\t<B>Head(Mask):</B> <A href='?src=\ref[];item=mask'>[]</A><BR>\n\t<B>Left Hand:</B> <A href='?src=\ref[];item=l_hand'>[]</A><BR>\n\t<B>Right Hand:</B> <A href='?src=\ref[];item=r_hand'>[]</A><BR>\n\t<B>Back:</B> <A href='?src=\ref[];item=back'>[]</A><BR>\n\t[]<BR>\n\t[]<BR>\n\t[]<BR>\n\t<A href='?src=\ref[];item=pockets'>Empty Pockets</A><BR>\n<A href='?src=\ref[];mach_close=mob[]'>Close</A><BR>\n</TT>", src.name, src, (src.wear_mask ? text("[]", src.wear_mask) : "Nothing"), src, (src.l_hand ? text("[]", src.l_hand) : "Nothing"), src, (src.r_hand ? text("[]", src.r_hand) : "Nothing"), src, (src.back ? text("[]", src.back) : "Nothing"), ((istype(src.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.back, /obj/item/weapon/tank) && !( src.internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : ""), (src.internal ? text("<A href='?src=\ref[];item=internal'>Remove Internal</A>", src) : ""), (src.handcuffed ? text("<A href='?src=\ref[];item=handcuff'>Handcuffed</A>", src) : text("<A href='?src=\ref[];item=handcuff'>Not Handcuffed</A>", src)), src, user, src.name)
+		user << browse(dat, text("window=mob[]", url_encode(src.name)))
 
 /mob/proc/u_equip(W as obj)
 
@@ -5622,7 +5644,7 @@
 	src.client.screen -= src.hud_used.adding
 	src.client.screen += src.hud_used.adding
 	return
-	
+
 /mob/Login()
 	if(ticker && master_mode == "sandbox" && src.sandbox==null)
 		src.CanBuild()
@@ -5658,7 +5680,7 @@
 		src.verbs += /mob/proc/toggle_alter
 		src.verbs += /mob/proc/list_dna
 		src.verbs += /proc/Vars
-	
+
 	..()
 	return
 
@@ -6069,7 +6091,7 @@
 	var/intentToApply = M.a_intent
 	var/aiControllingBonus = 0
 	var/corruptedIntent = 0
-	
+
 	if (istype(M, /mob/drone))
 		var/mob/owner = M:controlledBy
 		if (owner!=null && istype(owner, /mob/ai))
@@ -6105,7 +6127,7 @@
 							O.show_message(text("\blue [] attempted to disarm [], but completely missed!", M, src), 1)
 						return
 					//otherwise we push them down
-					
+
 	if (intentToApply == "help")
 		src.sleeping = 0
 		src.resting = 0
@@ -6132,6 +6154,9 @@
 										O.show_message(text("\red <B>[] has knocked out the monkey!</B>", M), 1)
 									//Foreach goto(248)
 								return
+					//This gives a damage bonus when the AI is controlling the drone. For now, it doesn't check their weapon or target zone.
+					if (aiControllingBonus && (!corruptedIntent))
+						damage += rand(9, 18)
 					src.bruteloss += damage
 					src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
 				else
@@ -6182,7 +6207,7 @@
 							if ((O.hasClient() && !( O.blinded )))
 								O.show_message(text("\red <B>[] has disarmed the monkey!</B>", M), 1)
 							//Foreach goto(638)
-				
+
 				if (corruptedIntent)
 					if (M.a_intent == "help")
 						M.client_mob() << "You failed to help [src] due to poor control over the drone, and may have knocked \him down, but at least you have not hurt \him."
@@ -6271,7 +6296,7 @@
 	if (src.droneTransitioning==1)
 		..()
 		return
-	
+
 	if (banned.Find(src.ckey))
 		//src.client = null
 		del(src.client)
@@ -6296,7 +6321,7 @@
 	src.hands = new /obj/screen( null )
 	src.sleep = new /obj/screen( null )
 	src.rest = new /obj/screen( null )
-	
+
 	..()
 	UpdateClothing()
 	src.oxygen.icon_state = "oxy0"
@@ -6415,7 +6440,7 @@
 
 /* This code is not identical to the code in /mob/human/Move or /mob/drone/Move, but it is similar. It lacks some things, it appears. --shadowlord13 */
 /mob/monkey/Move()
-	
+
 	if ((!( src.buckled ) || src.buckled.loc != src.loc))
 		src.buckled = null
 	if (src.buckled)
@@ -7088,11 +7113,28 @@
 		L += src
 		if (italics)
 			message = text("<I>[]</I>", message)
+		var/mob/speakerType = src.type
+		if (istype(src, /mob/drone))
+			var/mob/drone/drone = src
+			var/mob/owner = drone.controlledBy
+			if (owner!=null)
+				speakerType = owner.type
 		for(var/mob/M in L)
-			if (istype(M, src.type))
+			var/mobType = M.type
+			if (istype(M, /mob/drone))
+				var/mob/drone/Mdrone = M
+				var/mob/Mowner = Mdrone.controlledBy
+				if (Mowner!=null)
+					mobType = Mowner.type
+			if (istype(M, speakerType) || (istype(M, /mob/drone) && mobType==speakerType))
 				M.show_message(text("<B>[]</B>: []", src, message), 2)
-			else
-				M.show_message(text("<B>[]</B> chimpers.", src), 2)
+			else if (istype(M, /mob/monkey))
+				if (istype(src, /mob/drone))
+					M.show_message(text("<B>[]</B> plays chimpering sounds from its speakers.", src), 2)
+				else
+					M.show_message(text("<B>[]</B> chimpers.", src), 2)
+
+
 			//Foreach goto(503)
 		for(var/obj/O in view(obj_range, null))
 			spawn( 0 )
@@ -7475,14 +7517,14 @@
 
 /client/Topic(href, href_list[], hsrc)
 	//Checking for us using a drone without the drone being our client's mob (won't happen unless we add things which are remote-controlled without the user's client transferring), and changing usr to the drone if so
-	src << "client/Topic(href is ([href]) href_list is ([href_list]) hsrc is ([hsrc])."
+	//src << "Debug message: client/Topic(href is ([href]) href_list is ([href_list]) hsrc is ([hsrc])."
 	if (src.mob!=null)
-		src << "src.mob is [src.mob]."
+		//src << "Debug message: src.mob is [src.mob]."
 		if (src.mob.currentDrone!=null)
 			if (!istype(src.mob.currentDrone:equipped(), /obj/item/weapon/drone/aiInterface))
-				src << "src.mob.currentDrone is [src.mob.currentDrone]. Setting usr."
+				//src << "Debug message: src.mob.currentDrone is [src.mob.currentDrone]. Setting usr."
 				usr = src.mob.currentDrone
-	src << "usr is [usr]."
+	//src << "Debug message: usr is [usr]."
 	..()
 
 /* The primary purpose of client/proc/screenOrBackup, client/proc/screenOrBackupAdd, client/proc/screenOrBackupRemove, and mob/proc/client_mob (and overloaded mob/somesubclass/client_mob) is to provide a single point of change if, in the future, we need the capability to have a mob remote-controlling another mob or object without the mob's client being changed, if we want the client to have only HUD icons related to the thing they are controlling, without stopping their actual mob from having its appearance updated. An example would someone remote-controlling a torpedo.
@@ -7524,20 +7566,20 @@ Originally the robot drone was being implemented in this manner, but I didn't fi
 		src.client.screen -= value
 	else
 		src.screenOrBackupRemove(value)
-		
+
 /mob/proc/eitherScreenAdd(value)
 	if (src.client)
 		src.client.screen += value
 	else
 		src.screenOrBackupAdd(value)
-		
+
 /* client_mob returns the mob belonging to the actual client associated with this mob. To explain that more sensibly:
 	A player whose key is 'foo' joins the game, and makes a character named 'bar'.
 	Bar takes control of a drone. This changes foo's client from bar to the drone, but sets foo.currentDrone to bar, and sets bar.controlledBy to foo.
 	If you call client_mob() on bar, it will return the drone. If you call it on the drone, it will still return the drone.
-	
+
 	In the future, if we add remote-controlled objects or mobs which the controller's client doesn't transfer to, this should also handle that as well. Additionally, code is already in-place and fairly tested (there's one known bug: it can't push obstructions out of the way) in client/Move for supporting forwarding movement requests to the remote-controlled mob and such as well.
-	
+
 	--shadowlord13
 */
 /mob/proc/client_mob()
@@ -7552,7 +7594,7 @@ Originally the robot drone was being implemented in this manner, but I didn't fi
 
 /mob/proc/clientMob()
 	return src.client_mob()
-	
+
 /mob/proc/alwaysClient()
 	var/mob/mob = src.client_mob()
 	return mob.client
@@ -7561,7 +7603,7 @@ Originally the robot drone was being implemented in this manner, but I didn't fi
 	If called on a normal player with a client, this returns their client.
 	If called on a drone, this will return null whether it's controlled by a player or not.
 	If called on the mob which is controlling a drone, and that drone has a client, this will return that client. (If the player took control of a drone and then logged out, this will return null)
-	
+
 	This would be used like so:
 		if(M.cliented())
 			M.client_mob() << browse(null, "window=vote")
