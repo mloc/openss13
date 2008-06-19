@@ -663,14 +663,6 @@
 	name = "ion trails"
 	icon_state = "ion_trails"
 	anchored = 1.0
-/obj/effects/water
-	name = "water"
-	icon = 'water.dmi'
-	icon_state = "extinguish"
-	var/life = 15.0
-	flags = 2.0
-	mouse_opacity = 0
-	weight = 1000
 /obj/equip_e
 	name = "equip e"
 	var/mob/source = null

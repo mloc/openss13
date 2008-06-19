@@ -5561,29 +5561,6 @@
 		else
 			M.loc = locate(tx, ty, src.target.z)
 
-/obj/effects/water/New()
-	..()
-	var/turf/T = src.loc
-	if (istype(T, /turf))
-		T.firelevel = 0
-	spawn(70) del(src)
-
-/obj/effects/water/Del()
-	var/turf/T = src.loc
-	if (istype(T, /turf))
-		T.firelevel = 0
-	..()
-
-/obj/effects/water/Move(turf/newloc)
-	var/turf/T = src.loc
-	if (istype(T, /turf))
-		T.firelevel = 0
-	if (--src.life < 1)
-		del(src)
-	if(newloc.density)
-		return 0
-	.=..()
-
 /mob/attackby(obj/item/weapon/W, mob/user)
 	var/shielded = 0
 	for(var/obj/item/weapon/shield/S in src)
