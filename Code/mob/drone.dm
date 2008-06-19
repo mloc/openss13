@@ -494,7 +494,7 @@
 		return 0
 
 	drop_item()
-		usr.client_mob() << "drop_item() usr is [usr] src is [src]"
+		//src.client_mob() << "drop_item() usr is [usr] src is [src]"
 		if (src.can_drop())
 			src.ungrip()
 			//return ..()
