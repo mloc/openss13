@@ -465,13 +465,6 @@
 	var/a_level = 0.0
 	var/screen = 1.0
 	var/owner = null
-/obj/barrier
-	name = "barrier"
-	icon = 'stationobjs.dmi'
-	icon_state = "barrier"
-	opacity = 1
-	density = 1
-	anchored = 1.0
 /obj/beam
 	name = "beam"
 /obj/beam/a_laser
@@ -2462,14 +2455,6 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	icon = 'screen1.dmi'
 	icon_state = "arrow"
 	layer = 16.0
-/obj/portal
-	name = "portal"
-	icon = 'stationobjs.dmi'
-	icon_state = "portal"
-	density = 1
-	var/obj/target = null
-	anchored = 1.0
-
 /obj/rack
 	name = "rack"
 	icon = 'Icons.dmi'
