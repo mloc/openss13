@@ -240,6 +240,10 @@
 
 	if (usr.stat != 0)
 		return
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
+		return
 	src.go_out()
 	add_fingerprint(usr)
 	return
@@ -277,6 +281,10 @@
 
 	if ((!( istype(G, /obj/item/weapon/grab) ) || !( ismob(G.affecting) )))
 		return
+	var/result = src.canReach(user, null, 1)
+	if (result==0)
+		user.client_mob() << "You can't reach [src]."
+		return
 	if (src.occupant)
 		user.client_mob() << "\blue <B>The scanner is already occupied!</B>"
 		return
@@ -304,7 +312,6 @@
 		return
 	for(var/obj/O in src)
 		O.loc = src.loc
-		//Foreach goto(30)
 	if (src.occupant.client)
 		src.occupant.client.eye = src.occupant.client.mob
 		src.occupant.client.perspective = MOB_PERSPECTIVE
@@ -320,8 +327,6 @@
 			for(var/atom/movable/A as mob|obj in src)
 				A.loc = src.loc
 				ex_act(severity)
-				//Foreach goto(35)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
@@ -329,8 +334,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(108)
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
@@ -338,8 +341,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(181)
-				//SN src = null
 				del(src)
 				return
 		else
@@ -357,12 +358,10 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		else
@@ -722,8 +721,11 @@
 
 /obj/machinery/restruct/verb/eject()
 	set src in oview(1)
-	
 	if (usr.stat != 0)
+		return
+	var/result = src.canReach(usr, null, 1)
+	if (result==0)
+		usr.client_mob() << "You can't reach [src]."
 		return
 	src.go_out()
 	add_fingerprint(usr)
@@ -930,6 +932,10 @@
 
 	if ((!( istype(G, /obj/item/weapon/grab) ) || !( ismob(G.affecting) )))
 		return
+	var/result = src.canReach(user, null, 1)
+	if (result==0)
+		user.client_mob() << "You can't reach [src]."
+		return
 	if (src.occupant)
 		user.client_mob() << "\blue <B>The machine is already occupied!</B>"
 		return
@@ -973,8 +979,6 @@
 			for(var/atom/movable/A as mob|obj in src)
 				A.loc = src.loc
 				ex_act(severity)
-				//Foreach goto(35)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
@@ -982,8 +986,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(108)
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
@@ -991,8 +993,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(181)
-				//SN src = null
 				del(src)
 				return
 		else
