@@ -112,7 +112,7 @@
 						if (src.modify)
 							if (src.modify2)
 								if ((src.modify.data && src.modify2.data))
-									src.modify.data += src.modify2
+									src.modify.data += src.modify2.data
 									src.temp = text("Done!<BR>New Data:<BR>[]", src.modify.data)
 								else
 									src.temp = "Cannot read data! (may be null)"
