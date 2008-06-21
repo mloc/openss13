@@ -7,6 +7,8 @@
 // BEGIN_FILE_DIR
 #define FILE_DIR .
 #define FILE_DIR "Code"
+#define FILE_DIR "Code/CTF"
+#define FILE_DIR "Code/Effects"
 #define FILE_DIR "Code/Item"
 #define FILE_DIR "Code/Item/Weapon"
 #define FILE_DIR "Code/Machinery"
@@ -61,6 +63,9 @@
 #include "Code\wallFloorSpaceChanges-normal.dm"
 #include "Code\weap_sat.dm"
 #include "Code\weapons.dm"
+#include "Code\CTF\barrier.dm"
+#include "Code\Effects\portal.dm"
+#include "Code\Effects\water.dm"
 #include "Code\Item\Weapon\aimodules.dm"
 #include "Code\Item\Weapon\multitool.dm"
 #include "Code\Machinery\_machinery.dm"
@@ -133,8 +138,5 @@
 #include "Code\Machinery\Power\turbine.dm"
 #include "Code\mob\ai.dm"
 #include "Code\mob\drone.dm"
-#include "Code\CTF\barrier.dm"
-#include "Code\Effects\portal.dm"
-#include "Code\Effects\water.dm"
 // END_INCLUDE
 

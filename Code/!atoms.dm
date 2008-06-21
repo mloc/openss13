@@ -32,7 +32,7 @@
 #define ONBELT 128			// can be put in belt slot
 #define FPRINT 256			// takes a fingerprint
 #define WINDOW 512			// window or window/door (or injector)
-	
+
 // channel numbers for power
 
 #define EQUIP 1
@@ -355,7 +355,7 @@
 	var/droneTransitioning = 0
 	var/cameraFollow = null
 	var/now_pushing = null
-	
+
 	var/list/organs = list(  )
 	var/list/grabbed_by = list(  )
 	var/list/requests = list(  )
@@ -413,7 +413,7 @@
 	var/image/face2 = null
 	var/h_style_r = "hair_a"
 	weight = 2500000.0
-	
+
 	var/list/body_standing = list(  )
 	var/list/body_lying = list(  )
 
@@ -664,14 +664,6 @@
 	name = "ion trails"
 	icon_state = "ion_trails"
 	anchored = 1.0
-/obj/effects/water
-	name = "water"
-	icon = 'water.dmi'
-	icon_state = "extinguish"
-	var/life = 15.0
-	flags = 2.0
-	mouse_opacity = 0
-	weight = 1000
 /obj/equip_e
 	name = "equip e"
 	var/mob/source = null
@@ -2471,14 +2463,6 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	icon = 'screen1.dmi'
 	icon_state = "arrow"
 	layer = 16.0
-/obj/portal
-	name = "portal"
-	icon = 'stationobjs.dmi'
-	icon_state = "portal"
-	density = 1
-	var/obj/target = null
-	anchored = 1.0
-
 /obj/rack
 	name = "rack"
 	icon = 'Icons.dmi'
