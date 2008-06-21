@@ -1165,6 +1165,7 @@
 		config.enable_drones = 0
 		config.humans_can_use_drones = 0
 		config.walkable_not_pullable_drones = 0
+		config.plasma_danger = 0
 	else
 		world.log << "Reading config.txt"
 		var/list/CL = dd_text2list(config_text, "\n")
@@ -1248,6 +1249,8 @@
 						config.humans_can_use_drones = 1
 					if("walkable_not_pullable_drones")
 						config.walkable_not_pullable_drones = 1
+					if("plasma_danger")
+						config.plasma_danger = 1
 					else
 						world.log<<"Unknown setting in config.txt: [cfgvar]"
 

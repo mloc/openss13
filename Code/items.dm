@@ -5685,7 +5685,7 @@
 	/* flag 16 in this case apparently disables the distance check and the alternate 'is in contents' check in the var/t5 line.
 		It's used on guns, for instance. --shadowlord13 */
 	if (((t5 || (usingWeapon && (usingWeapon.flags & 16))) && !(istype(src, /obj/screen))))
-		if (ignoreNextMoveTime!=0)
+		if (ignoreNextMoveTime==0)
 			if (user.next_move < world.time)
 				user.prev_move = user.next_move
 				user.next_move = world.time + 10
@@ -5773,7 +5773,7 @@
 		return (((t5!=0)&1)<<1) | ((usingWeapon!=0)&1) | CANREACH_ALLOWED
 	else
 		if (istype(src, /obj/screen))
-			if (ignoreNextMoveTime!=0)
+			if (ignoreNextMoveTime==0)
 				if (user.next_move < world.time)
 					user.prev_move = user.next_move
 					user.next_move = world.time + 10
@@ -5791,7 +5791,7 @@
 		return
 	else
 		usr:lastDblClick = world.time
-
+	
 	..()
 	// I changed everything in this function from using usr to user before I found out that you can actually change the value of usr.
 	var/mob/user = usr
@@ -5840,20 +5840,24 @@
 	//if (((t5 || (usingWeapon && (usingWeapon.flags & 16))) && !(istype(src, /obj/screen))))
 	
 	if (retval & CANREACH_ALLOWED)
-		if (!(istype(src, /obj/screen)))
-			if (!user.restrained())
+		if (!( user.restrained() ))
+			if ((W && !( istype(src, /obj/screen) )))
+				src.attackby(W, user)
 				if (W)
-					if (retval & CANREACH_CANTOUCH)
-						src.attackby(W, user)
-					if (W)
-						W.afterattack(src, user, ((retval & CANREACH_CANTOUCH) ? 1 : 0))
+					W.afterattack(src, user)
+			else
+				if (istype(user, /mob/human))
+					src.attack_hand(user, user.hand)
 				else
-					if (istype(user, /mob/human) || istype(user, /mob/drone))
-						src.attack_hand(user, user.hand)
-					else
-						if (istype(user, /mob/monkey))
-							src.attack_paw(user, user.hand)
-
+					if (istype(user, /mob/monkey))
+						src.attack_paw(user, user.hand)
+		else
+			if (istype(user, /mob/human))
+				src.hand_h(user, user.hand)
+			else
+				if (istype(user, /mob/monkey))
+					src.hand_p(user, user.hand)
+			
 
 /obj/proc/updateDialog()
 	var/list/nearby = viewers(1, src)

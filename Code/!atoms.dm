@@ -228,6 +228,7 @@
 		var/enable_drones = 0
 		var/humans_can_use_drones = 0
 		var/walkable_not_pullable_drones = 0
+		var/plasma_danger = 0
 
 /datum/vote
 	var/voting = 0		// true if currently voting
@@ -465,6 +466,13 @@
 	var/a_level = 0.0
 	var/screen = 1.0
 	var/owner = null
+/obj/barrier
+	name = "barrier"
+	icon = 'stationobjs.dmi'
+	icon_state = "barrier"
+	opacity = 1
+	density = 1
+	anchored = 1.0
 /obj/beam
 	name = "beam"
 /obj/beam/a_laser
@@ -656,6 +664,14 @@
 	name = "ion trails"
 	icon_state = "ion_trails"
 	anchored = 1.0
+/obj/effects/water
+	name = "water"
+	icon = 'water.dmi'
+	icon_state = "extinguish"
+	var/life = 15.0
+	flags = 2.0
+	mouse_opacity = 0
+	weight = 1000
 /obj/equip_e
 	name = "equip e"
 	var/mob/source = null
@@ -2455,6 +2471,14 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	icon = 'screen1.dmi'
 	icon_state = "arrow"
 	layer = 16.0
+/obj/portal
+	name = "portal"
+	icon = 'stationobjs.dmi'
+	icon_state = "portal"
+	density = 1
+	var/obj/target = null
+	anchored = 1.0
+
 /obj/rack
 	name = "rack"
 	icon = 'Icons.dmi'
