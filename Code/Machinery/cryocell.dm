@@ -202,8 +202,11 @@ obj/machinery/cryo_cell
 	attackby(obj/item/weapon/grab/G, mob/user)
 
 		if (stat & NOPOWER) return
-
 		if ((!( istype(G, /obj/item/weapon/grab) ) || !( ismob(G.affecting) )))
+			return
+		var/result = src.canReach(user, null, 1)
+		if (result==0)
+			user.client_mob() << "You can't reach [src]."
 			return
 		if (src.occupant)
 			user.client_mob() << "\blue <B>The cell is already occupied!</B>"
