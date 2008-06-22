@@ -88,6 +88,7 @@ obj/machinery/atmoalter/canister
 					var/t = src.t_per
 					if (src.t_per > t2)
 						t = t2
+					
 					src.holding.gas.transfer_from(src.gas, t)
 				else								// If not holding a tank, release gas into the turf
 					if (T)

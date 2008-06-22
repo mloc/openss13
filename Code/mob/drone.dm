@@ -711,6 +711,20 @@
 					src.stunned = 1
 		return
 	
+	Logout()
+		if (src.droneTransitioning==1)
+			..()
+			return
+		src.releaseControl(0)
+		
+	Login()
+		if (src.droneTransitioning==1)
+			..()
+			return
+		
+		src.releaseControl(0)
+		
+	
 	ex_act(severity)
 		flick("flash", src.flash)
 

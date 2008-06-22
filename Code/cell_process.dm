@@ -220,7 +220,10 @@
 			if (src.sl_gas > 0)
 				src.sl_gas--
 			if (src.poison > 100000.0)
-				src.overlays = list( plmaster )
+				if (config.plasma_danger && (src.temp >= 150.0 + T20C))
+					src.overlays = list( liquidplmaster )
+				else
+					src.overlays = list( plmaster )
 			else
 				if (src.sl_gas > 101000.0)
 					src.overlays = list( slmaster )
@@ -300,7 +303,10 @@
 			if (src.sl_gas > 0)
 				src.sl_gas--
 			if (src.poison > 100000.0)
-				src.overlays = list( plmaster )
+				if (config.plasma_danger && (src.temp >= 150.0 + T20C))
+					src.overlays = list( liquidplmaster )
+				else
+					src.overlays = list( plmaster )
 			else
 				if (src.sl_gas > 101000.0)
 					src.overlays = list( slmaster )
@@ -1065,7 +1071,10 @@ turf/proc/tot_old_gas()
 			if (src.sl_gas > 0)
 				src.sl_gas--
 			if (src.poison > 100000.0)
-				src.overlays = list( plmaster )
+				if (config.plasma_danger && (src.temp >= 150.0 + T20C))
+					src.overlays = list( liquidplmaster )
+				else
+					src.overlays = list( plmaster )
 			else
 				if (src.sl_gas > 101000.0)
 					src.overlays = list( slmaster )
@@ -1214,7 +1223,10 @@ turf/proc/tot_old_gas()
 			if (src.sl_gas > 0)
 				src.sl_gas--
 			if (src.poison > 100000.0)
-				src.overlays = list( plmaster )
+				if (config.plasma_danger && (src.temp >= 150.0 + T20C))
+					src.overlays = list( liquidplmaster )
+				else
+					src.overlays = list( plmaster )
 			else
 				if (src.sl_gas > 101000.0)
 					src.overlays = list( slmaster )

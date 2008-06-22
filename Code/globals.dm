@@ -104,8 +104,8 @@ var
 
 	world_message = "Welcome to OpenSS13!"
 	savefile_ver = "4"
-	SS13_version = "1.0 \[Development Version] - 6/20/2008"
-	changes = {"<FONT color='blue'><H1>Version: [SS13_version]</H1><B>Changes from base version 40.93.2</B></FONT><BR>
+	SS13_version = "1.0 \[Development Version] - 6/21/2008"
+	changes = {"<FONT color='blue'><H3>Version: [SS13_version]</H3><B>Changes from base version 40.93.2</B></FONT><BR>
 <HR>
 <!--
 <p><B>This is a test version which hasn't been released yet, the reason being to test new bugfixes and/or features to see if they're all working without having broken anything else.
@@ -355,6 +355,7 @@ var
 	datum/control/gameticker/ticker = null
 	obj/datacore/data_core = null
 	obj/overlay/plmaster = null
+	obj/overlay/liquidplmaster = null
 	obj/overlay/slmaster = null
 	going = 1.0
 	master_mode = "random"//"extended"

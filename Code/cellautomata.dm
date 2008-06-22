@@ -1275,6 +1275,7 @@
 			H.memory += text("<B>Secret Base Nuke Code</B>: []<BR>", nuke_code)
 		//Foreach goto(312)
 	sleep(50)
+	
 	plmaster = new /obj/overlay(  )
 	plmaster.icon = 'plasma.dmi'
 	plmaster.icon_state = "onturf"
@@ -1283,6 +1284,10 @@
 	slmaster.icon = 'plasma.dmi'
 	slmaster.icon_state = "sl_gas"
 	slmaster.layer = FLY_LAYER
+	liquidplmaster = new /obj/overlay(  )
+	liquidplmaster.icon = 'plasma.dmi'
+	liquidplmaster.icon_state = "liquid"
+	liquidplmaster.layer = FLY_LAYER
 	cellcontrol = new /datum/control/cellular(  )
 	spawn( 0 )
 		cellcontrol.process()

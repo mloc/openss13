@@ -102,3 +102,7 @@ HUMANS_CAN_USE_DRONES
 
 # If this isn't commented out, drones can't be pulled or pushed, but drones and other non-drone mobs can walk through the same tiles. (If it is commented out, you can push and pull drones just like you can other people, but you can't walk through the same tiles as them)
 #WALKABLE_NOT_PULLABLE_DRONES
+
+# This changes how plasma works to match background information (largely making it more dangerous) - see http://forums.ss13.net/index.php/topic,8569.msg79766/topicseen.html
+# Note: This isn't actually implemented.
+# PLASMA_DANGER
