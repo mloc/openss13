@@ -338,7 +338,7 @@
 			if (src.state < 2)
 				if (!( src.allow_upgrade ))
 					return
-				if (!(istype(src, /mob/human) || istype(src, /mob/monkey)))
+				if (!(istype(src.affecting, /mob/human) || istype(src.affecting, /mob/monkey)))
 					return
 				if (prob(75))
 					for(var/mob/O in viewers(src.assailant, null))
