@@ -56,7 +56,6 @@
 /obj/item/weapon/table_parts/attackby(obj/item/weapon/W, mob/user)
 	if (istype(W, /obj/item/weapon/wrench))
 		new /obj/item/weapon/sheet/metal( src.loc )
-		//SN src = null
 		del(src)
 
 /obj/item/weapon/table_parts/attack_self(mob/user)
@@ -72,7 +71,6 @@
 	T.icon_state = state
 	T.dir = text2dir(direct)
 	T.add_fingerprint(user)
-	//SN src = null
 	del(src)
 	return
 	return
@@ -81,7 +79,6 @@
 
 	if (istype(W, /obj/item/weapon/wrench))
 		new /obj/item/weapon/sheet/metal( src.loc )
-		//SN src = null
 		del(src)
 		return
 		return
@@ -91,7 +88,6 @@
 
 	var/obj/rack/R = new /obj/rack( user.loc )
 	R.add_fingerprint(user)
-	//SN src = null
 	del(src)
 	return
 	return
@@ -132,7 +128,6 @@
 	flick("paper_binb", src)
 	for(var/atom/movable/A in src)
 		A.burn(fi_amount)
-		//Foreach goto(23)
 	if (fi_amount >= config.min_gas_for_fire)
 		src.amount = 0
 	src.update()
@@ -181,7 +176,6 @@
 					usr.UpdateClothing()
 					break////
 			////else
-			//Foreach goto(48)
 	else
 		if (src.amount >= 1)
 			src.amount--
@@ -196,7 +190,6 @@
 	var/n = src.amount
 	for(var/obj/item/weapon/paper/P in src)
 		n++
-		//Foreach goto(33)
 	if (n <= 0)
 		n = 0
 		usr.client_mob() << "There are no papers in the bin."
@@ -400,17 +393,14 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
 			if (prob(5))
-				//SN src = null
 				del(src)
 				return
 		else
@@ -458,7 +448,6 @@
 
 	for(var/mob/O in viewers(M, null))
 		O.show_message(text("\red <B>[] has been attacked with [][] </B>", M, src, (user ? text(" by [].", user) : ".")), 1)
-		//Foreach goto(20)
 	var/power = src.force
 	if ((M.health >= -10.0) && (M.stat < 2))
 		if (istype(M, /mob/human))
@@ -494,7 +483,6 @@
 						H.stat = 1
 						for(var/mob/O in viewers(M, null))
 							O.show_message(text("\red <B>[] has been knocked unconscious!</B>", H), 1, "\red You hear someone fall.", 2)
-							//Foreach goto(514)
 						H.show_message(text("\red <B>This was a []% hit. Roleplay it! (personality/memory change if the hit was severe enough)</B>", time * 100 / 120))
 					affecting.take_damage(b_dam, f_dam)
 				else
@@ -508,13 +496,11 @@
 									H.weakened = 5
 								for(var/mob/O in viewers(H, null))
 									O.show_message(text("\red <B>[] has been knocked down!</B>", H), 1, "\red You hear someone fall.", 2)
-									//Foreach goto(738)
 							else
 								if (H.stunned < 2)
 									H.stunned = 2
 								for(var/mob/O in viewers(H, null))
 									O.show_message(text("\red <B>[] has been stunned!</B>", H), 1)
-									//Foreach goto(808)
 							H.stat = 1
 						affecting.take_damage(b_dam, f_dam)
 					else
@@ -528,13 +514,11 @@
 										H.weakened = 5
 									for(var/mob/O in viewers(H, null))
 										O.show_message(text("\red <B>[] has been knocked down!</B>", H), 1, "\red You hear someone fall.", 2)
-										//Foreach goto(1014)
 								else
 									if (H.stunned < 2)
 										H.stunned = 2
 									for(var/mob/O in viewers(H, null))
 										O.show_message(text("\red <B>[] has been stunned!</B>", H), 1)
-										//Foreach goto(1084)
 								H.stat = 1
 							affecting.take_damage(b_dam, f_dam)
 						else
@@ -554,7 +538,6 @@
 /obj/item/weapon/bedsheet/ex_act(severity)
 
 	if (severity <= 2)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -575,7 +558,6 @@
 			src.icon = 'b_items.dmi'
 			flick(text("[]", t), src)
 			spawn( 14 )
-				//SN src = null
 				del(src)
 				return
 				return
@@ -615,7 +597,6 @@
 					src.add_fingerprint(user)
 			if (src.amount <= 0)
 				new /obj/item/weapon/c_tube( src.loc )
-				//SN src = null
 				del(src)
 				return
 		else
@@ -633,14 +614,12 @@
 		user.r_hand = src.gift
 	src.gift.layer = 20
 	src.gift.add_fingerprint(user)
-	//SN src = null
 	del(src)
 	return
 	return
 
 /obj/item/weapon/a_gift/ex_act()
 
-	//SN src = null
 	del(src)
 	return
 	return
@@ -648,7 +627,6 @@
 /obj/item/weapon/a_gift/burn(fi_amount)
 
 	if (fi_amount > config.min_gas_for_fire)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -664,7 +642,6 @@
 				M.r_hand = W
 			W.layer = 20
 			W.add_fingerprint(M)
-			//SN src = null
 			del(src)
 			return
 		if("flash")
@@ -675,7 +652,6 @@
 				M.r_hand = W
 			W.layer = 20
 			W.add_fingerprint(M)
-			//SN src = null
 			del(src)
 			return
 		if("l_gun")
@@ -686,7 +662,6 @@
 				M.r_hand = W
 			W.layer = 20
 			W.add_fingerprint(M)
-			//SN src = null
 			del(src)
 			return
 		if("t_gun")
@@ -697,7 +672,6 @@
 				M.r_hand = W
 			W.layer = 20
 			W.add_fingerprint(M)
-			//SN src = null
 			del(src)
 			return
 		if("shield")
@@ -708,7 +682,6 @@
 				M.r_hand = W
 			W.layer = 20
 			W.add_fingerprint(M)
-			//SN src = null
 			del(src)
 			return
 		if("sword")
@@ -719,7 +692,6 @@
 				M.r_hand = W
 			W.layer = 20
 			W.add_fingerprint(M)
-			//SN src = null
 			del(src)
 			return
 		else
@@ -847,7 +819,6 @@
 				if (M.ear_damage >= 5)
 					M << "\red Your ears start to ring!"
 
-	//SN src = null
 
 	for(var/obj/blob/B in view(8,T))
 		var/damage = round(30/(get_dist(B,T)+1))
@@ -900,7 +871,6 @@
 							M.sdisabilities |= 1
 		for(var/mob/O in viewers(user, null))
 			O.show_message(text("\red [] blinds [] with the flash!", user, M))
-			//Foreach goto(229)
 	src.attack_self(user, 1)
 	return
 
@@ -976,7 +946,6 @@
 									else
 										direct = "very weak"
 							src.temp += text("[]-[]-[]<BR>", W.code, dir2text(get_dir(sr, tr)), direct)
-					//Foreach goto(114)
 				src.temp += "<B>Extranneous Signals:</B><BR>"
 				for(var/obj/item/weapon/implant/tracking/W in world)
 				//Label_332:
@@ -1000,7 +969,6 @@
 									else
 										direct = "weak"
 								src.temp += text("[]-[]-[]<BR>", W.id, dir2text(get_dir(sr, tr)), direct)
-					//Foreach goto(332)
 				src.temp += text("<B>You are at \[[],[],[]\]</B> in orbital coordinates.<BR><BR><A href='?src=\ref[];refresh=1'>Refresh</A><BR>", sr.x, sr.y, sr.z, src)
 			else
 				src.temp += "<B><FONT color='red'>Processing Error:</FONT></B> Unable to locate orbital position.<BR>"
@@ -1020,7 +988,6 @@
 			for(var/mob/M in viewers(1, src))
 				if (M.hasClient())
 					src.attack_self(M)
-				//Foreach goto(749)
 	return
 
 /obj/item/weapon/syndicate_uplink/proc/explode()
@@ -1036,13 +1003,10 @@
 			zone = 3
 		for(var/atom/A in U)
 			A.ex_act(zone)
-			//Foreach goto(209)
 		U.ex_act(zone)
 		U.buildlinks()
-		//Foreach goto(109)
 	//src.master = null
 	del(src.master)
-	//SN src = null
 	del(src)
 	return
 	return
@@ -1118,7 +1082,6 @@
 			for(var/mob/M in viewers(1, src))
 				if (M.hasClient())
 					src.attack_self(M)
-				//Foreach goto(488)
 	return
 
 /obj/item/weapon/sword/attack(mob/target, mob/user)
@@ -1225,7 +1188,6 @@
 	src.bullets--
 	for(var/mob/O in viewers(user, null))
 		O.show_message(text("\red <B>[] fires a revolver at []!</B>", user, target), 1, "\red You hear a gunshot", 2)
-		//Foreach goto(122)
 	var/turf/T = user.loc
 	var/turf/U = (istype(target, /atom/movable) ? target.loc : target)
 	if ((!( U ) || !( T )))
@@ -1376,7 +1338,6 @@
 		M.stat = 1
 		for(var/mob/O in viewers(M, null))
 			O.show_message(text("\red <B>[] has been knocked unconscious!</B>", M), 1, "\red You hear someone fall", 2)
-			//Foreach goto(181)
 		M.show_message(text("\red <B>This was a []% hit. Roleplay it! (personality/memory change if the hit was severe enough)</B>", time * 100 / 120))
 	return
 
@@ -1461,7 +1422,6 @@
 					M.stat = 1
 					for(var/mob/O in viewers(M, null))
 						O.show_message(text("\red <B>[] has been knocked unconscious!</B>", M), 1, "\red You hear someone fall", 2)
-						//Foreach goto(182)
 			else
 				if (prob(50))
 					if (M.paralysis < 60)
@@ -1476,7 +1436,6 @@
 					for(var/mob/O in viewers(M, null))
 						if ((O.hasClient() && !( O.blinded )))
 							O.show_message(text("\red <B>[] has been stunned with the taser gun by []!</B>", M, user), 1, "\red You hear someone fall", 2)
-						//Foreach goto(309)
 			src.charges--
 			update_icon()
 		else // no charges in the gun, so they just wallop the target with it
@@ -1551,7 +1510,6 @@
 		var/pills = 0
 		for(var/obj/item/weapon/m_pill/M in src)
 			pills += M.amount
-			//Foreach goto(39)
 		usr.client_mob() << text("\blue There are [] pills inside!", pills)
 	else
 		usr.client_mob() << "\blue It looks empty!"
@@ -1590,7 +1548,6 @@
 		var/pills = 0
 		for(var/obj/item/weapon/m_pill/M in src)
 			pills += M.amount
-			//Foreach goto(34)
 		if (pills > 30)
 			usr.client_mob() << "\blue There are too many pills inside!"
 			return
@@ -1600,7 +1557,6 @@
 				//W = null
 				del(W)
 				return
-			//Foreach goto(97)
 		if (W)
 			user.drop_item()
 			W.loc = src
@@ -1623,7 +1579,6 @@
 
 	src.amount--
 	if (src.amount <= 0)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -1642,7 +1597,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -1654,7 +1608,6 @@
 	if ((user != M && istype(M, /mob/human)))
 		for(var/mob/O in viewers(M, null))
 			O.show_message(text("\red [] is forcing [] to swallow the []", user, M, src), 1)
-			//Foreach goto(41)
 		var/obj/equip_e/human/O = new /obj/equip_e/human(  )
 		O.source = user
 		O.target = M
@@ -1765,7 +1718,6 @@
 		W.amount = 5
 	else
 		W.amount += W.amount
-		//SN src = null
 		del(src)
 		return
 	return
@@ -1837,7 +1789,6 @@
 		for(var/mob/M in range(1, src.loc))
 			if (M.s_active == src.loc)
 				M.eitherScreenRemove(src)
-			//Foreach goto(34)
 	src.throwing = 0
 	if (src.loc == user)
 		user.u_equip(src)
@@ -1857,7 +1808,6 @@
 		for(var/mob/M in range(1, src.loc))
 			if (M.s_active == src.loc)
 				M.eitherScreenRemove(src)
-			//Foreach goto(34)
 	src.throwing = 0
 	if (src.loc == user)
 		user.u_equip(src)
@@ -1903,7 +1853,6 @@
 
 	for(var/mob/O in viewers(user, null))
 		O.show_message(text("[] shows you: \icon[] []: assignment: []", user, src, src.name, src.assignment), 1)
-		//Foreach goto(20)
 	src.add_fingerprint(user)
 	return
 
@@ -1964,7 +1913,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -1982,7 +1930,6 @@
 		W.amount = 6
 	else
 		W.amount += src.amount
-		//SN src = null
 		del(src)
 		return
 	return
@@ -2005,14 +1952,12 @@
 				G.icon_state = "grille"
 				src.amount--
 			else
-				//Foreach continue //goto(30)
 	else
 		if (src.amount < 2)
 			return
 		src.amount -= 2
 		new /obj/grille( usr.loc )
 	if (src.amount < 1)
-		//SN src = null
 		del(src)
 		return
 	src.add_fingerprint(user)
@@ -2032,7 +1977,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -2051,7 +1995,6 @@
 		W.amount = 5
 	else
 		W.amount += src.amount
-		//SN src = null
 		del(src)
 		return
 	return
@@ -2086,7 +2029,6 @@
 		if (counter > 2)
 			counter = 1
 			t1 += "<BR>"
-		//Foreach goto(186)
 	t1 += "</TT></HTML>"
 	user.client_mob() << browse(t1, "window=met_sheet")
 	return
@@ -2097,7 +2039,6 @@
 		return
 	if (href_list["make"])
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 		switch(href_list["make"])
@@ -2182,7 +2123,6 @@
 				W.levelupdate()
 				W.buildlinks()
 		if (src.amount <= 0)
-			//SN src = null
 			del(src)
 			return
 	spawn( 0 )
@@ -2204,7 +2144,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -2223,7 +2162,6 @@
 			G.amount = 5
 		else
 			G.amount += src.amount
-			//SN src = null
 			del(src)
 			return
 		return
@@ -2289,7 +2227,6 @@
 		else
 	if (src.amount <= 0)
 		user.u_equip(src)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -2308,7 +2245,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -2327,7 +2263,6 @@
 		W.amount = 5
 	else
 		W.amount += src.amount
-		//SN src = null
 		del(src)
 		return
 	return
@@ -2367,7 +2302,6 @@
 		else
 	if (src.amount <= 0)
 		user.u_equip(src)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -2380,7 +2314,6 @@
 		dat += text("<A href='?src=\ref[];pen=1'>Remove Pen</A><BR><HR>", src)
 	for(var/obj/item/weapon/paper/P in src)
 		dat += text("<A href='?src=\ref[];read=\ref[]'>[]</A> <A href='?src=\ref[];write=\ref[]'>Write</A> <A href='?src=\ref[];remove=\ref[]'>Remove</A><BR>", src, P, P.name, src, P, src, P)
-		//Foreach goto(42)
 	user.client_mob() << browse(dat, "window=clipboard")
 	return
 
@@ -2462,7 +2395,6 @@
 		var/obj/item/weapon/paper/P
 		for(P in src)
 			break
-			//Foreach goto(50)
 		if (P)
 			if (user.hand)
 				user.l_hand = P
@@ -2517,7 +2449,6 @@
 	var/dat = "<B>Clipboard</B><BR>"
 	for(var/obj/item/weapon/f_card/P in src)
 		dat += text("<A href='?src=\ref[];read=\ref[]'>[]</A> <A href='?src=\ref[];remove=\ref[]'>Remove</A><BR>", src, P, P.name, src, P)
-		//Foreach goto(23)
 	user.client_mob() << browse(dat, "window=fcardholder")
 	return
 
@@ -2613,7 +2544,6 @@
 		i = 1
 		break
 		//else
-		//Foreach goto(22)
 	src.icon_state = text("fcardholder[]", (i ? "1" : "0"))
 	return
 
@@ -2646,7 +2576,6 @@
 					close += T
 				else
 					far += T
-				//Foreach goto(147)
 			close += tar_loc
 			var/t = null
 			t = 1
@@ -2669,7 +2598,6 @@
 				var/list/possible = list(  )
 				for(var/T in oview(1, tar_loc))
 					possible += T
-					//Foreach goto(366)
 				possible += tar_loc
 				var/t = null
 				t = 1
@@ -2724,7 +2652,6 @@
 	if (user)
 		for(var/mob/O in viewers(M, null))
 			O.show_message(text("\red [] has been stabbed with [] by [].", M, src, user), 1)
-			//Foreach goto(57)
 		var/amount = src.chem.transfer_mob(M, src.chem.maximum)
 		user.show_message(text("\red You inject [] units into the [].", amount, M))
 		src.desc = "It's a normal black ink pen."
@@ -2748,7 +2675,6 @@
 		src.icon = 'b_items.dmi'
 		flick(text("[]", t), src)
 		spawn( 14 )
-			//SN src = null
 			del(src)
 			return
 			return
@@ -2860,7 +2786,6 @@
 			if ((W.welding && W.weldfuel > 0))
 				for(var/mob/O in viewers(user, null))
 					O.show_message(text("\red [] burns [] with the welding tool!", user, src), 1, "\red You hear a small burning noise", 2)
-					//Foreach goto(323)
 				spawn( 0 )
 					src.burn(1800000.0)
 					return
@@ -2868,7 +2793,6 @@
 			if (istype(P, /obj/item/weapon/igniter))
 				for(var/mob/O in viewers(user, null))
 					O.show_message(text("\red [] burns [] with the igniter!", user, src), 1, "\red You hear a small burning noise", 2)
-					//Foreach goto(406)
 				spawn( 0 )
 					src.burn(1800000.0)
 					return
@@ -2876,13 +2800,10 @@
 				if (istype(P, /obj/item/weapon/wirecutters))
 					for(var/mob/O in viewers(user, null))
 						O.show_message(text("\red [] starts cutting []!", user, src), 1)
-						//Foreach goto(489)
 					sleep(50)
 					if (((src.loc == src || get_dist(src, user) <= 1) && (!( user.stat ) && !( user.restrained() ))))
 						for(var/mob/O in viewers(user, null))
 							O.show_message(text("\red [] cuts [] to pieces!", user, src), 1)
-							//Foreach goto(580)
-						//SN src = null
 						del(src)
 						return
 	src.add_fingerprint(user)
@@ -2926,7 +2847,6 @@
 		var/L = params2list(src.fingerprints)
 		for(var/i in L)
 			dat += text("[]<BR>", i)
-			//Foreach goto(41)
 		return dat
 	else
 		return "<B>There are no fingerprints on this card.</B>"
@@ -2946,7 +2866,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -3067,7 +2986,6 @@
 	user.client_mob() << text("\blue Isolated [] fingerprints.", L.len)
 	for(var/i in L)
 		user.client_mob() << text("\blue \t []", i)
-		//Foreach goto(186)
 	return
 
 /obj/item/weapon/healthanalyzer/attack(mob/M, mob/user)
@@ -3168,7 +3086,6 @@
 
 	for(var/obj/item/weapon/storage/S in src)
 		L += S.return_inv()
-		//Foreach goto(22)
 	return L
 	return
 
@@ -3228,7 +3145,6 @@
 		if (cx > mx)
 			cx = tx
 			cy--
-		//Foreach goto(56)
 	src.closer.screen_loc = text("[],[]", mx, my)
 	return
 
@@ -3359,7 +3275,6 @@
 	spawn( 2 )
 		for(var/obj/item/weapon/card/data/D in src.loc)
 			D.loc = src
-			//Foreach goto(23)
 		return
 	..()
 	return
@@ -3401,7 +3316,6 @@
 	var/t
 	for(var/obj/item/weapon/O in src)
 		t += O.w_class
-		//Foreach goto(46)
 	t += W.w_class
 	if (t > 20)
 		user.client_mob() << "You cannot fit the item inside. (Remove larger classed items)"
@@ -3415,7 +3329,6 @@
 	add_fingerprint(user)
 	for(var/mob/O in viewers(user, null))
 		O.show_message(text("\blue [] has added [] to []!", user, W, src), 1)
-		//Foreach goto(206)
 	return
 
 /obj/item/weapon/storage/attackby(obj/item/weapon/W, mob/user)
@@ -3433,7 +3346,6 @@
 	add_fingerprint(user)
 	for(var/mob/O in viewers(user, null))
 		O.show_message(text("\blue [] has added [] to []!", user, W, src), 1)
-		//Foreach goto(139)
 	return
 
 /obj/item/weapon/storage/dropped(mob/user)
@@ -3466,7 +3378,6 @@
 		for(var/mob/M in range(1))
 			if (M.s_active == src)
 				src.close(M)
-			//Foreach goto(76)
 		src.orient2hud(user)
 	src.add_fingerprint(user)
 	return
@@ -3533,7 +3444,6 @@
 		M.stat = 1
 		for(var/mob/O in viewers(M, null))
 			O.show_message(text("\red <B>[] has been knocked unconscious!</B>", M), 1, "\red You hear someone fall.", 2)
-			//Foreach goto(169)
 		M.show_message(text("\red <B>This was a []% hit. Roleplay it! (personality/memory change if the hit was severe enough)</B>", time * 100 / 120))
 	return
 
@@ -3626,7 +3536,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -3664,7 +3573,6 @@
 			src.amount--
 	if (src.amount < 1)
 		user.u_equip(src)
-		//SN src = null
 		del(src)
 		return
 	src.add_fingerprint(user)
@@ -3682,7 +3590,6 @@
 		W.amount = 10
 	else
 		W.amount += src.amount
-		//SN src = null
 		del(src)
 		return
 	return
@@ -3939,7 +3846,6 @@
 				for(var/mob/M in viewers(1, src))
 					if (M.client)
 						src.attack_self(M)
-					//Foreach goto(308)
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
@@ -3947,7 +3853,6 @@
 				for(var/mob/M in viewers(1, src.master))
 					if (M.client)
 						src.attack_self(M)
-					//Foreach goto(384)
 	else
 		usr.client_mob() << browse(null, "window=radio")
 		return
@@ -4039,7 +3944,6 @@
 	for(var/mob/M in viewers(1, src))
 		if (M.client)
 			src.attack_self(M)
-		//Foreach goto(83)
 	src.add_fingerprint(user)
 	return
 
@@ -4126,7 +4030,6 @@
 		src.master:r_signal(signal)
 	for(var/mob/O in hearers(1, src.loc))
 		O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-		//Foreach goto(64)
 	return
 
 /obj/item/weapon/radio/signaler/proc/s_signal(signal)
@@ -4151,7 +4054,6 @@
 				if (R)
 					R.r_signal(signal)
 				return
-		//Foreach goto(48)
 
 	sleep(50)
 	delay = 0
@@ -4217,7 +4119,6 @@
 				for(var/mob/M in viewers(1, src))
 					if (M.client)
 						src.attack_self(M)
-					//Foreach goto(501)
 		else
 			if (istype(src.master.loc, /mob))
 				src.attack_self(src.master.loc)
@@ -4225,7 +4126,6 @@
 				for(var/mob/M in viewers(1, src.master))
 					if (M.client)
 						src.attack_self(M)
-					//Foreach goto(577)
 	else
 		usr.client_mob() << browse(null, "window=radio")
 		return
@@ -4344,18 +4244,13 @@
 			for(var/i in R.sendm(msg))
 				receive -= i
 				receive += i
-				//Foreach goto(118)
 			for(var/i in R.send_crackle())
 				crackle -= i
 				crackle += i
-				//Foreach goto(162)
-		//Foreach goto(43)
 	for(var/i in receive)
 		crackle -= i
-		//Foreach goto(203)
 	for(var/mob/O in crackle)
 		O.show_message(text("\icon[] <I>Crackle,Crackle</I>", src), 2)
-		//Foreach goto(233)
 	var/speakerType = M.type
 	if (istype(M, /mob/human) || (istype(M, /mob/ai)))
 		for(var/mob/O in receive)
@@ -4369,7 +4264,6 @@
 				O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts</B>: <I>[]</I>", M.rname, src, src.freq, msg), 2)
 			else
 				O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts</B>: <I>[]</I>", M.rname, src, src.freq, stars(msg)), 2)
-			//Foreach goto(284)
 		if (src.freq == 5)
 			for(var/mob/O in receive)
 				var/mobType = O.type
@@ -4382,7 +4276,6 @@
 					O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts (over PA)</B>: <I>[]</I>", M.rname, src, src.freq, msg), 2)
 				else
 					O.show_message(text("<B>[]-\icon[]\[[]\]-broadcasts (over PA)</B>: <I>[]</I>", M.rname, src, src.freq, stars(msg)), 2)
-				//Foreach goto(393)
 	else
 		for(var/mob/O in receive)
 			var/mobType = O.type
@@ -4395,14 +4288,12 @@
 				O.show_message(text("<B>The monkey-\icon[]\[[]\]-broadcasts</B>: <I>[]</I>", src, src.freq, msg), 2)
 			else
 				O.show_message(text("<B>The monkey-\icon[]\[[]\]-broadcasts</B>: chimpering", src, src.freq), 2)
-			//Foreach goto(492)
 		if (src.freq == 5)
 			for(var/mob/O in receive)
 				if (istype(O, M))
 					O.show_message(text("<B>The monkey-\icon[]\[[]\]-broadcasts (over PA)</B>: <I>[]</I>", src, src.freq, msg), 2)
 				else
 					O.show_message(text("<B>The monkey-\icon[]\[[]\]-broadcasts (over PA)</B>: chimpering", src, src.freq), 2)
-				//Foreach goto(585)
 	return
 
 /obj/item/weapon/radio/hear_talk(mob/M, msg)
@@ -4469,13 +4360,11 @@
 				var/obj/O = M
 				for(var/mob/B in viewers(M, null))
 					B.show_message(text("\red [] has been hit by [].", M, src), 1)
-					//Foreach goto(71)
 				O.hitby(src)
 			if (!( istype(M, /mob) ))
 				return
 			for(var/mob/O in viewers(M, null))
 				O.show_message(text("\red [] has been hit by [].", M, src), 1)
-				//Foreach goto(143)
 			if (M.health > -100.0)
 				if (istype(M, /mob/human))
 					var/mob/human/H = M
@@ -4562,7 +4451,6 @@
 		if (istype(M, /mob/human) || istype(M, /mob/monkey))
 			for(var/mob/O in viewers(M, null))
 				O.show_message(text("\red [] has been eyedropped with [] by [].", M, src, user), 1)
-				//Foreach goto(89)
 			var/amount = src.chem.dropper_mob(M, 1)
 			src.update_is()
 			user.show_message(text("\red You drop [] units into []'s eyes. The dropper contains [] millimeters.", amount, M, src.chem.volume()))
@@ -4710,7 +4598,6 @@
 			for(var/mob/M in viewers(1, src))
 				if (M.client)
 					src.attack_self(M)
-				//Foreach goto(290)
 		src.add_fingerprint(usr)
 	else
 		usr.client_mob() << browse(null, "window=implantpad")
@@ -4760,7 +4647,6 @@
 	if ((user && src.imp))
 		for(var/mob/O in viewers(M, null))
 			O.show_message(text("\red [] has been implanted by [].", M, user), 1)
-			//Foreach goto(48)
 		src.imp.loc = M
 		src.imp.implanted = 1
 		src.imp = null
@@ -4852,7 +4738,6 @@
 		else if (istype(M, /mob/monkey))
 			for(var/mob/O in viewers(M, null))
 				O.show_message(text("\red [] has been injected with [] by [].", M, src, user), 1)
-				//Foreach goto(192)
 			var/amount = src.chem.transfer_mob(M, 5)
 			src.update_is()
 
@@ -4873,7 +4758,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -4891,7 +4775,6 @@
 	if (user)
 		for(var/mob/O in viewers(M, null))
 			O.show_message(text("\red [] has been applied with [] by []", M, src, user), 1)
-			//Foreach goto(89)
 	if (istype(M, /mob/human))
 		var/mob/human/H = M
 		var/obj/item/weapon/organ/external/affecting = H.organs["chest"]
@@ -4923,7 +4806,6 @@
 	..()
 	usr.client_mob() << text("\blue there are [] bruise pack\s left on the stack!", src.amount)
 	if (src.amount <= 0)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -4950,14 +4832,12 @@
 		var/obj/machinery/computer/teleporter/com = locate(/obj/machinery/computer/teleporter, locate(R.x - 2, R.y, R.z))
 		if (istype(com, /obj/machinery/computer/teleporter))
 			L[text("[][]", com.id, (src.icon_state == "tele1" ? " (Active)" : " (Inactive)"))] = com.locked
-		//Foreach goto(22)
 	var/t1 = input(user, "Please select a location to lock in.", "Locking Computer", null) in L
 	if ((user.equipped() != src || user.stat || user.restrained()))
 		return
 	var/T = L[t1]
 	for(var/mob/O in hearers(user, null))
 		O.show_message("\blue Locked In", 2)
-		//Foreach goto(192)
 	var/obj/portal/P = new /obj/portal( get_turf(src) )
 	P.target = T
 	src.add_fingerprint(user)
@@ -4977,7 +4857,6 @@
 		F.layer = 20
 		F.add_fingerprint(user)
 		if (src.amount < 1)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -4996,7 +4875,6 @@
 		for(var/mob/O in viewers(M, null))
 			if ((O.hasClient() && !( O.blinded )))
 				O.show_message(text("\red [] has been applied with [] by []", M, src, user), 1)
-			//Foreach goto(89)
 	if (istype(M, /mob/human))
 		var/mob/human/H = M
 		var/obj/item/weapon/organ/external/affecting = H.organs["chest"]
@@ -5018,7 +4896,6 @@
 			H.UpdateDamage()
 		src.amount--
 		if (src.amount <= 0)
-			//SN src = null
 			del(src)
 			return
 	else
@@ -5042,7 +4919,6 @@
 		W.amount = 5
 	else
 		W.amount += W.amount
-		//SN src = null
 		del(src)
 		return
 	return
@@ -5238,11 +5114,9 @@
 	for(var/mob/human/M in world)
 		if (M.start)
 			dat += text("    <B>[]</B> -  []<BR>", M.name, (istype(M.wear_id, /obj/item/weapon/card/id) ? text("[]", M.wear_id.assignment) : "Unknown Position"))
-		//Foreach goto(23)
 	var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( src.loc )
 	P.info = dat
 	P.name = "paper- 'Crew Manifest'"
-	//SN src = null
 	del(src)
 	return
 	return
@@ -5297,12 +5171,10 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
@@ -5330,7 +5202,6 @@
 			user.layer = TURF_LAYER
 			for(var/mob/M in viewers(user, null))
 				M.show_message("The monkey hides under the table!", 1)
-				//Foreach goto(69)
 	return
 
 /obj/table/CheckPass(atom/movable/O, turf/target)
@@ -5357,7 +5228,6 @@
 		return
 	if (istype(W, /obj/item/weapon/wrench))
 		new /obj/item/weapon/table_parts( src.loc )
-		//SN src = null
 		del(src)
 		return
 		return
@@ -5372,12 +5242,10 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
@@ -5417,7 +5285,6 @@
 		return
 	if (istype(W, /obj/item/weapon/wrench))
 		new /obj/item/weapon/rack_parts( src.loc )
-		//SN src = null
 		del(src)
 		return
 		return
@@ -5568,13 +5435,11 @@
 		for(var/mob/O in viewers(src, null))
 			if (!( O.blinded ))
 				O.client_mob() << text("\red [] has been scanned by [] with the []", src, user, W)
-			//Foreach goto(31)
 	else
 		if (!( istype(W, /obj/item/weapon/grab) ))
 			for(var/mob/O in viewers(src, null))
 				if (!( O.blinded ))
 					O.client_mob() << text("\red <B>[] has been hit by [] with []</B>", src, user, W)
-				//Foreach goto(102)
 	return
 
 /atom/proc/add_fingerprint(mob/human/M)

@@ -67,7 +67,6 @@
 	for(var/obj/machinery/camera/C in world)
 		if (C.network == src.network)
 			L[text("[][]", C.c_tag, (C.status ? null : " (Deactivated)"))] = C
-		//Foreach goto(31)
 	
 	L = sortList(L)
 	L["Cancel"] = "Cancel"
@@ -146,7 +145,6 @@
 			src.general += G
 			src.medical += M
 			src.security += S
-		//Foreach goto(15)
 	return
 
 /turf/space/attack_paw(mob/user as mob)
@@ -180,7 +178,6 @@
 		T.add_fingerprint(user)
 		if (T.amount < 1)
 			user.u_equip(T)
-			//SN src = null
 			del(T)
 			return
 	return

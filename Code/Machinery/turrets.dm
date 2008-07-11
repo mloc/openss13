@@ -15,20 +15,16 @@
 	if (istype(O, /mob))
 		if (!istype(O, /mob/ai))
 			if (!(O in turretTargets))
-				//O << "adding you to target list"
 				turretTargets += O
 			//else
-				//O << "You're already in our target list!"
 	return 1
 
 /area/turret_protected/Exited(atom/movable/O)
 	if (istype(O, /mob))
 		if (!istype(O, /mob/ai))
 			if (O in turretTargets)
-				//O << "removing you from target list"
 				turretTargets -= O
 			//else
-				//O << "You aren't in our target list!"
 			if (turretTargets.len == 0)
 				popDownTurrets()
 

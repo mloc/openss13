@@ -231,7 +231,6 @@
 	for(var/obj/move/O in src)
 		S.parts += O
 		O.master = S
-		//Foreach goto(42)
 	return
 
 /area/proc/firealert()
@@ -245,7 +244,6 @@
 				spawn( 0 )
 					D.closefire()
 					return
-			//Foreach goto(74)
 	return
 
 

@@ -137,7 +137,6 @@ obj/machinery/recon
 						for(var/mob/O in viewers(src, null))
 							if (O.hasClient() && (!( O.blinded )))
 								O.client_mob() << text("\blue <B> [] loads [] into []!</B>", H, H.pulling, src)
-							//Foreach goto(204)
 						H.pulling = null
 
 
@@ -156,7 +155,6 @@ obj/machinery/recon
 			for(var/mob/O in view(src, null))
 				if ((!( O.blinded )))
 					O.client_mob() << text("\blue <B> [] unloads [] from []!</B>", usr, A, src)
-				//Foreach goto(53)
 			if (ismob(A))
 				var/mob/M = A
 				if (M.client)

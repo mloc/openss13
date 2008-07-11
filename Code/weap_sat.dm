@@ -9,20 +9,17 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
 				for(var/x in src.verbs)
 					src.verbs -= x
-					//Foreach goto(58)
 				src.icon_state = "broken"
 		if(3.0)
 			if (prob(25))
 				for(var/x in src.verbs)
 					src.verbs -= x
-					//Foreach goto(109)
 				src.icon_state = "broken"
 		else
 	return
@@ -48,7 +45,6 @@
 		var/t1 = text("-[],[],[]", T.x, T.y, T.z)
 		t1 = text("[][]", R.text, t1)
 		L[t1] = R
-		//Foreach goto(26)
 	var/t1 = input("Please select a location to lock in.", "Locking Computer", null, null) in L
 	var/R = L[t1]
 	if ((prob(30) || istype(R, /obj/item/weapon/radio/beacon) && prob(50)))
@@ -61,7 +57,6 @@
 			src.locked = null
 	for(var/mob/O in hearers(src, null))
 		O.show_message("\blue Locked In", 2)
-		//Foreach goto(270)
 	src.add_fingerprint(usr)
 	return
 
@@ -118,7 +113,6 @@
 	if (!( com.locked ))
 		for(var/mob/O in hearers(src, null))
 			O.show_message("\red Failure: Cannot authenticate locked on coordinates. Please reinstantiat coordinate matrix.", 1, "\red Error!", 2)
-			//Foreach goto(80)
 		return
 	var/obj/effects/sparks/O = new /obj/effects/sparks( target )
 	O.dir = pick(1, 2, 4, 8)
@@ -138,7 +132,6 @@
 	else
 		for(var/mob/B in hearers(src, null))
 			B.show_message("\blue Test fire completed.", 2)
-			//Foreach goto(316)
 	return
 
 /obj/machinery/teleport/station/verb/engage()
@@ -156,7 +149,6 @@
 		use_power(5000)
 		for(var/mob/O in hearers(src, null))
 			O.show_message("\blue Teleporter engaged!", 2)
-			//Foreach goto(70)
 	src.add_fingerprint(usr)
 	return
 
@@ -174,7 +166,6 @@
 		com.icon_state = "tele0"
 		for(var/mob/O in hearers(src, null))
 			O.show_message("\blue Teleporter disengaged!", 2)
-			//Foreach goto(70)
 	src.add_fingerprint(usr)
 	return
 
@@ -193,7 +184,6 @@
 		active = 1
 		for(var/mob/O in hearers(src, null))
 			O.show_message("\blue Test firing!", 2)
-			//Foreach goto(60)
 		com.teleport()
 		use_power(5000)
 
@@ -225,7 +215,6 @@
 	src.amount--
 	if (src.amount <= 0)
 		sleep(50)
-		//SN src = null
 		del(src)
 		return
 	var/turf/T = get_step(src, turn(src.dir, pick(90, 0, 0, -90.0)))
@@ -253,7 +242,6 @@
 	src.amount--
 	if (src.amount <= 0)
 		sleep(50)
-		//SN src = null
 		del(src)
 		return
 	var/turf/T = get_step(src, turn(src.dir, pick(90, 0, 0, -90.0)))

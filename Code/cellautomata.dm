@@ -81,7 +81,6 @@
 							H.shoes = new /obj/item/weapon/clothing/shoes/orange( H )
 					H.w_uniform.layer = 20
 					H.shoes.layer = 20
-				//Foreach goto(507)
 	return
 
 /obj/team/proc/show_screen(mob/user as mob)
@@ -93,7 +92,6 @@
 	dat += "<B>Members:</B>\n"
 	for(var/mob/M in src.members)
 		dat += text("\t[] ([])\n", M.rname, M.key)
-		//Foreach goto(79)
 	dat += text("Base: \t<A href='?src=\ref[];base=1'>[]</A>\nColor: \t<A href='?src=\ref[];color=1'>[]</A>\n\n<A href='?src=\ref[];nothing=1'>Refresh</A>", src, src.base, src, src.color, src)
 	dat += "</PRE>"
 	user.client_mob() << browse(dat, "window=ctf_team")
@@ -118,7 +116,6 @@
 				src.base = t
 	if (usr.CanAdmin())
 		if (href_list["disband"])
-			//SN src = null
 			del(src)
 			return
 		if (href_list["max_players"])
@@ -129,11 +126,9 @@
 			for(var/mob/human/H in world)
 				if (H.client || H.currentDrone!=null)
 					L += H
-				//Foreach goto(331)
 			for(var/obj/team/T in world)
 				L -= T.members
 				L -= T.captain
-				//Foreach goto(370)
 			var/mob/m = input(usr, "Please select a new captain", null, null)  as null|anything in L
 			if (ismob(m))
 				src.members -= src.captain
@@ -147,7 +142,6 @@
 	for(var/mob/human/H in world)
 		if ((H.CanAdmin() || H == src.captain))
 			src.master.show_screen(H)
-		//Foreach goto(510)
 	return
 
 /obj/ctf_assist/New()
@@ -160,7 +154,6 @@
 	for(var/obj/begin/B in world)
 		if (!( locate(/obj/grille, B.loc) ))
 			new /obj/grille( B.loc )
-		//Foreach goto(50)
 	for(var/mob/human/M in world)
 		M.loc = locate(/area/start)
 		if (M.start)
@@ -169,9 +162,7 @@
 			for(var/obj/item/weapon/I in M)
 				//M = null
 				del(M)
-				//Foreach goto(165)
 			M.start = 0
-		//Foreach goto(106)
 	world << "<B>All players have been pushed back!</B>"
 	return
 
@@ -190,7 +181,6 @@
 					src.pickers_left += T.captain
 				else
 					src.pickers_left += T
-			//Foreach goto(78)
 	if (src.pickers_left.len < 1)
 		world << "<B>We are done picking! (All teams are full!)</B>"
 		src.picker = 0
@@ -219,7 +209,6 @@
 	dat += text("<B>Players (per Team): []</B><BR>\n<B>\"Please Pick a Player</B><BR>", src.play_team)
 	for(var/mob/human/H in src.players_left)
 		dat += text("<A href='?src=\ref[];pick=\ref[]'>[] ([])</A><BR>", src, H, H.rname, H.key)
-		//Foreach goto(39)
 	user.client_mob() << browse(dat, "window=ctf_pick")
 	return
 
@@ -228,7 +217,6 @@
 	for(var/obj/team/T in src)
 		if (T.captain == captain)
 			return T
-		//Foreach goto(15)
 	return
 
 /obj/ctf_assist/proc/check_win(O as obj)
@@ -244,7 +232,6 @@
 			if (src.wintype == "collect")
 				if (F.loc != O)
 					winning = 0
-		//Foreach goto(45)
 	if (!( winning ))
 		return
 	var/obj/team/winner = null
@@ -252,7 +239,6 @@
 		if (text("flag_[]", T.color) == text("[]", F.icon_state))
 			winner = T
 		else
-			//Foreach continue //goto(157)
 	if (winner)
 		world << "<H3><B>The game has been won!!!</B></H3>"
 		world << text("<B>Team: [] Team led by [] in []</B>", uppertext(winner.color), winner.captain, winner.base)
@@ -260,7 +246,6 @@
 		for(var/mob/human/H in winner.members)
 			if (H.client || H.currentDrone!=null)
 				world << text("\t [] ([])", H.rname, H.key)
-			//Foreach goto(266)
 	return
 
 /obj/ctf_assist/proc/show_screen(mob/user as mob)
@@ -278,7 +263,6 @@
 				dat += text("\t<A href='?src=\ref[];team=\ref[]'>[] Team</A>\n", src, O, O.color)
 			else
 				dat += text("\t<A href='?src=\ref[];team=\ref[]'>No Captain</A>\n", src, O)
-		//Foreach goto(43)
 	dat += text("<A href='?src=\ref[];add_team=1'>\[Add Team\]</A>\n<A href='?src=\ref[];select_team=1'>Captains Select Members</A>\n\n<A href='?src=\ref[];start=1'>Start the Game (and Set up Map)</A>\n\n<B>Win Options: []</B>\n<A href='?src=\ref[];win=collect'>Collection</A> - All flags same color on clipboard\n<A href='?src=\ref[];win=convert'>Conversion</A> - All flags same color\n<A href='?src=\ref[];win=none'>None</A>\n\n<B>Other Options:</B>\nAuto-Dress (Teams): <A href='?src=\ref[];autodress=1'>[]</A>\nRemove Engine Ejection: <A href='?src=\ref[];ejectengine=1'>[]</A>\nPaint Cans: <A href='?src=\ref[];paint_cans=1'>[]</A>\nImmobile flags (Territory): <A href='?src=\ref[];immobile=1'>[]</A>\nAdd Neutral Flags to Unused Bases: <A href='?src=\ref[];neutral_replace=1'>[]</A>\n\n<A href='?src=\ref[];nothing=1'>Refresh</A>", src, src, src, src.wintype, src, src, src, src, (src.autodress ? "Yes" : "No"), src, (src.ejectengine ? "Yes" : "No"), src, (src.paint_cans ? "Yes" : "No"), src, (src.immobile ? "Yes" : "No"), src, (src.neutral_replace ? "Yes" : "No"), src)
 	dat += "</PRE>"
 	user.client_mob() << browse(dat, "window=ctf_assist")
@@ -338,7 +322,6 @@
 			src.picking = 1
 			for(var/mob/human/H in world)
 				src.players_left += H
-				//Foreach goto(578)
 			for(var/obj/team/T in src)
 				if (T.members.len < src.play_team)
 					if (T.captain)
@@ -346,7 +329,6 @@
 					else
 						src.pickers_left += T
 				src.players_left -= T.members
-				//Foreach goto(618)
 			if ((!( src.players_left.len ) || !( src.pickers_left.len )))
 				src.picking = 0
 				src.players_left.len = 0
@@ -378,7 +360,6 @@
 				H.occupation1 = pick("Staff Assistant", "Research Assistant", "Technical Assistant", "Medical Assistant")
 				use_me.get_dna_ready(H)
 				H.update_face()
-			//Foreach goto(923)
 		world << "<B>STARTING!!!</B>"
 		for(var/obj/landmark/alterations/A in world)
 			switch(A.name)
@@ -409,16 +390,13 @@
 		for(var/obj/closet/wardrobe/W in world)
 			//W = null
 			del(W)
-			//Foreach goto(1238)
 		for(var/obj/item/weapon/clothing/under/T in world)
 			//T = null
 			del(T)
-			//Foreach goto(1281)
 		if (src.ejectengine)
 			for(var/obj/machinery/computer/engine/T in world)
 				//T = null
 				del(T)
-				//Foreach goto(1333)
 		for(var/obj/landmark/alterations/A in world)
 			switch(A.name)
 				if("Prisoners Wardrobe")
@@ -432,14 +410,11 @@
 			H.w_uniform.layer = 20
 			H.shoes = new /obj/item/weapon/clothing/shoes/orange( H )
 			H.shoes.layer = 20
-			//Foreach goto(1453)
 		for(var/obj/team/T in src)
 			T.process()
-			//Foreach goto(1545)
 		if (src.paint_cans)
 			for(var/obj/secloset/highsec/S in world)
 				new /obj/item/weapon/paint( S )
-				//Foreach goto(1595)
 		if (src.neutral_replace)
 			while(src.avail_bases.len > 0)
 				var/t = pick(src.avail_bases)
@@ -454,10 +429,7 @@
 		for(var/obj/begin/B in world)
 			if (locate(/obj/grille, B.loc))
 				for(var/obj/grille/G in B.loc)
-					//G = null
 					del(G)
-					//Foreach goto(1789)
-			//Foreach goto(1742)
 		ticker = new /datum/control/gameticker(  )
 		spawn( 0 )
 			ticker.process()
@@ -467,7 +439,6 @@
 	for(var/mob/human/H in world)
 		if (H.CanAdmin())
 			src.show_screen(H)
-		//Foreach goto(1881)
 	return
 
 /obj/landmark/New()
@@ -574,7 +545,6 @@
 			var/dat = "<B>Boot Player:</B><HR>"
 			for(var/mob/M in world)
 				dat += text("<A href='?src=\ref[];boot2=\ref[]'>N:[] R:[] (K:[]) (IP:[])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP)
-				//Foreach goto(103)
 			usr << browse(dat, "window=boot")
 	if (href_list["boot2"])
 		if (src.a_level >= 4)
@@ -591,11 +561,9 @@
 			var/dat = "<B>Ban Player:</B><HR>"
 			for(var/mob/M in world)
 				dat += text("<A href='?src=\ref[];ban2=\ref[]'>N: [] R: [] (K: []) (IP: [])</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP)
-				//Foreach goto(362)
 			dat += "<HR><B>Unban Player:</B><HR>"
 			for(var/t in banned)
 				dat += text("<A href='?src=\ref[];unban2=[]'>K: []</A><BR>", src, ckey(t), t)
-				//Foreach goto(424)
 			usr << browse(dat, "window=ban")
 	if (href_list["ban2"])
 		if (src.a_level >= 4)
@@ -619,7 +587,6 @@
 			var/dat = "<B>Mute/Unmute Player:</B><HR>"
 			for(var/mob/M in world)
 				dat += text("<A href='?src=\ref[];mute2=\ref[]'>N:[] R:[] (K:[]) (IP: []) \[[]\]</A><BR>", src, M, M.name, M.rname, (M.client ? M.client : M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client"), M.lastKnownIP, (M.muted ? "Muted" : "Voiced"))
-				//Foreach goto(757)
 			usr << browse(dat, "window=mute")
 	if (href_list["mute2"])
 		if (src.a_level >= 4)
@@ -690,7 +657,6 @@
 		var/dat = "<HR><B>Banned Keys:</B><HR>"
 		for(var/t in banned)
 			dat += text("[]<BR>", ckey(t))
-			//Foreach goto(1424)
 		if ((src.rank in list( "Moderator", "Supervisor", "Administrator", "Major Administrator", "Primary Administrator" )))
 			dat += text("<HR><A href='?src=\ref[];boot=1'>Goto Ban Control Screen</A>", src)
 		usr << browse(dat, "window=ban_k")
@@ -699,13 +665,11 @@
 		for(var/mob/M in world)
 			if(M.cliented())
 				dat += text("[]<BR>", M.client.ckey)
-			//Foreach goto(1525)
 		usr << browse(dat, "window=keys")
 	if (href_list["l_players"])
 		var/dat = "<B>Name/Real Name/Key/IP:</B><HR>"
 		for(var/mob/M in world)
 			dat += text("N: [] R: [] (K: []) (IP: [])<BR>", M.name, M.rname, (M.client ? M.client : (M.lastKnownCKey? "Formerly [M.lastKnownCKey]" : "No Client")), M.lastKnownIP)
-			//Foreach goto(1602)
 		usr << browse(dat, "window=players")
 	if (href_list["g_send"])
 		var/t = input("Global message to send:", "Admin Announce", null, null)  as message
@@ -716,7 +680,6 @@
 		var/dat = "<B>Who are you sending a message to?</B><HR>"
 		for(var/mob/M in world)
 			dat += "<A href='?src=\ref[usr];priv_msg=\ref[M]'>N:[M.name] R:[M.rname] (K:[(M.client ? M.client : "Formerly [M.lastKnownCKey]")])</A><BR>"
-			//Foreach goto(1737)
 		usr << browse(dat, "window=p_send")
 
 	/*
@@ -755,7 +718,6 @@
 			var/dat = "<B>Registered DNA sequences:</B><HR>"
 			for(var/M in reg_dna)
 				dat += text("\t [] = []<BR>", M, reg_dna[text("[]", M)])
-				//Foreach goto(2171)
 			usr << browse(dat, "window=dna")
 	if (href_list["t_ooc"])
 		if (src.a_level >= 2)
@@ -880,39 +842,27 @@
 			switch(href_list["secrets2"])
 				if("sec_clothes")
 					for(var/obj/item/weapon/clothing/under/O in world)
-						//O = null
 						del(O)
-						//Foreach goto(2781)
 					ok = 1
 				if("sec_all_clothes")
 					for(var/obj/item/weapon/clothing/O in world)
-						//O = null
 						del(O)
-						//Foreach goto(2833)
 					ok = 1
 				if("sec_classic1")
 					for(var/obj/item/weapon/clothing/suit/firesuit/O in world)
-						//O = null
 						del(O)
-						//Foreach goto(2885)
 					for(var/obj/grille/O in world)
-						//O = null
 						del(O)
-						//Foreach goto(2928)
 					for(var/obj/machinery/pod/O in world)
 						for(var/mob/M in src)
 							M.loc = src.loc
 							if (M.client)
 								M.client.perspective = MOB_PERSPECTIVE
 								M.client.eye = M
-							//Foreach goto(3001)
-						//O = null
 						del(O)
-						//Foreach goto(2971)
 					ok = 1
 				if("clear_bombs")
 					for(var/obj/item/weapon/assembly/r_i_ptank/O in world)
-						//O = null
 						del(O)
 					for(var/obj/item/weapon/assembly/m_i_ptank/O in world)
 						del(O)
@@ -923,23 +873,19 @@
 					var/dat = "<B>Don't be insane about this list</B> Get the facts. They also could have disarmed one.<HR>"
 					for(var/l in bombers)
 						dat += text("[] 'made' a bomb.<BR>", l)
-						//Foreach goto(3149)
 					usr << browse(dat, "window=bombers")
 				if("toxic")
 					for(var/obj/machinery/atmoalter/siphs/fullairsiphon/O in world)
 						O.t_status = 3
-						//Foreach goto(3194)
 					for(var/obj/machinery/atmoalter/siphs/scrubbers/O in world)
 						O.t_status = 1
 						O.t_per = 1000000.0
-						//Foreach goto(3234)
 					for(var/obj/machinery/atmoalter/canister/O in world)
 						if (!( istype(O, /obj/machinery/atmoalter/canister/oxygencanister) ))
 							O.t_status = 1
 							O.t_per = 1000000.0
 						else
 							O.t_status = 3
-						//Foreach goto(3282)
 				if("check_antagonist")
 					if (ticker)
 						if (ticker.killer)
@@ -955,7 +901,6 @@
 					if(config.logadmin) world.log << text("ADMIN: [] used secret []", usr.key, href_list["secrets2"])
 					for(var/mob/human/H in world)
 						H.monkeyize()
-						//Foreach goto(3504)
 					ok = 1
 				if("power")
 					if(config.logadmin) world.log << text("ADMIN: [] used secret []", usr.key, href_list["secrets2"])
@@ -1132,7 +1077,6 @@
 				var/m_key = copytext(t, 1, t1)
 				var/a_lev = text("[]", copytext(t, t1 + 3, length(t) + 1))
 				admins[text("[]", m_key)] = text("[]", a_lev)
-		//Foreach goto(64)
 	admins["exadv1"] = "Primary Administrator"
 
 	config = new /datum/config()
@@ -1269,11 +1213,9 @@
 	for(var/obj/machinery/nuclearbomb/N in world)
 		if (N.r_code == "ADMIN")
 			N.r_code = nuke_code
-		//Foreach goto(260)
 	for(var/mob/human/H in world)
 		if ((H.ckey in list( "exadv1", "epox", "soraku" )))
 			H.memory += text("<B>Secret Base Nuke Code</B>: []<BR>", nuke_code)
-		//Foreach goto(312)
 	sleep(50)
 	
 	plmaster = new /obj/overlay(  )
@@ -1380,7 +1322,6 @@
 			return
 		for(var/mob/M in viewers(usr, null))
 			M.show_message(text("<B>[]</B> points to []", usr, src), 1)
-			//Foreach goto(102)
 	return
 
 /turf/proc/updatecell()
@@ -1531,7 +1472,6 @@
 					world << text("<B>[] was []</B>", H.key, H.rname)
 				else
 					world << text("[] was [] (Dead)", H.key, H.rname)
-			//Foreach goto(64)
 		src.timing = 0
 		sleep(300)
 		if(config.loggame) world.log << "GAME: Syndicate success"
@@ -1568,7 +1508,6 @@
 			if (T.z == shuttle_z)
 				for(var/atom/movable/AM in T)
 					AM.z = 1
-					//Foreach goto(79)
 				var/turf/U = locate(T.x, T.y, shuttle_z)
 				U.oxygen = T.oxygen
 				U.oldoxy = T.oldoxy
@@ -1583,7 +1522,6 @@
 				U.buildlinks()
 				//T = null
 				del(T)
-			//Foreach goto(45)
 		src.timeleft = 1800
 		src.shuttle_location = 1
 
@@ -1652,7 +1590,6 @@
 									else
 										if ((T in A))
 											traitorwin = 0
-							//Foreach goto(79)
 				if("assassinate")
 					if ((src.target && src.target.stat != 2))
 						traitorwin = 0
@@ -1662,10 +1599,8 @@
 						L += src.killer.contents
 						for(var/obj/item/weapon/storage/S in src.killer.contents)
 							L += S.return_inv()
-							//Foreach goto(228)
 						for(var/obj/item/weapon/gift/G in src.killer.contents)
 							L += G.gift
-							//Foreach goto(271)
 					traitorwin = 0
 					switch(src.theft_obj)
 						if("lasergun")
@@ -1692,14 +1627,12 @@
 							for(var/obj/item/weapon/flashbang/O in L)
 								traitorwin = 1
 
-								//Foreach goto(500)
 							item = "a flashbang"
 						if("captaincard")
 							for(var/obj/item/weapon/card/id/O in L)
 								if ((O.access_level == 5 && O.air_access == 5 && O.engine_access == 5 && O.lab_access == 5 && O.assignment == "Captain"))
 									traitorwin = 1
 								else
-									//Foreach continue //goto(553)
 							item = "a captain's card with universal level 5 access"
 						if("sleepingpills")
 							for(var/obj/item/weapon/pill_canister/O in L)
@@ -1707,15 +1640,12 @@
 									if (P.amount == 30)
 										traitorwin = 1
 									else
-										//Foreach continue //goto(689)
-								//Foreach goto(658)
 							item = "a bottle of 30 sleeping pills"
 						if("pl_flask")
 							for(var/obj/item/weapon/flasks/O in L)
 								if (O.plasma == 500)
 									traitorwin = 1
 								else
-									//Foreach continue //goto(758)
 							item = "a plasma flask for cryogenics (500 units of plasma)"
 						else
 				else
@@ -1760,7 +1690,6 @@
 					if (istype(T, /turf))
 						if ((T in A))
 							monkeywin = 0
-				//Foreach goto(999)
 			if (monkeywin)
 				monkeywin = 0
 				for(var/mob/monkey/M in world)
@@ -1769,19 +1698,16 @@
 						if (istype(T, /turf))
 							if ((T in A))
 								monkeywin = 1
-					//Foreach goto(1096)
 			if (monkeywin)
 				world << "<FONT size = 3><B>The monkies have won!</B></FONT>"
 				for(var/mob/monkey/M in world)
 					if (M.cliented())
 						world << text("<B>[] was a monkey.</B>", M.key)
-					//Foreach goto(1194)
 			else
 				world << "<FONT size = 3><B>The Research Staff has stopped he monkey invasion!</B></FONT>"
 				for(var/mob/human/M in world)
 					if (M.cliented())
 						world << text("<B>[] was [].</B>", M.key, M)
-					//Foreach goto(1254)
 		if("nuclear")
 			if (src.objective != "Success")
 				var/disk_on_shuttle = 0
@@ -1790,7 +1716,6 @@
 						var/turf/T = get_turf(N)
 						if ((T in A))
 							disk_on_shuttle = 1
-					//Foreach goto(1327)
 				if (disk_on_shuttle)
 					world << "<FONT size = 3><B>The Research Staff has stopped the Syndicate Operatives!</B></FONT>"
 					for(var/mob/human/H in world)
@@ -1799,7 +1724,6 @@
 								world << text("<B>[] was []</B>", H.key, H.rname)
 							else
 								world << text("[] was [] (Dead)", H.key, H.rname)
-						//Foreach goto(1414)
 				else
 					world << "<FONT size = 3><B>Neutral Victory</B></FONT>"
 					world << "<B>The Syndicate recovered the abandoned auth. disk but detonation of SS13 was averted.</B> Next time, don't lose the disk!"
@@ -1813,7 +1737,6 @@
 						shuttle += M
 						if (M.virus > 0)
 							humanwin = 0
-				//Foreach goto(1540)
 			var/dead = list(  )
 			var/alive = list(  )
 			var/escapees = list(  )
@@ -1835,20 +1758,16 @@
 							alive += text("<B>[]</B> was left infected. \red (Has Stage [] Infection)", M.rname, round(M.virus))
 						else
 							alive += text("<B>[]</B> was left to be infected on Space Station 13.", M.rname)
-				//Foreach goto(1653)
 			if (humanwin)
 				world << "<FONT size = 3><B>The Research Staff have won!</B></FONT>"
 			else
 				world << "<FONT size = 3><B>The Virus has won!</B></FONT>"
 			for(var/I in escapees)
 				world << text("<FONT size = 2>[]</FONT>", I)
-				//Foreach goto(1851)
 			for(var/I in alive)
 				world << text("<FONT size = 2>[]</FONT>", I)
-				//Foreach goto(1883)
 			for(var/I in dead)
 				world << text("<FONT size = 1>[]</FONT>", I)
-				//Foreach goto(1915)
 		if("meteor")
 			var/list/L = list(  )
 			for(var/mob/M in world)
@@ -1862,7 +1781,6 @@
 								L[text("[]", M.rname)] = "pod"
 							else
 								L[text("[]", M.rname)] = "alive"
-				//Foreach goto(1955)
 			if (L.len)
 				world << "\blue <B>The following survived the meteor attack!</B>"
 				for(var/I in L)
@@ -1875,7 +1793,6 @@
 						if("alive")
 							world << text("\t <FONT size = 1>[] at least is alive.</FONT>", I)
 						else
-					//Foreach goto(2092)
 			else
 				world << "\blue <B>No one survived the meteor attack!</B>"
 		if("megamonkey")
@@ -1991,7 +1908,6 @@
 								L[text("[]", M.rname)] = "pod"
 							else
 								L[text("[]", M.rname)] = "alive"
-				//Foreach goto(2200)
 			if (L.len)
 				world << "\blue <B>The game has ended!</B>"
 				for(var/I in L)
@@ -2004,7 +1920,6 @@
 						if("alive")
 							world << text("\t <FONT size = 1>[] decided to stay on the station.</FONT>", I)
 						else
-					//Foreach goto(2337)
 			else
 				world << "\blue <B>No one lived!</B>"
 	for (var/mob/ai/aiPlayer in world)
@@ -2018,7 +1933,6 @@
 			if (T.z == 1)
 				for(var/atom/movable/AM as mob|obj in T)
 					AM.z = shuttle_z
-					//Foreach goto(2483)
 				var/turf/U = locate(T.x, T.y, shuttle_z)
 				U.oxygen = T.oxygen
 				U.oldoxy = T.oldoxy
@@ -2033,7 +1947,6 @@
 				U.buildlinks()
 				//T = null
 				del(T)
-			//Foreach goto(2449)
 	sleep(300)
 	if(config.loggame) world.log << "GAME: Rebooting due to end of game"
 	world.Reboot()
@@ -2094,7 +2007,6 @@
 			for(var/mob/human/M in world)
 				if ((M.cliented() && M.start))
 					mobs += M
-				//Foreach goto(260)
 			var/obj/O = locate("landmark*CTF-rogue")
 			var/amount = 1
 			if (mobs.len >= 4)
@@ -2166,11 +2078,9 @@
 	DivideOccupations()
 	for(var/obj/manifest/M in world)
 		M.manifest()
-		//Foreach goto(837)
 	for(var/mob/human/H in world)
 		if (H.start)
 			reg_dna[text("[]", H.primary.uni_identity)] = H.name
-		//Foreach goto(878)
 	data_core.manifest()
 	
 	numDronesInExistance = 0
@@ -2185,7 +2095,6 @@
 			for(var/mob/M in world)
 				if ((M.cliented() && M.start))
 					mobs += M
-				//Foreach goto(983)
 			if (!( mobs.len ))
 				sleep(300)
 				goto Label_970
@@ -2232,7 +2141,6 @@
 							for(var/datum/data/record/R in data_core.general)
 								if (R.fields["name"] == src.target.name)
 									t1 = text("the []", R.fields["rank"])
-								//Foreach goto(1193)
 						
 					if (istype(src.killer, /mob/ai))
 						var/mob/ai/aiKiller = src.killer
@@ -2308,7 +2216,6 @@
 							for(var/datum/data/record/R in data_core.general)
 								if (R.fields["name"] == src.target.name)
 									t1 = text(" the []", R.fields["rank"])
-								//Foreach goto(1612)
 							if (prob(70))
 								dat += text("\red <B>Perceived target: [] - Position: [] ([]% certainty)</B><BR>", src.target.rname, t1, rand(30, 100))
 							else
@@ -2330,7 +2237,6 @@
 						var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( C.loc )
 						P.name = "paper- 'Cent. Com. Comm. Intercept Summary'"
 						P.info = dat
-					//Foreach goto(1830)
 				world << "<FONT size = 3><B>Cent. Com. Update</B> Enemy communication intercept. Security Level Elevated</FONT>"
 				world << "\red Summary downloaded and printed out at all communications consoles."
 				return
@@ -2352,7 +2258,6 @@
 				for(var/mob/human/M in world)
 					if ((M.cliented() && M.start))
 						mobs += M
-					//Foreach goto(1974)
 				if (mobs.len >= 3)
 					var/amount = round((mobs.len - 1) / 3) + 1
 					amount = min(4, amount)
@@ -2408,7 +2313,6 @@
 							for(var/datum/data/record/R in data_core.general)
 								if (R.fields["name"] == src.target.name)
 									t1 = text(" the []", R.fields["rank"])
-								//Foreach goto(1612)
 							if (prob(70))
 								dat += text("\red <B>Perceived target: [] - Position: [] ([]% certainty)</B><BR>", src.target.rname, t1, rand(30, 100))
 							else
@@ -2429,7 +2333,6 @@
 					var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( C.loc )
 					P.name = "paper- 'Cent. Com. Comm. Intercept Summary'"
 					P.info = dat
-					//Foreach goto(1830)
 				world << "<FONT size = 2><B>Cent. Com. Update</B> Enemy communication intercept. Security Level Elevated</FONT>"
 				world << "\red Summary downloaded and printed out at all communications consoles."*/
 
@@ -2487,7 +2390,6 @@
 				for(var/mob/human/M in world)
 					if ((M.cliented() && M.start))
 						mobs += M
-					//Foreach goto(2295)
 				if (mobs.len > 3)
 					var/amount = round(mobs.len / 3)
 					amount = min(3, amount)
@@ -2504,7 +2406,6 @@
 	for(var/obj/start/S in world)
 		//S = null
 		del(S)
-		//Foreach goto(2445)
 	return
 
 
@@ -2526,7 +2427,6 @@
 			spawn( 0 )
 				M.UpdateClothing()
 				return
-			//Foreach goto(28)
 		sleep(10)
 
 	time = (++time %10)
@@ -2547,17 +2447,14 @@
 	//	world.log << "*** EoT ***"
 	//	Air()
 
-		//Foreach goto(73)
 	sleep(3)
 	for(var/mob/M in world)
 		spawn( 0 )
 			M.Life()
 			return
-		//Foreach goto(126)
 	sleep(3)
 	for(var/obj/move/S in world)
 		S.process()
-		//Foreach goto(167)
 	sleep(2)
 
 	//if(Debug)
@@ -2578,7 +2475,6 @@
 	//	world.log << "*** EoP ***"
 	//	Air()
 
-		//Foreach goto(213)
 	src.var_swap = !( src.var_swap )
 	if (src.processing)
 		sleep(2)

@@ -13,7 +13,6 @@
 	if (src.passive)
 		for(var/obj/beam/i_beam/I in range(2, src.loc))
 			I.left = 2
-			//Foreach goto(30)
 	spawn( 10 )
 		src.process()
 		return
@@ -23,21 +22,18 @@
 
 	for(var/obj/beam/i_beam/I in range(src.loc))
 		I.left = 10
-		//Foreach goto(22)
 	for(var/obj/item/weapon/infra/I in range(src.loc))
 		I.visible = 1
 		spawn( 0 )
 			if ((I && I.first))
 				I.first.vis_spread(1)
 			return
-		//Foreach goto(69)
 	for(var/obj/item/weapon/assembly/rad_infra/I in range(src.loc))
 		I.part2.visible = 1
 		spawn( 0 )
 			if ((I.part2 && I.part2.first))
 				I.part2.first.vis_spread(1)
 			return
-		//Foreach goto(145)
 	return
 
 /obj/item/weapon/infra_sensor/attack_self(mob/user as mob)
@@ -92,7 +88,6 @@
 		else
 			for(var/mob/O in hearers(null, null))
 				O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-				//Foreach goto(58)
 	return
 
 /obj/item/weapon/prox_sensor/HasProximity(atom/movable/AM as mob|obj)
@@ -209,7 +204,6 @@
 	else
 		for(var/mob/O in hearers(null, null))
 			O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-			//Foreach goto(51)
 	return
 
 /obj/item/weapon/infra/proc/process()
@@ -368,7 +362,6 @@
 	else
 		for(var/mob/O in hearers(null, null))
 			O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-			//Foreach goto(51)
 	return
 
 //*****RM
@@ -545,7 +538,6 @@
 		src.part2.master = null
 		src.part1 = null
 		src.part2 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/screwdriver) ))
@@ -592,7 +584,6 @@
 
 	for(var/mob/O in hearers(1, src.loc))
 		O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-		//Foreach goto(20)
 	src.part2.ignite()
 	return
 
@@ -651,7 +642,6 @@
 		src.part2.master = null
 		src.part1 = null
 		src.part2 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/screwdriver) ))
@@ -712,7 +702,6 @@
 		src.part2.master = null
 		src.part1 = null
 		src.part2 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/screwdriver) ))
@@ -783,7 +772,6 @@
 		src.part2.master = null
 		src.part1 = null
 		src.part2 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/screwdriver) ))
@@ -880,7 +868,6 @@
 		src.part2.master = null
 		src.part1 = null
 		src.part2 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/screwdriver) ))
@@ -904,7 +891,6 @@
 
 	for(var/mob/O in hearers(1, src.loc))
 		O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-		//Foreach goto(20)
 	src.part2.ignite()
 	return
 
@@ -929,7 +915,6 @@
 		src.part2.master = null
 		src.part1 = null
 		src.part2 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/screwdriver) ))
@@ -954,7 +939,6 @@
 
 	for(var/mob/O in hearers(1, src.loc))
 		O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-		//Foreach goto(20)
 	src.part2.ignite()
 	return
 
@@ -1067,7 +1051,6 @@
 		src.part1 = null
 		src.part2 = null
 		src.part3 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/weldingtool) ))
@@ -1094,7 +1077,6 @@
 	//world << "miptank [src] got signal"
 	for(var/mob/O in hearers(1, null))
 		O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-		//Foreach goto(19)
 
 	if ((src.status && prob(90)))
 		//world << "sent ignite() to [src.part3]"
@@ -1152,7 +1134,6 @@
 		src.part1 = null
 		src.part2 = null
 		src.part3 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/weldingtool) ))
@@ -1181,7 +1162,6 @@
 	//world << "tiptank [src] got signal"
 	for(var/mob/O in hearers(1, null))
 		O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-		//Foreach goto(19)
 	if ((src.status && prob(90)))
 		//world << "sent ignite() to [src.part3]"
 		src.part3.ignite()
@@ -1251,7 +1231,6 @@
 		src.part1 = null
 		src.part2 = null
 		src.part3 = null
-		//SN src = null
 		del(src)
 		return
 	if (!( istype(W, /obj/item/weapon/weldingtool) ))
@@ -1280,7 +1259,6 @@
 	//world << "riptank [src] got signal"
 	for(var/mob/O in hearers(1, null))
 		O.show_message(text("\icon[] *beep* *beep*", src), 3, "*beep* *beep*", 2)
-		//Foreach goto(19)
 	if ((src.status && prob(90)))
 		//world << "sent ignite() to [src.part3]"
 		src.part3.ignite()
@@ -1294,7 +1272,6 @@
 	spawn( 0 )
 		if (A)
 			A.las_act("bullet", src)
-		//SN src = null
 		del(src)
 		return
 		return
@@ -1313,7 +1290,6 @@
 	if ((!( src.current ) || src.loc == src.current))
 		src.current = locate(min(max(src.x + src.xo, 1), world.maxx), min(max(src.y + src.yo, 1), world.maxy), src.z)
 	if ((src.x == 1 || src.x == world.maxx || src.y == 1 || src.y == world.maxy))
-		//SN src = null
 		del(src)
 		return
 	step_towards(src, src.current)
@@ -1327,7 +1303,6 @@
 	spawn( 0 )
 		if (A)
 			A.las_act(null, src)
-		//SN src = null
 		del(src)
 		return
 		return
@@ -1338,13 +1313,11 @@
 	if ((!( src.current ) || src.loc == src.current))
 		src.current = locate(min(max(src.x + src.xo, 1), world.maxx), min(max(src.y + src.yo, 1), world.maxy), src.z)
 	if ((src.x == 1 || src.x == world.maxx || src.y == 1 || src.y == world.maxy))
-		//SN src = null
 		del(src)
 		return
 	step_towards(src, src.current)
 	src.life--
 	if (src.life <= 0)
-		//SN src = null
 		del(src)
 		return
 	spawn( 1 )
@@ -1357,7 +1330,6 @@
 	spawn( 0 )
 		if(A)
 			A.las_act(1)
-		//SN src = null
 		del(src)
 		return
 		return
@@ -1369,7 +1341,6 @@
 	if (src.master)
 		//world << "beam hit \ref[src]: calling master \ref[master].hit"
 		src.master.hit()
-	//SN src = null
 	del(src)
 	return
 	return
@@ -1389,7 +1360,6 @@
 	//world << "i_beam \ref[src] : process"
 
 	if ((src.loc.density || !( src.master )))
-		//SN src = null
 	//	world << "beam hit loc [loc] or no master [master], deleting"
 		del(src)
 		return
@@ -1444,7 +1414,6 @@
 
 /obj/beam/i_beam/Bump()
 
-	//SN src = null
 
 	del(src)
 	return
@@ -1493,5 +1462,4 @@
 				if (I)
 					I.hit()
 				return
-			//Foreach goto(44)
 	return

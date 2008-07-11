@@ -221,7 +221,6 @@
 	for(var/mob/M in world)
 		if (M.rname == text("[]", msg))
 			return 1
-		//Foreach goto(15)
 	return 0
 	return
 
@@ -244,7 +243,6 @@
 		step(src.affecting, src.assailant.dir)
 		if (prob(75))
 			step(src.affecting, src.assailant.dir)
-		//SN src = null
 		del(src)
 	return
 
@@ -259,7 +257,6 @@
 /obj/item/weapon/grab/proc/process()
 
 	if ((!( isturf(src.assailant.loc) ) || (!( isturf(src.affecting.loc) ) || (src.assailant.loc != src.affecting.loc && get_dist(src.assailant, src.affecting) > 1))))
-		//SN src = null
 		del(src)
 		return
 	if (src.assailant.client)
@@ -287,7 +284,6 @@
 			for(var/obj/item/weapon/grab/G in src.affecting.grabbed_by)
 				if (G.state == 2)
 					src.allow_upgrade = 0
-				//Foreach goto(341)
 		if ((src.allow_upgrade) && (istype(src, /mob/human) || istype(src, /mob/monkey)))
 			src.hud1.icon_state = "reinforce"
 		else
@@ -306,7 +302,6 @@
 	if (src.assailant.next_move > world.time)
 		return
 	if ((!( src.assailant.canmove ) || src.assailant.lying))
-		//SN src = null
 		del(src)
 		return
 	switch(S.id)
@@ -315,7 +310,6 @@
 				if (!( src.killing ))
 					for(var/mob/O in viewers(src.assailant, null))
 						O.show_message(text("\red [] has temporarily tightened his grip on []!", src.assailant, src.affecting), 1)
-						//Foreach goto(97)
 					src.assailant.next_move = world.time + 10
 					src.affecting.stunned = max(2, src.affecting.stunned)
 					src.affecting.paralysis = max(1, src.affecting.paralysis)
@@ -330,7 +324,6 @@
 	if ((src.assailant.next_move > world.time && !( src.last_suffocate < world.time + 2 )))
 		return
 	if ((!( src.assailant.canmove ) || src.assailant.lying))
-		//SN src = null
 		del(src)
 		return
 	switch(S.id)
@@ -343,21 +336,17 @@
 				if (prob(75))
 					for(var/mob/O in viewers(src.assailant, null))
 						O.show_message(text("\red [] has grabbed [] aggressively (now hands)!", src.assailant, src.affecting), 1)
-						//Foreach goto(121)
 					src.state = 2
 					src.icon_state = "grabbed1"
 				else
 					for(var/mob/O in viewers(src.assailant, null))
 						O.show_message(text("\red [] has failed to grab [] aggressively!", src.assailant, src.affecting), 1)
-						//Foreach goto(186)
-					//SN src = null
 					del(src)
 					return
 			else
 				if (src.state < 3)
 					for(var/mob/O in viewers(src.assailant, null))
 						O.show_message(text("\red [] has reinforced his grip on [] (now neck)!", src.assailant, src.affecting), 1)
-						//Foreach goto(257)
 					src.state = 3
 					src.icon_state = "grabbed+1"
 					if (!( src.affecting.buckled ))
@@ -370,7 +359,6 @@
 						if (src.killing)
 							for(var/mob/O in viewers(src.assailant, null))
 								O.show_message(text("\red [] has tightened his grip on []'s neck!", src.assailant, src.affecting), 1)
-								//Foreach goto(392)
 							src.assailant.next_move = world.time + 10
 							src.affecting.stunned = max(2, src.affecting.stunned)
 							src.affecting.paralysis = max(1, src.affecting.paralysis)
@@ -380,7 +368,6 @@
 							src.hud1.icon_state = "disarm/kill"
 							for(var/mob/O in viewers(src.assailant, null))
 								O.show_message(text("\red [] has loosened the grip on []'s neck!", src.assailant, src.affecting), 1)
-								//Foreach goto(517)
 		else
 	return
 
@@ -406,7 +393,6 @@
 
 /obj/item/weapon/grab/dropped()
 
-	//SN src = null
 	del(src)
 	return
 	return
@@ -586,33 +572,24 @@
 			usr.next_move = world.time + 20
 			if ((!( usr.stat ) && usr.canmove && !( usr.restrained() )))
 				for(var/obj/O in usr.requests)
-					//O = null
 					del(O)
-					//Foreach goto(557)
 				for(var/obj/item/weapon/grab/G in usr.grabbed_by)
 					if (G.state == 1)
-						//G = null
 						del(G)
 					else
 						if (G.state == 2)
 							if (prob(25))
 								for(var/mob/O in viewers(usr, null))
 									O.show_message(text("\red [] has broken free of []'s grip!", usr, G.assailant), 1)
-									//Foreach goto(681)
-								//G = null
 								del(G)
 						else
 							if (G.state == 2)
 								if (prob(5))
 									for(var/mob/O in viewers(usr, null))
 										O.show_message(text("\red [] has broken free of []'s headlock!", usr, G.assailant), 1)
-										//Foreach goto(762)
-									//G = null
 									del(G)
-					//Foreach goto(602)
 				for(var/mob/O in viewers(usr, null))
 					O.show_message(text("\red <B>[] resists!</B>", usr), 1)
-					//Foreach goto(824)
 		else if (!usr.disable_one_click)
 			src.DblClick()
 	return
@@ -998,11 +975,9 @@
 /obj/equip_e/New()
 
 	if (!( ticker ))
-		//SN src = null
 		del(src)
 		return
 	spawn( 100 )
-		//SN src = null
 		del(src)
 		return
 		return
@@ -1017,32 +992,26 @@
 		switch(src.place)
 			if("head")
 				if (!( src.target.wear_mask ))
-					//SN src = null
 					del(src)
 					return
 			if("l_hand")
 				if (!( src.target.l_hand ))
-					//SN src = null
 					del(src)
 					return
 			if("r_hand")
 				if (!( src.target.r_hand ))
-					//SN src = null
 					del(src)
 					return
 			if("back")
 				if (!( src.target.back ))
-					//SN src = null
 					del(src)
 					return
 			if("handcuff")
 				if (!( src.target.handcuffed ))
-					//SN src = null
 					del(src)
 					return
 			if("internal")
 				if ((!( (istype(src.target.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.target.back, /obj/item/weapon/tank) && !( src.target.internal )) ) && !( src.target.internal )))
-					//SN src = null
 					del(src)
 					return
 
@@ -1050,7 +1019,6 @@
 		for(var/mob/O in viewers(src.target, null))
 			if ((O.hasClient() && !( O.blinded )))
 				O.show_message(text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target), 1)
-			//Foreach goto(251)
 	else
 		var/message = null
 		switch(src.place)
@@ -1070,7 +1038,6 @@
 			else
 		for(var/mob/M in viewers(src.target, null))
 			M.show_message(message, 1)
-			//Foreach goto(469)
 	spawn( 30 )
 		src.done()
 		return
@@ -1194,11 +1161,9 @@
 						for(var/mob/M in viewers(src.target, 1))
 							if ((M.hasClient() && !( M.blinded )))
 								M.show_message(text("[] is now running on internals.", src.target), 1)
-							//Foreach goto(1097)
 		else
 	src.source.UpdateClothing()
 	src.target.UpdateClothing()
-	//SN src = null
 	del(src)
 	return
 	return
@@ -1211,37 +1176,30 @@
 		switch(src.place)
 			if("mask")
 				if (!( src.target.wear_mask ))
-					//SN src = null
 					del(src)
 					return
 			if("headset")
 				if (!( src.target.w_radio ))
-					//SN src = null
 					del(src)
 					return
 			if("l_hand")
 				if (!( src.target.l_hand ))
-					//SN src = null
 					del(src)
 					return
 			if("r_hand")
 				if (!( src.target.r_hand ))
-					//SN src = null
 					del(src)
 					return
 			if("suit")
 				if (!( src.target.wear_suit ))
-					//SN src = null
 					del(src)
 					return
 			if("uniform")
 				if (!( src.target.w_uniform ))
-					//SN src = null
 					del(src)
 					return
 			if("back")
 				if (!( src.target.back ))
-					//SN src = null
 					del(src)
 					return
 			if("syringe")
@@ -1250,17 +1208,14 @@
 				return
 			if("handcuff")
 				if (!( src.target.handcuffed ))
-					//SN src = null
 					del(src)
 					return
 			if("id")
 				if ((!( src.target.wear_id ) || !( src.target.w_uniform )))
-					//SN src = null
 					del(src)
 					return
 			if("internal")
 				if ((!( (istype(src.target.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.target.back, /obj/item/weapon/tank) && !( src.target.internal )) ) && !( src.target.internal )))
-					//SN src = null
 					del(src)
 					return
 
@@ -1268,17 +1223,14 @@
 	if ((src.item && !( L.Find(src.place) )))
 		for(var/mob/O in viewers(src.target, null))
 			O.show_message(text("\red <B>[] is trying to put \a [] on []</B>", src.source, src.item, src.target), 1)
-			//Foreach goto(401)
 	else
 		if (src.place == "syringe")
 			for(var/mob/O in viewers(src.target, null))
 				O.show_message(text("\red <B>[] is trying to inject []!</B>", src.source, src.target), 1)
-				//Foreach goto(466)
 		else
 			if (src.place == "pill")
 				for(var/mob/O in viewers(src.target, null))
 					O.show_message(text("\red <B>[] is trying to force [] to swallow []!</B>", src.source, src.target, src.item), 1)
-					//Foreach goto(527)
 			else
 				var/message = null
 				switch(src.place)
@@ -1314,7 +1266,6 @@
 						message = text("\red <B>[] is trying to empty []'s pockets!!</B>", src.source, src.target)
 					if("CPR")
 						if (src.target.cpr_time >= world.time + 3)
-							//SN src = null
 							del(src)
 							return
 						message = text("\red <B>[] is trying perform CPR on []!</B>", src.source, src.target)
@@ -1328,7 +1279,6 @@
 					else
 				for(var/mob/M in viewers(src.target, null))
 					M.show_message(message, 1)
-					//Foreach goto(1069)
 	spawn( 30 )
 		src.done()
 		return
@@ -1492,7 +1442,6 @@
 					src.item.loc = src.target
 		if("l_hand")
 			if (istype(src.target, /obj/item/weapon/clothing/suit/straight_jacket))
-				//SN src = null
 				del(src)
 				return
 			if (src.target.l_hand)
@@ -1515,7 +1464,6 @@
 					src.item.add_fingerprint(src.target)
 		if("r_hand")
 			if (istype(src.target, /obj/item/weapon/clothing/suit/straight_jacket))
-				//SN src = null
 				del(src)
 				return
 			if (src.target.r_hand)
@@ -1653,7 +1601,6 @@
 					src.item.loc = src.target
 		if("CPR")
 			if (src.target.cpr_time >= world.time + 30)
-				//SN src = null
 				del(src)
 				return
 			if ((src.target.health >= -75.0 && src.target.health < 0))
@@ -1666,33 +1613,27 @@
 					src.target.rejuv += 10		// change
 				for(var/mob/O in viewers(src.source, null))
 					O.show_message(text("\red [] performs CPR on []!", src.source, src.target), 1)
-					//Foreach goto(3251)
 				src.source.client_mob() << "\red Repeat every 7 seconds AT LEAST."
 		if("syringe")
 			var/obj/item/weapon/syringe/S = src.item
 			src.item.add_fingerprint(src.source)
 			if (!( istype(S, /obj/item/weapon/syringe) ))
-				//SN src = null
 				del(src)
 				return
 			if (S.s_time >= world.time + 30)
-				//SN src = null
 				del(src)
 				return
 			S.s_time = world.time
 			var/a = S.inject(src.target)
 			for(var/mob/O in viewers(src.source, null))
 				O.show_message(text("\red [] injects [] with the syringe!", src.source, src.target), 1)
-				//Foreach goto(3407)
 			src.source.client_mob() << text("\red You inject [] units into []. The syringe contains [] units.", a, src.target, S.chem.volume())
 		if("pill")
 			var/obj/item/weapon/m_pill/S = src.item
 			if (!( istype(S, /obj/item/weapon/m_pill) ))
-				//SN src = null
 				del(src)
 				return
 			if (S.s_time >= world.time + 30)
-				//SN src = null
 				del(src)
 				return
 			S.s_time = world.time
@@ -1700,7 +1641,6 @@
 			S.ingest(src.target)
 			for(var/mob/O in viewers(src.source, null))
 				O.show_message(text("\red [] forces [] to swallow \a []!", src.source, src.target, a), 1)
-				//Foreach goto(3568)
 		if("pockets")
 			if (src.target.l_store)
 				var/obj/item/weapon/W = src.target.l_store
@@ -1736,12 +1676,10 @@
 						src.target.internal = src.target.back
 						for(var/mob/M in viewers(src.target, 1))
 							M.show_message(text("[] is now running on internals.", src.target), 1)
-							//Foreach goto(3913)
 						src.target.internal.add_fingerprint(src.source)
 		else
 	src.source.UpdateClothing()
 	src.target.UpdateClothing()
-	//SN src = null
 	del(src)
 	return
 	return
@@ -1776,13 +1714,11 @@
 	for(var/t in src.organs)
 		if (istype(src.organs[text("[]", t)], /obj/item/weapon/organ/external))
 			L += src.organs[text("[]", t)]
-		//Foreach goto(24)
 	src.bruteloss = 0
 	src.fireloss = 0
 	for(var/obj/item/weapon/organ/external/O in L)
 		src.bruteloss += O.brute_dam
 		src.fireloss += O.burn_dam
-		//Foreach goto(94)
 	return
 
 
@@ -1796,7 +1732,6 @@
 	for(var/t in src.organs)
 		if (istype(src.organs[text("[]", t)], /obj/item/weapon/organ/external))
 			L += src.organs[text("[]", t)]
-		//Foreach goto(24)
 	//src.body_standing = null
 	del(src.body_standing)
 	src.body_standing = list(  )
@@ -1826,7 +1761,6 @@
 		//src.body_standing += new /icon( 'dam_zones.dmi', text("[]", O.d_i_state) )
 		//src.body_lying += new /icon( 'dam_zones.dmi', text("[]2", O.d_i_state) )
 
-		//Foreach goto(122)
 
 
 
@@ -1878,7 +1812,6 @@
 			W.loc = src.loc
 			W.dropped(src)
 			W.layer = initial(W.layer)
-		//Foreach goto(25)
 	src.UpdateClothing()
 	src.monkeyizing = 1
 	src.canmove = 0
@@ -1887,7 +1820,6 @@
 	for(var/t in src.organs)
 		//src.organs[text("[]", t)] = null
 		del(src.organs[text("[]", t)])
-		//Foreach goto(154)
 	var/atom/movable/overlay/animation = new /atom/movable/overlay( src.loc )
 	animation.icon_state = "blank"
 	animation.icon = 'mob.dmi'
@@ -1913,7 +1845,6 @@
 	O << "<B>You are now a monkey.</B>"
 	O << "<B>Don't be angry at the source as now you are just like him so deal with it.</B>"
 	O << "<B>Follow your objective.</B>"
-	//SN src = null
 	del(src)
 	return
 
@@ -1929,7 +1860,6 @@
 	for(var/obj/item/weapon/implant/I in src)
 		if (I.implanted)
 			I.trigger(act, src)
-		//Foreach goto(114)
 	var/message
 	switch(act)
 		if("blink")
@@ -1945,7 +1875,6 @@
 					for(var/mob/A in view(null, null))
 						if (param == A.name)
 							M = A
-						//Foreach goto(384)
 				if (!( M ))
 					param = null
 				message = text("<B>[]</B> bows[]", src, (param ? text(" to [].", param) : "."))
@@ -1957,7 +1886,6 @@
 					for(var/mob/A in view(null, null))
 						if (param == A.name)
 							M = A
-						//Foreach goto(505)
 				if (!( M ))
 					param = null
 				message = text("<B>[]</B> salutes[]", src, (param ? text(" to [].", param) : "."))
@@ -2032,7 +1960,6 @@
 				for(var/mob/A in view(null, null))
 					if (param == A.name)
 						M = A
-					//Foreach goto(1042)
 			if (!( M ))
 				param = null
 			message = text("<B>[]</B> glares[]", src, (param ? text(" at [].", param) : "."))
@@ -2042,7 +1969,6 @@
 				for(var/mob/A in view(null, null))
 					if (param == A.name)
 						M = A
-					//Foreach goto(1146)
 			if (!( M ))
 				param = null
 			message = text("<B>[]</B> stares[]", src, (param ? text(" at [].", param) : "."))
@@ -2052,7 +1978,6 @@
 				for(var/mob/A in view(null, null))
 					if (param == A.name)
 						M = A
-					//Foreach goto(1250)
 			if (!( M ))
 				param = null
 			message = text("<B>[]</B> looks[]", src, (param ? text(" at [].", param) : "."))
@@ -2108,7 +2033,6 @@
 					for(var/atom/A as mob|obj|turf|area in view(null, null))
 						if (param == A.name)
 							M = A
-						//Foreach goto(1667)
 				if (!( M ))
 					param = null
 				else
@@ -2195,7 +2119,6 @@
 					for(var/mob/A in view(1, null))
 						if (param == A.name)
 							M = A
-						//Foreach goto(2336)
 				if (M == src)
 					M = null
 				if (M)
@@ -2210,7 +2133,6 @@
 					for(var/mob/A in view(1, null))
 						if (param == A.name)
 							M = A
-						//Foreach goto(2492)
 				if (M == src)
 					M = null
 				if (M)
@@ -2226,11 +2148,9 @@
 		if (m_type & 1)
 			for(var/mob/O in viewers(src, null))
 				O.show_message(message, m_type)
-				//Foreach goto(2673)
 		else
 			for(var/mob/O in hearers(src, null))
 				O.show_message(message, m_type)
-				//Foreach goto(2716)
 	return
 
 /mob/human/proc/update_body()
@@ -2244,7 +2164,6 @@
 	for(var/t in list( "chest", "head", "l_arm", "r_arm", "l_hand", "r_hand", "l_leg", "r_leg", "l_foot", "r_foot" ))
 		src.stand_icon.Blend(new /icon( 'human.dmi', text("[]", t) ), 3)
 		src.lying_icon.Blend(new /icon( 'human.dmi', text("[]2", t) ), 3)
-		//Foreach goto(95)
 	if (src.s_tone >= 0)
 		src.stand_icon.Blend(rgb(src.s_tone, src.s_tone, src.s_tone), 0)
 		src.lying_icon.Blend(rgb(src.s_tone, src.s_tone, src.s_tone), 0)
@@ -2311,7 +2230,6 @@
 		if (S.active)
 			shielded = 1
 		else
-			//Foreach continue //goto(32)
 	var/b_loss = null
 	var/f_loss = null
 	switch(severity)
@@ -2363,7 +2281,6 @@
 				if("r_foot")
 					temp.take_damage(b_loss * 0.0225, f_loss * 0.0225)
 
-		//Foreach goto(282)
 	src.UpdateDamageIcon()
 	return
 
@@ -2407,7 +2324,6 @@
 					src.weakened = rand(10, 15)
 				for(var/mob/O in viewers(src, null))
 					O.show_message(text("\red <B>The blob has weakened []!</B>", src), 1, "\red You hear someone fall.", 2)
-					//Foreach goto(820)
 			temp.take_damage(damage)
 		if ("chest")
 			if ((((src.wear_suit && src.wear_suit.brute_protect & 2) || (src.w_uniform && src.w_uniform.brute_protect & 2)) && prob(85)))
@@ -2419,13 +2335,11 @@
 						src.weakened = 5
 					for(var/mob/O in viewers(src, null))
 						O.show_message(text("\red <B>The blob has knocked down []!</B>", src), 1, "\red You hear someone fall.", 2)
-						//Foreach goto(993)
 				else
 					if (src.stunned < 5)
 						src.stunned = 5
 					for(var/mob/O in viewers(src, null))
 						O.show_message(text("\red <B>The blob has stunned []!</B>", src), 1)
-						//Foreach goto(1063)
 				src.stat = 1
 			temp.take_damage(damage)
 		if ("diaper")
@@ -2453,7 +2367,6 @@
 		if("r_foot")
 			temp.take_damage(damage, 0)
 
-		//Foreach goto(282)
 	src.UpdateDamageIcon()
 	return
 
@@ -2699,7 +2612,6 @@
 	for(var/mob/M in viewers(src, null))
 		if ((M.hasClient() && !( M.blinded )))
 			M.show_message(text("\red [] has been hit with by []", src, O), 1)
-		//Foreach goto(19)
 	if (src.health > 0)
 		var/dam_zone = pick("chest", "chest", "chest", "head", "diaper")
 		if (istype(src.organs[text("[]", dam_zone)], /obj/item/weapon/organ/external))
@@ -2745,7 +2657,6 @@
 		for(var/mob/M in range(src, 1))
 			if ((M.pulling == src && M.stat == 0 && !( M.restrained() )))
 				t7 = null
-			//Foreach goto(62)
 	if ((t7 && (src.pulling && ((get_dist(src, src.pulling) <= 1 || src.pulling.loc == src.loc) && (src.client && src.client.moving)))))
 		var/turf/T = src.loc
 		. = ..()
@@ -2775,8 +2686,6 @@
 							if (istype(G, /obj/item/weapon/grab))
 								for(var/mob/O in viewers(M, null))
 									O.show_message(text("\red [] has been pulled from []'s grip by []", G.affecting, G.assailant, src), 1)
-									//Foreach goto(354)
-								//G = null
 								del(G)
 						else
 							ok = 0
@@ -2841,7 +2750,6 @@
 		return
 	if(config.logaccess) world.log << "LOGOUT: [src.key]"
 	if (!( src.start ))
-		//SN src = null
 		del(src)
 		return
 	else
@@ -3068,7 +2976,6 @@
 		for(var/turf/T in A)
 			if(T.isempty() )
 				L += T
-			//Foreach goto(1473)
 
 		src.loc = pick(L)
 
@@ -3111,7 +3018,6 @@
 	for(var/mob/M in world)
 		if ((M.cliented() && !( M.stat )))
 			cancel = 1
-		//Foreach goto(67)
 	if (!( cancel ))
 
 
@@ -3122,7 +3028,6 @@
 			for(var/mob/M in world)
 				if ((M.cliented() && !( M.stat )))
 					cancel = 1
-				//Foreach goto(67)
 			if (!( cancel ))
 
 				world << "<B>Everyone is dead! Resetting in 30 seconds!</B>"
@@ -3608,7 +3513,6 @@
 							if(8.0)
 								src.pixel_x = -8.0
 
-			//Foreach goto(2918)
 		src.weight = ((src.grabbed_by.len - a_grabs) / 2 + 1) * 1250000.0 + (a_grabs * 2500000.0)
 	else
 		if (src.lying)
@@ -3755,13 +3659,11 @@
 			shielded = 1
 			S.active = 0
 			S.icon_state = "shield0"
-		//Foreach goto(22)
 	for(var/obj/item/weapon/cloaking_device/S in src)
 		if (S.active)
 			shielded = 1
 			S.active = 0
 			S.icon_state = "shield0"
-		//Foreach goto(99)
 	if ((shielded && flag != "bullet"))
 		if (!( flag ))
 			src << "\blue Ohhh that shield isn't going to help here!"
@@ -3934,7 +3836,6 @@
 							message = copytext(message, 4, length(message) + 1)
 							for(var/obj/item/weapon/radio/intercom/I in view(1, null))
 								I.talk_into(usr, message)
-								//Foreach goto(626)
 							L += hearers(1, null)
 							obj_range = 1
 							italics = 1
@@ -3981,11 +3882,9 @@
 				if (O)
 					O.hear_talk(usr, message)
 				return
-			//Foreach goto(948)
 	for(var/mob/M in world)
 		if (M.stat > 1)
 			M << text("<B>[]</B>[] []: []", src.rname, alt_name, (src.stat > 1 ? "\[<I>dead</I> \]" : ""), message)
-		//Foreach goto(1005)
 	return
 
 /mob/human/UpdateClothing()
@@ -4034,10 +3933,8 @@
 	//for(var/i in src.overlays)
 	//	src.overlays -= i
 	src.overlays = null
-		//Foreach goto(351)
 	//for(var/i in src.zone_sel.overlays)
 	//	src.zone_sel.overlays -= i
-		//Foreach goto(385)
 
 	//*****RM
 	if(src.zone_sel)
@@ -4255,12 +4152,10 @@
 		if (S.active)
 			shielded = 1
 		else
-			//Foreach continue //goto(2917)
 	for(var/obj/item/weapon/cloaking_device/S in src)
 		if (S.active)
 			shielded = 2
 		else
-			//Foreach continue //goto(2969)
 	if (shielded == 2)
 		src.invisibility = 2
 	else
@@ -4272,7 +4167,6 @@
 			spawn( 0 )
 				src.show_inv(M)
 				return
-		//Foreach goto(3088)
 	src.last_b_state = src.stat
 
 	return
@@ -4290,33 +4184,28 @@
 				if (prob(95))
 					for(var/mob/O in viewers(src, null))
 						O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-						//Foreach goto(101)
 					return
 			else
 				if (istype(src.wear_suit, /obj/item/weapon/clothing/suit/bio_suit))
 					if (prob(90))
 						for(var/mob/O in viewers(src, null))
 							O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-							//Foreach goto(167)
 						return
 				else
 					if (istype(src.wear_suit, /obj/item/weapon/clothing/suit/armor))
 						if (prob(60))
 							for(var/mob/O in viewers(src, null))
 								O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-								//Foreach goto(233)
 							return
 					else
 						if (istype(src.wear_suit, /obj/item/weapon/clothing/suit/swat_suit))
 							if (prob(99))
 								for(var/mob/O in viewers(src, null))
 									O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-									//Foreach goto(299)
 								return
 			for(var/mob/O in viewers(src, null))
 				if ((O.hasClient() && !( O.blinded )))
 					O.show_message(text("\red <B>The monkey has bit []!</B>", src), 1)
-				//Foreach goto(344)
 			var/damage = rand(1, 3)
 			var/dam_zone = pick("chest", "l_hand", "r_hand", "l_leg", "r_leg", "diaper")
 			if (istype(src.organs[text("[]", dam_zone)], /obj/item/weapon/organ/external))
@@ -4332,7 +4221,6 @@
 			for(var/mob/O in viewers(src, null))
 				if ((O.hasClient() && !( O.blinded )))
 					O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-				//Foreach goto(580)
 	return
 
 /mob/human/attack_paw(mob/M as mob)
@@ -4342,7 +4230,6 @@
 		src.resting = 0
 		for(var/mob/O in viewers(src, null))
 			O.show_message(text("\blue The monkey shakes [] trying to wake him up!", src), 1)
-			//Foreach goto(47)
 	else
 		if (istype(src.wear_mask, /obj/item/weapon/clothing/mask/muzzle))
 			return
@@ -4351,32 +4238,27 @@
 				if (prob(95))
 					for(var/mob/O in viewers(src, null))
 						O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-						//Foreach goto(159)
 					return
 			else
 				if (istype(src.wear_suit, /obj/item/weapon/clothing/suit/bio_suit))
 					if (prob(90))
 						for(var/mob/O in viewers(src, null))
 							O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-							//Foreach goto(225)
 						return
 				else
 					if (istype(src.wear_suit, /obj/item/weapon/clothing/suit/armor))
 						if (prob(60))
 							for(var/mob/O in viewers(src, null))
 								O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-								//Foreach goto(291)
 							return
 					else
 						if (istype(src.wear_suit, /obj/item/weapon/clothing/suit/swat_suit))
 							if (prob(99))
 								for(var/mob/O in viewers(src, null))
 									O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-									//Foreach goto(357)
 								return
 			for(var/mob/O in viewers(src, null))
 				O.show_message(text("\red <B>The monkey has bit []!</B>", src), 1)
-				//Foreach goto(402)
 			var/damage = rand(1, 3)
 			var/dam_zone = pick("chest", "l_hand", "r_hand", "l_leg", "r_leg", "diaper")
 			if (istype(src.organs[text("[]", dam_zone)], /obj/item/weapon/organ/external))
@@ -4391,7 +4273,6 @@
 		else
 			for(var/mob/O in viewers(src, null))
 				O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-				//Foreach goto(623)
 	return
 
 /mob/human/attack_hand(mob/M as mob)
@@ -4449,7 +4330,6 @@
 				src.resting = 0
 				for(var/mob/O in viewers(src, null))
 					O.show_message(text("\blue [] shakes [] trying to wake [] up!", M, src, src), 1)
-					//Foreach goto(80)
 			else
 				if (M.health >= -75.0)
 					if (((H.head && H.head.flags & 4) || ((H.wear_mask && !( H.wear_mask.flags & 32 )) || ((src.head && src.head.flags & 4) || (src.wear_mask && !( src.wear_mask.flags & 32 ))))))
@@ -4473,7 +4353,6 @@
 				src.resting = 0
 				for(var/mob/O in viewers(src, null))
 					O.show_message(text("\blue [] shakes [] trying to wake [] up!", M, src, src), 1)
-					//Foreach goto(80)
 			else
 				M << "They need CPR, and you can't perform it through this drone!"
 	else
@@ -4494,7 +4373,6 @@
 			G.synch()
 			for(var/mob/O in viewers(src, null))
 				O.show_message(text("\red [] has grabbed [] passively!", M, src), 1)
-				//Foreach goto(441)
 		else
 			if (M.stat < 2)
 				if (intentToApply == "hurt")
@@ -4515,7 +4393,6 @@
 						if ((istype(affecting, /obj/item/weapon/organ/external) && prob(90)))
 							for(var/mob/O in viewers(src, null))
 								O.show_message(text("\red <B>[] has punched []!</B>", M, src), 1)
-								//Foreach goto(646)
 							if (def_zone == "head")
 								if ((((src.head && src.head.brute_protect & 1) || (src.wear_mask && src.wear_mask.brute_protect & 1)) && prob(99)))
 									if (prob(20))
@@ -4528,7 +4405,6 @@
 										src.weakened = rand(10, 15)
 									for(var/mob/O in viewers(M, null))
 										O.show_message(text("\red <B>[] has weakened []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-										//Foreach goto(820)
 								affecting.take_damage(damage)
 							else
 								if (def_zone == "chest")
@@ -4541,13 +4417,11 @@
 												src.weakened = 5
 											for(var/mob/O in viewers(src, null))
 												O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-												//Foreach goto(993)
 										else
 											if (src.stunned < 5)
 												src.stunned = 5
 											for(var/mob/O in viewers(src, null))
 												O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
-												//Foreach goto(1063)
 										src.stat = 1
 									affecting.take_damage(damage)
 								else
@@ -4561,13 +4435,11 @@
 													src.weakened = 3
 												for(var/mob/O in viewers(src, null))
 													O.show_message(text("\red <B>[] has knocked down []!</B>", M, src), 1, "\red You hear someone fall.", 2)
-													//Foreach goto(1239)
 											else
 												if (src.stunned < 3)
 													src.stunned = 3
 												for(var/mob/O in viewers(src, null))
 													O.show_message(text("\red <B>[] has stunned []!</B>", M, src), 1)
-													//Foreach goto(1309)
 											src.stat = 1
 										affecting.take_damage(damage)
 									else
@@ -4579,7 +4451,6 @@
 						else
 							for(var/mob/O in viewers(src, null))
 								O.show_message(text("\red <B>[] has attempted to punch []!</B>", M, src), 1)
-								//Foreach goto(1419)
 							return
 					else if (istype(M, /mob/drone))
 						var/damage = 0
@@ -4601,17 +4472,14 @@
 							src.weakened = 2
 							for(var/mob/O in viewers(src, null))
 								O.show_message(text("\red <B>[] has pushed down []!</B>", M, src), 1)
-								//Foreach goto(1529)
 						else
 							if (randn <= 60)
 								src.drop_item()
 								for(var/mob/O in viewers(src, null))
 									O.show_message(text("\red <B>[] has disarmed []!</B>", M, src), 1)
-									//Foreach goto(1596)
 							else
 								for(var/mob/O in viewers(src, null))
 									O.show_message(text("\red <B>[] has attempted to disarm []!</B>", M, src), 1)
-									//Foreach goto(1643)
 					if (corruptedIntent)
 						if (M.a_intent == "help")
 							M.client_mob() << "You failed to help [src] due to poor control over the drone, and may have knocked \him down, but at least you have not hurt \him."
@@ -4888,7 +4756,6 @@
 	for(var/mob/M in world)
 		if (M.rname == text("[]", msg))
 			return 1
-		//Foreach goto(15)
 	return 0
 	return
 
@@ -4956,7 +4823,6 @@
 			W.layer = initial(W.layer)
 			for(var/mob/O in viewers(src, null))
 				O.show_message(text("\red [] has thrown [].", src, W), 1)
-				//Foreach goto(133)
 			W.density = 1
 			W.throwing = 1
 			W.throwspeed = initial(W.throwspeed)
@@ -5030,7 +4896,6 @@
 		if (M.cliented())
 			total++
 			usr << text("\t [] ([]) []", M, M.cliented(), M.health)
-		//Foreach goto(32)
 	usr << text("<B>Total Players: []</B>", total)
 	return
 
@@ -5040,7 +4905,6 @@
 	usr << "<B>Registered DNA sequences:</B>"
 	for(var/M in reg_dna)
 		usr << text("\t [] = []", M, reg_dna[text("[]", M)])
-		//Foreach goto(26)
 	return
 
 /mob/proc/equipped()
@@ -5291,9 +5155,7 @@
 	set hidden = 1
 
 	for(var/obj/O in M)
-		//O = null
 		del(O)
-		//Foreach goto(20)
 	var/mob/monkey/O = new /mob/monkey( M.loc )
 	if (M.currentDrone!=null)
 		M.currentDrone:releaseControl(0)
@@ -5324,7 +5186,6 @@
 	for(var/V in O.vars)
 		if (issaved(O.vars[V]))
 			new_O.vars[V] = O.vars[V]
-		//Foreach goto(72)
 	return
 
 
@@ -5336,32 +5197,20 @@
 	switch(pass)
 		if("sec_clothes")
 			for(var/obj/item/weapon/clothing/under/O in world)
-				//O = null
 				del(O)
-				//Foreach goto(52)
 		if("sec_all_clothes")
 			for(var/obj/item/weapon/clothing/O in world)
-				//O = null
 				del(O)
-				//Foreach goto(97)
 		if("sec_classic1")
 			for(var/obj/item/weapon/clothing/suit/firesuit/O in world)
-				//O = null
 				del(O)
-				//Foreach goto(142)
 			for(var/obj/grille/O in world)
-				//O = null
 				del(O)
-				//Foreach goto(185)
 			for(var/obj/machinery/pod/O in world)
-				//O = null
 				del(O)
-				//Foreach goto(228)
 		if("clear_bombs")
 			for(var/obj/item/weapon/assembly/r_i_ptank/O in world)
-				//O = null
 				del(O)
-				//Foreach goto(273)
 		if("dissimulate_aspect")
 			usr.invisibility = !( usr.invisibility )
 			usr.sight |= SEE_SELF
@@ -5384,7 +5233,6 @@
 			usr << "\blue <B>Don't be insane about this list</B> Get the facts."
 			for(var/l in bombers)
 				usr << text("[] 'made' a bomb.", l)
-				//Foreach goto(476)
 		if("check_antagonist")
 			if (ticker)
 				if (ticker.killer)
@@ -5456,7 +5304,6 @@
 	var/master = "<PRE>"
 	for(var/t in typesof(/area))
 		master += text("[]\n", t)
-		//Foreach goto(26)
 	src << browse(master)
 	return
 */
@@ -5509,7 +5356,6 @@
 		if (t.loc == null)
 			//t = null
 			del(t)
-		//Foreach goto(66)
 	if(!src.client)
 		if(config.loggame) world.log << "GAME: [usr.key] AM failed due to disconnect."
 		return
@@ -5700,7 +5546,6 @@
 
 	for(var/atom/movable/A in src)
 		A.burn(fi_amount)
-		//Foreach goto(15)
 	return
 
 /mob/Topic(href, href_list)
@@ -5804,7 +5649,6 @@
 
 	for(var/i in src.overlays)
 		src.overlays -= i
-		//Foreach goto(17)
 	if (src.wear_mask)
 		if (istype(src.wear_mask, /obj/item/weapon/clothing/mask))
 			var/t1 = src.wear_mask.s_istate
@@ -5849,7 +5693,6 @@
 			O.loc = src.loc
 			O.layer = initial(O.layer)
 			src.u_equip(O)
-			//Foreach goto(109)
 	if (src.health < 0)
 		src.stat = 2
 	return
@@ -5929,7 +5772,6 @@
 		msg = stars(msg)
 	for(var/mob/M in hearers(null, null))
 		M.show_message(msg, 2)
-		//Foreach goto(58)
 	return
 
 /mob/monkey/New()
@@ -6011,14 +5853,12 @@
 
 	for(var/mob/M in viewers(src, null))
 		M.show_message(text("\red [] has been hit by []", src, O), 1)
-		//Foreach goto(19)
 	if (src.health > 0)
 		var/shielded = 0
 		for(var/obj/item/weapon/shield/S in src)
 			if (S.active)
 				shielded = 1
 			else
-				//Foreach continue //goto(79)
 		src.bruteloss += 30
 		if ((O.icon_state == "flaming" && !( shielded )))
 			src.fireloss += 40
@@ -6051,14 +5891,12 @@
 		if ((prob(75) && src.health > 0))
 			for(var/mob/O in viewers(src, null))
 				O.show_message(text("\red <B>The monkey has bit []!</B>", src), 1)
-				//Foreach goto(63)
 			var/damage = rand(1, 5)
 			src.bruteloss += damage
 			src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
 		else
 			for(var/mob/O in viewers(src, null))
 				O.show_message(text("\red <B>The monkey has attempted to bite []!</B>", src), 1)
-				//Foreach goto(144)
 	return
 
 /mob/monkey/attack_paw(mob/M as mob)
@@ -6068,20 +5906,17 @@
 		src.resting = 0
 		for(var/mob/O in viewers(src, null))
 			O.show_message("\blue The monkey shakes the monkey trying to wake him up!", 1)
-			//Foreach goto(47)
 	else
 		if ((M.a_intent == "hurt" && !( istype(src.wear_mask, /obj/item/weapon/clothing/mask/muzzle) )))
 			if ((prob(75) && src.health > 0))
 				for(var/mob/O in viewers(src, null))
 					O.show_message("\red <B>The monkey has bit the monkey!</B>", 1)
-					//Foreach goto(130)
 				var/damage = rand(1, 5)
 				src.bruteloss += damage
 				src.health = 100 - src.oxyloss - src.toxloss - src.fireloss - src.bruteloss
 			else
 				for(var/mob/O in viewers(src, null))
 					O.show_message("\red <B>The monkey has attempted to bite the monkey!</B>", 1)
-					//Foreach goto(209)
 	return
 
 /mob/monkey/attack_hand(mob/M as mob)
@@ -6134,7 +5969,6 @@
 		for(var/mob/O in viewers(src, null))
 			if ((O.hasClient() && !( O.blinded )))
 				O.show_message(text("\blue [] shakes the monkey trying to wake him up!", M), 1)
-			//Foreach goto(47)
 	else
 		if (intentToApply == "hurt")
 			if (istype(M, /mob/human))
@@ -6142,7 +5976,6 @@
 					for(var/mob/O in viewers(src, null))
 						if ((O.hasClient() && !( O.blinded )))
 							O.show_message(text("\red <B>[] has punched the monkey!</B>", M), 1)
-						//Foreach goto(135)
 					var/damage = rand(5, 10)
 					if (prob(40))
 						damage = rand(10, 15)
@@ -6152,7 +5985,6 @@
 								for(var/mob/O in viewers(src, null))
 									if ((O.hasClient() && !( O.blinded )))
 										O.show_message(text("\red <B>[] has knocked out the monkey!</B>", M), 1)
-									//Foreach goto(248)
 								return
 					//This gives a damage bonus when the AI is controlling the drone. For now, it doesn't check their weapon or target zone.
 					if (aiControllingBonus && (!corruptedIntent))
@@ -6163,7 +5995,6 @@
 					for(var/mob/O in viewers(src, null))
 						if ((O.hasClient() && !( O.blinded )))
 							O.show_message(text("\red <B>[] has attempted to punch the monkey!</B>", M), 1)
-						//Foreach goto(336)
 			else if (istype(M, /mob/drone))
 				var/damage = 0
 				if (corruptedIntent)
@@ -6192,7 +6023,6 @@
 				G.synch()
 				for(var/mob/O in viewers(src, null))
 					O.show_message(text("\red [] has grabbed the monkey passively!", M), 1)
-					//Foreach goto(502)
 			else
 				if (!( src.paralysis ))
 					if (prob(25) || corruptedIntent)
@@ -6200,13 +6030,11 @@
 						for(var/mob/O in viewers(src, null))
 							if ((O.hasClient() && !( O.blinded )))
 								O.show_message(text("\red <B>[] has pushed down the monkey!</B>", M), 1)
-							//Foreach goto(571)
 					else
 						drop_item()
 						for(var/mob/O in viewers(src, null))
 							if ((O.hasClient() && !( O.blinded )))
 								O.show_message(text("\red <B>[] has disarmed the monkey!</B>", M), 1)
-							//Foreach goto(638)
 
 				if (corruptedIntent)
 					if (M.a_intent == "help")
@@ -6231,7 +6059,6 @@
 	..()
 	for(var/i in src.overlays)
 		src.overlays -= i
-		//Foreach goto(21)
 	if (!( src.lying ))
 		src.icon_state = "monkey1"
 	else
@@ -6289,7 +6116,6 @@
 			spawn( 0 )
 				src.show_inv(M)
 				return
-		//Foreach goto(662)
 	return
 
 /mob/monkey/Login()
@@ -6427,7 +6253,6 @@
 			for(var/turf/T in A)
 				if(T.isempty() )
 					L += T
-				//Foreach goto(1473)
 
 			src.loc = pick(L)
 	//src << browse('help.htm', "window=help")
@@ -6452,7 +6277,6 @@
 		for(var/mob/M in range(src, 1))
 			if ((M.pulling == src && M.stat == 0 && !( M.restrained() )))
 				return 0
-			//Foreach goto(93)
 	if ((t7 && src.pulling && get_dist(src, src.pulling) <= 1))
 		if (src.pulling.anchored)
 			src.pulling = null
@@ -6501,7 +6325,6 @@
 	for(var/mob/M in world)
 		if ((M.cliented() && !( M.stat )))
 			cancel = 1
-		//Foreach goto(79)
 	if (!( cancel ))
 		world << "<B>Everyone is dead! Resetting in 30 seconds!</B>"
 		if ((ticker && ticker.timing))
@@ -6795,7 +6618,6 @@
 							if(8.0)
 								src.pixel_x = -8.0
 
-			//Foreach goto(2333)
 		src.weight = ((src.grabbed_by.len - a_grabs) / 2 + 1) * 1250000.0 + (a_grabs * 2500000.0)
 	else
 		if (src.lying)
@@ -7052,11 +6874,9 @@
 		if (m_type & 1)
 			for(var/mob/O in viewers(src, null))
 				O.show_message(message, m_type)
-				//Foreach goto(703)
 		else
 			for(var/mob/O in hearers(src, null))
 				O.show_message(message, m_type)
-				//Foreach goto(746)
 	return
 
 /mob/monkey/say(message as text)
@@ -7071,7 +6891,6 @@
 		for(var/mob/M in world)
 			if (M.stat == 2)
 				M << text("<B>[]</B> []: []", src, (src.stat > 1 ? "\[<I>dead</I> \]" : ""), message)
-			//Foreach goto(50)
 		return
 	if (src.stat >= 1)
 		return
@@ -7135,17 +6954,14 @@
 					M.show_message(text("<B>[]</B> chimpers.", src), 2)
 
 
-			//Foreach goto(503)
 		for(var/obj/O in view(obj_range, null))
 			spawn( 0 )
 				if (O)
 					O.hear_talk(usr, message)
 				return
-			//Foreach goto(580)
 	for(var/mob/M in world)
 		if (M.stat > 1)
 			M << text("<B>[]</B> []: []", src, (src.stat > 1 ? "\[<I>dead</I> \]" : ""), message)
-		//Foreach goto(637)
 	return
 
 /mob/monkey/examine()
@@ -7326,7 +7142,6 @@
 		for(var/obj/item/weapon/grab/G in thisMob.grabbed_by)
 			if (G.state == 1)
 				if (!( grabbing.Find(G.assailant) ))
-					//G = null
 					del(G)
 			else
 				if (G.state == 2)
@@ -7334,8 +7149,6 @@
 					if ((prob(25) && (!( is_monkey ) || prob(25))))
 						for(var/mob/O in viewers(thisMob, null))
 							O.show_message(text("\red [] has broken free of []'s grip!", thisMob, G.assailant), 1)
-							//Foreach goto(309)
-						//G = null
 						del(G)
 					else
 						return
@@ -7345,12 +7158,9 @@
 						if ((prob(5) && !( is_monkey ) || prob(25)))
 							for(var/mob/O in viewers(thisMob, null))
 								O.show_message(text("\red [] has broken free of []'s headlock!", thisMob, G.assailant), 1)
-								//Foreach goto(423)
-							//G = null
 							del(G)
 						else
 							return
-			//Foreach goto(189)
 	if (thisMob.canmove)
 
 		if(thisMob.m_intent == "face")
@@ -7404,7 +7214,6 @@
 					if (((M.pulling == thisMob && (!( M.restrained() ) && M.stat == 0)) || locate(/obj/item/weapon/grab, thisMob.grabbed_by.len)))
 						src << "\blue You're restrained! You can't move!"
 						return 0
-					//Foreach goto(853)
 			src.moving = 1
 			if (locate(/obj/item/weapon/grab, thisMob))
 				src.move_delay = max(src.move_delay, world.time + 7)
@@ -7428,7 +7237,6 @@
 							M.other_mobs = 1
 							if (thisMob != M)
 								M.animate_movement = 3
-							//Foreach goto(1163)
 						for(var/mob/M in L)
 							spawn( 0 )
 								step(M, direct)
@@ -7437,7 +7245,6 @@
 								M.other_mobs = null
 								M.animate_movement = 1
 								return
-							//Foreach goto(1214)
 			else
 				//This should be equivalent to . = ..() when thisMob is src.mob, but should make moving thisMob work when thisMob is not src.mob. -shadowlord13
 				walk(thisMob, 0)
@@ -7463,7 +7270,6 @@
 /client/New()
 
 	if (banned.Find(src.ckey))
-		//SN src = null
 		del(src)
 		return
 
@@ -7489,7 +7295,6 @@
 				if("Moderator")
 					src.holder.level = 0
 				if("Banned")
-					//SN src = null
 					del(src)
 					return
 				else

@@ -8,11 +8,9 @@
 			call(tester, test)()
 			if (!( tester.success ))
 			else
-				//Foreach continue //goto(59)
 		if (!( tester.success ))
 			world << "Test failed."
 			return
-		//Foreach goto(26)
 	world << "All tests passed."
 	return
 

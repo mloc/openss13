@@ -4,7 +4,6 @@
 	for(T in html_colours)
 		if (ckey(T) == ckey(colour))
 		else
-			//Foreach continue //goto(12)
 	if (!( T ))
 		world.log << text("Warning!  Could not find matching colour entry for '[]'.", colour)
 		return "#FFFFFF"

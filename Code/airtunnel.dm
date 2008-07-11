@@ -107,7 +107,6 @@
 		A.master = src
 		A.create()
 		src.connectors += A
-		//Foreach goto(21)
 	return
 
 /datum/air_tunnel/proc/siphons()
@@ -116,27 +115,21 @@
 		if(0.0)
 			for(var/obj/machinery/atmoalter/siphs/S in locate(/area/airtunnel1))
 				S.t_status = 3
-				//Foreach goto(42)
 		if(1.0)
 			for(var/obj/machinery/atmoalter/siphs/fullairsiphon/S in locate(/area/airtunnel1))
 				S.t_status = 2
 				S.t_per = 1000000.0
-				//Foreach goto(86)
 			for(var/obj/machinery/atmoalter/siphs/scrubbers/S in locate(/area/airtunnel1))
 				S.t_status = 3
-				//Foreach goto(136)
 		if(2.0)
 			for(var/obj/machinery/atmoalter/siphs/S in locate(/area/airtunnel1))
 				S.t_status = 4
-				//Foreach goto(180)
 		if(3.0)
 			for(var/obj/machinery/atmoalter/siphs/fullairsiphon/S in locate(/area/airtunnel1))
 				S.t_status = 1
 				S.t_per = 1000000.0
-				//Foreach goto(224)
 			for(var/obj/machinery/atmoalter/siphs/scrubbers/S in locate(/area/airtunnel1))
 				S.t_status = 3
-				//Foreach goto(274)
 		else
 	return
 
@@ -159,7 +152,6 @@
 					return
 				if (!( A.move_left() ))
 					ok = 0
-				//Foreach goto(56)
 			if (!( ok ))
 				src.operating = 0
 			else
@@ -170,7 +162,6 @@
 						A.current.deployed = 1
 					else
 						src.operating = 0
-					//Foreach goto(150)
 			sleep(20)
 		return
 
@@ -192,13 +183,11 @@
 					A.current = A.current.previous
 				else
 					ok = 0
-				//Foreach goto(56)
 			if (!( ok ))
 				src.operating = 0
 			else
 				for(var/obj/move/airtunnel/connector/A in src.connectors)
 					if (!( A.current.move_right() ))
 						src.operating = 0
-					//Foreach goto(188)
 			sleep(20)
 		return

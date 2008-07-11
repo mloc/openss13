@@ -93,7 +93,6 @@
 	for(var/turf/T in A)
 		if(T.isempty())
 			L += T
-		//Foreach goto(239)
 	start_loc["SS13"] = pick(L)
 
 
@@ -102,7 +101,6 @@
 		for(var/obj/sp_start/S in world)
 			if (S.tag == text("spstart[]", M.ckey))
 				start_loc[text("[]", S.desc)] = S
-			//Foreach goto(295)
 	var/option = input(M, "Where should you start?", "Start Selector", null) in start_loc
 	if (usr==null)
 		return
@@ -115,16 +113,12 @@
 		M << "\blue Now teleporting to special location."
 		if (S.special == 2)
 			for(var/obj/O in M)
-				//O = null
 				del(O)
-				//Foreach goto(492)
 			M.loc = S.loc
 		else
 			if (S.special == 3)
 				for(var/obj/O in M)
-					//O = null
 					del(O)
-					//Foreach goto(560)
 				var/obj/O = new /mob/monkey( S.loc )
 				M.client.mob = O
 				O.loc = S.loc

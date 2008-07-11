@@ -275,7 +275,6 @@ obj/machinery/power/solar_control
 
 		switch(severity)
 			if(1.0)
-				//SN src = null
 				del(src)
 				return
 			if(2.0)

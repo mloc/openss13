@@ -92,7 +92,6 @@
 		var/datum/chemical/C = src.chemicals[item]
 		if (istype(C, /datum/chemical))
 			amount += C.return_property("volume")
-		//Foreach goto(24)
 	return amount
 	return
 
@@ -107,7 +106,6 @@
 			if (istype(C, /datum/chemical))
 				S.chemicals[item] = C
 				src.chemicals[item] = null
-			//Foreach goto(60)
 		return S
 	else
 		if (tot_volume <= 0)
@@ -125,7 +123,6 @@
 						del(C)
 					N.moles += amt * N.density / N.molarmass
 					S.chemicals[text("[]", N.name)] = N
-				//Foreach goto(161)
 			return S
 	return
 
@@ -150,7 +147,6 @@
 				N.moles += C.moles
 				//C = null
 				del(C)
-			//Foreach goto(106)
 	else
 		var/obj/substance/chemical/U = S.split(amount)
 		for(var/item in U.chemicals)
@@ -164,7 +160,6 @@
 				N.moles += C.moles
 				//C = null
 				del(C)
-			//Foreach goto(251)
 		//U = null
 		del(U)
 	var/datum/chemical/C = null
@@ -172,7 +167,6 @@
 		C = src.chemicals[text("[]", t)]
 		if (istype(C, /datum/chemical))
 			C.react(src)
-		//Foreach goto(403)
 	return amount
 	return
 
@@ -185,7 +179,6 @@
 		var/datum/chemical/C = S.chemicals[item]
 		if (istype(C, /datum/chemical))
 			C.injected(M)
-		//Foreach goto(44)
 	//S = null
 	del(S)
 	return
@@ -199,7 +192,6 @@
 		var/datum/chemical/C = S.chemicals[item]
 		if (istype(C, /datum/chemical))
 			C.injected(M, "eye")
-		//Foreach goto(44)
 	//S = null
 	del(S)
 	return
@@ -209,7 +201,6 @@
 	for(var/item in src.chemicals)
 		//src.chemicals[item] = null
 		del(src.chemicals[item])
-		//Foreach goto(17)
 	..()
 	return
 
@@ -691,7 +682,6 @@ heat is conserved between exchanges
 				W.moles += src.moles
 			src.moles = 0
 		if (src.moles <= 0)
-			//SN src = null
 			del(src)
 			return
 	return
@@ -732,7 +722,6 @@ heat is conserved between exchanges
 				M.plasma += 1
 				//T = null
 				del(T)
-				//Foreach goto(133)
 	return
 
 /datum/chemical/s_tox/injected(var/mob/M as mob, zone)

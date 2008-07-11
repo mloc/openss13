@@ -36,14 +36,12 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				var/turf/space/S = src.ReplaceWithSpace()
 				S.buildlinks()
 
@@ -73,7 +71,6 @@
 		src.status = 1
 		for(var/obj/machinery/computer/engine/E in machines)
 			E.icon_state = "engaging"
-			//Foreach goto(113)
 		spawn( 0 )
 			src.countdown()
 			return
@@ -129,7 +126,6 @@
 			S.ttemp = T.ttemp
 			S.otemp = T.otemp
 			S.firelevel = T.firelevel
-			//Foreach goto(100)
 			S.buildlinks()
 
 
@@ -146,13 +142,11 @@
 
 
 
-		//Foreach goto(60)
 	defer_powernet_rebuild = 0
 	makepowernets()
 	world << "\red <B>Engine Ejected!</B>"
 	for(var/obj/machinery/computer/engine/CE in machines)
 		CE.icon_state = "engaged"
-		//Foreach goto(392)
 	return
 
 /datum/engine_eject/proc/stopcount()
@@ -169,7 +163,6 @@
 
 		for(var/obj/machinery/computer/engine/CE in machines)
 			CE.icon_state = null
-			//Foreach goto(84)
 	return
 
 /datum/engine_eject/proc/countdown()

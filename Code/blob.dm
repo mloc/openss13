@@ -137,7 +137,6 @@
 /obj/blob/attackby(var/obj/item/weapon/W, var/mob/user)
 	for(var/mob/O in viewers(src, null))
 		O.show_message(text("\red <B>The blob has been attacked with [][] </B>", W, (user ? text(" by [].", user) : ".")), 1)
-		//Foreach goto(20)
 
 	var/damage = W.force / 4.0
 
@@ -190,7 +189,6 @@
 					var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( C.loc )
 					P.name = "paper- 'Cent. Com. Biohazard Alert.'"
 					P.info = dat
-					//Foreach goto(1830)
 			world << "<FONT size = 3><B>Cent. Com. Update</B>: Biohazard Alert.</FONT>"
 			world << "\red Summary downloaded and printed out at all communications consoles."
 			for(var/mob/ai/aiPlayer in world)

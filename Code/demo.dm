@@ -117,7 +117,6 @@
 			for(var/mob/O in viewers(M, null))
 				if (O.hasClient() && (!( O.blinded )))
 					O.client_mob() << text("\red <B>[] has been knocked unconscious!</B>", M)
-				//Foreach goto(169)
 			M.client_mob() << text("\red <B>This was a []% hit. Roleplay it! (personality/memory change if the hit was severe enough)</B>", time * 100 / 120)
 	return
 
@@ -140,7 +139,6 @@
 	if(src.gas)
 		if ( (fi_amount * src.gas.tot_gas()) > (src.maximum * 3.75E7) )
 			src.gas.turf_add(get_turf(src.loc), src.gas.tot_gas())
-		//SN src = null
 			del(src)
 			return
 	return
@@ -191,7 +189,6 @@
 			return 0.5
 		else
 			return 0
-	//G = null
 	del(G)
 	return
 
@@ -251,10 +248,8 @@
 					zone = 2
 				for(var/atom/A in U)
 					A.ex_act(zone)
-					//Foreach goto(342)
 				U.ex_act(zone)
 				U.buildlinks()
-				//Foreach goto(170)
 			defer_powernet_rebuild = 0
 			makepowernets()
 
@@ -271,16 +266,13 @@
 						zone = 3
 					for(var/atom/A in U)
 						A.ex_act(zone)
-						//Foreach goto(598)
 					U.ex_act(zone)
 					U.buildlinks()
-					//Foreach goto(498)
 				defer_powernet_rebuild = 0
 				makepowernets()
 
 		//src.master = null
 		del(src.master)
-		//SN src = null
 		del(src)
 		return
 
@@ -293,7 +285,6 @@
 
 	for(var/mob/M in range(T))
 		flick("flash", M.flash)
-		//Foreach goto(732)
 	var/m_range = 2
 	var/extended_range = round(strength / 387)
 	if (extended_range < 2)
@@ -305,7 +296,6 @@
 			if (C.gas.plasma >= 35000)
 				C.destroyed = 1
 				m_range++
-		//Foreach goto(776)
 	var/min = extended_range
 	var/med = extended_range * 2
 	var/max = extended_range * 3
@@ -351,18 +341,15 @@
 			*/
 			for(var/atom/A in U)
 				A.ex_act(zone)
-				//Foreach goto(1217)
 			U.ex_act(zone)
 			U.buildlinks()
 		//U.mark(zone)
 
-		//Foreach goto(961)
 	//src.master = null
 	defer_powernet_rebuild = 0
 	makepowernets()
 
 	del(src.master)
-	//SN src = null
 	del(src)
 
 	return
@@ -513,7 +500,6 @@
 			T.firelevel = T.poison + 5
 	..()
 	if (src.z != 1)
-		//SN src = null
 		del(src)
 		return
 	spawn( 3 )
@@ -542,7 +528,6 @@
 			T.firelevel = T.poison + 5
 	..()
 	if (src.z != 1)
-		//SN src = null
 		del(src)
 		return
 	spawn( 3 )
@@ -562,7 +547,6 @@
 
 
 		if (--src.hits <= 0)
-			//SN src = null
 			//******RM
 			if(prob(15) && !istype(A, /obj/grille))
 
@@ -578,7 +562,6 @@
 /obj/meteor/ex_act(severity)
 
 	if (severity < 4)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -629,7 +612,6 @@
 				for(var/mob/O in viewers(user, 3))
 					if (O.hasClient() && !( O.blinded ))
 						O.client_mob() << text("\blue The locker has been []locked by [].", (src.locked ? null : "un"), user)
-					//Foreach goto(185)
 				src.icon_state = text("[]secloset0", (src.locked ? "1" : null))
 				if (!( src.allowed ))
 					src.allowed = "Name:[I.registered]/Captain/Head of Personnel"
@@ -761,8 +743,6 @@
 			for(var/atom/movable/A as mob|obj in src)
 				A.loc = src.loc
 				ex_act(severity)
-				//Foreach goto(35)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
@@ -770,8 +750,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(108)
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
@@ -779,8 +757,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(181)
-				//SN src = null
 				del(src)
 				return
 		else
@@ -799,7 +775,6 @@
 	if (O.icon_state == "flaming")
 		for(var/obj/item/I in src)
 			I.loc = src.loc
-			//Foreach goto(29)
 		for(var/mob/M in src)
 			M.loc = src.loc
 			var/client/client = M.alwaysClient()
@@ -807,9 +782,7 @@
 				if (client.eye == src)
 					client.eye = client.mob
 					client.perspective = MOB_PERSPECTIVE
-			//Foreach goto(71)
 		src.icon_state = "secloset1"
-		//SN src = null
 		del(src)
 		return
 	return
@@ -846,7 +819,6 @@
 	if (!( src.locked ))
 		for(var/obj/item/I in src)
 			I.loc = src.loc
-			//Foreach goto(36)
 		for(var/mob/M in src)
 			M.loc = src.loc
 			var/client/client = M.alwaysClient()
@@ -889,7 +861,6 @@
 		if (!( src.locked ))
 			for(var/obj/item/I in src)
 				I.loc = src.loc
-				//Foreach goto(43)
 			for(var/mob/M in src)
 				M.loc = src.loc
 				var/client/client = M.alwaysClient()
@@ -905,13 +876,11 @@
 		for(var/obj/item/I in src.loc)
 			if (!( I.anchored ))
 				I.loc = src
-			//Foreach goto(176)
 		for(var/mob/M in src.loc)
 			if (M.client)
 				M.client.eye = src
 				M.client.perspective = EYE_PERSPECTIVE
 			M.loc = src
-			//Foreach goto(226)
 		src.icon_state = "secloset0"
 		src.opened = 0
 	return
@@ -943,7 +912,6 @@
 		for(var/atom/movable/A as mob|obj in src.connected.loc)
 			if (!( A.anchored ))
 				A.loc = src
-			//Foreach goto(28)
 		//src.connected = null
 		del(src.connected)
 	else
@@ -956,7 +924,6 @@
 			src.icon_state = "morgue0"
 			for(var/atom/movable/A as mob|obj in src)
 				A.loc = src.connected.loc
-				//Foreach goto(168)
 			src.connected.icon_state = "morguet"
 		else
 			//src.connected = null
@@ -994,7 +961,6 @@
 		src.icon_state = "morgue0"
 		for(var/atom/movable/A as mob|obj in src)
 			A.loc = src.connected.loc
-			//Foreach goto(106)
 		src.connected.icon_state = "morguet"
 	else
 		//src.connected = null
@@ -1020,11 +986,9 @@
 		for(var/atom/movable/A as mob|obj in src.loc)
 			if (!( A.anchored ))
 				A.loc = src.connected
-			//Foreach goto(26)
 		src.connected.connected = null
 		src.connected.update()
 		add_fingerprint(user)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -1038,7 +1002,6 @@
 		for(var/mob/B in viewers(user, 3))
 			if (B.hasClient() && !( B.blinded ))
 				B.client_mob() << text("\red [] stuffs [] into []!", user, O, src)
-			//Foreach goto(99)
 	return
 
 /obj/closet/alter_health()
@@ -1260,8 +1223,6 @@
 			for(var/atom/movable/A as mob|obj in src)
 				A.loc = src.loc
 				ex_act(severity)
-				//Foreach goto(35)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
@@ -1269,8 +1230,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(108)
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
@@ -1278,8 +1237,6 @@
 				for(var/atom/movable/A as mob|obj in src)
 					A.loc = src.loc
 					ex_act(severity)
-					//Foreach goto(181)
-				//SN src = null
 				del(src)
 				return
 		else
@@ -1298,7 +1255,6 @@
 	if (O.icon_state == "flaming")
 		for(var/obj/item/I in src)
 			I.loc = src.loc
-			//Foreach goto(29)
 		for(var/mob/M in src)
 			M.loc = src.loc
 			var/client/client = M.alwaysClient()
@@ -1307,7 +1263,6 @@
 					client.eye = client.mob
 					client.perspective = MOB_PERSPECTIVE
 		src.icon_state = "emcloset1"
-		//SN src = null
 		del(src)
 		return
 	return
@@ -1325,7 +1280,6 @@
 		for(var/mob/M in viewers(user, null))
 			if (M.hasClient())
 				M.show_message(text("\red [] has been [] by [].", src, (src.welded ? "welded shut" : "unwelded"), user), 3, "\red You hear welding.", 2)
-			//Foreach goto(82)
 	return
 
 /obj/closet/relaymove(mob/user as mob)
@@ -1335,7 +1289,6 @@
 	if (!( src.welded ))
 		for(var/obj/item/I in src)
 			I.loc = src.loc
-			//Foreach goto(36)
 		for(var/mob/M in src)
 			M.loc = src.loc
 			var/client/client = M.alwaysClient()
@@ -1343,7 +1296,6 @@
 				if (client.eye == src)
 					client.eye = client.mob
 					client.perspective = MOB_PERSPECTIVE
-			//Foreach goto(78)
 		src.icon_state = "emcloset1"
 		src.opened = 1
 	else
@@ -1373,7 +1325,6 @@
 	for(var/mob/M in viewers(user, null))
 		if (M.hasClient() && !( M.blinded ))
 			M.client_mob() << text("\red [] stuffs [] into []!", user, O, src)
-		//Foreach goto(104)
 	src.add_fingerprint(user)
 	return
 
@@ -1389,7 +1340,6 @@
 		if (!( src.welded ))
 			for(var/obj/item/I in src)
 				I.loc = src.loc
-				//Foreach goto(43)
 			for(var/mob/M in src)
 				if (!( M.buckled ))
 					M.loc = src.loc
@@ -1398,7 +1348,6 @@
 						if (client.eye == src)
 							client.eye = client.mob
 							client.perspective = MOB_PERSPECTIVE
-				//Foreach goto(85)
 			src.icon_state = "emcloset1"
 			src.opened = 1
 		else
@@ -1412,7 +1361,6 @@
 				M.client.eye = src
 				M.client.perspective = EYE_PERSPECTIVE
 			M.loc = src
-			//Foreach goto(237)
 		src.icon_state = src.original
 		src.opened = 0
 	return
@@ -1429,17 +1377,14 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
 			if (prob(5))
-				//SN src = null
 				del(src)
 				return
 		else
@@ -1455,7 +1400,6 @@
 
 	if (istype(W, /obj/item/weapon/wrench))
 		new /obj/item/weapon/sheet/metal( src.loc )
-		//SN src = null
 		del(src)
 
 	return
@@ -1475,7 +1419,6 @@
 		W.master = E
 		user.u_equip(W)
 		W.layer = initial(W.layer)
-		//SN src = null
 		del(src)
 		return
 	return
@@ -1505,7 +1448,6 @@
 		src.part1.loc = src.loc
 		src.part1.master = null
 		src.part1 = null
-		//SN src = null
 		del(src)
 		return
 	return
@@ -1557,13 +1499,11 @@
 			sleep(1)
 			M.burn(7.5E7)
 			M.stunned = 600
-			//Foreach goto(72)
 	for(var/mob/M in hearers(src, null))
 		if (!( M.blinded ))
 			M.client_mob() << "\red The electric chair went off!"
 		else
 			M.client_mob() << "\red You hear a deep sharp shock."
-		//Foreach goto(142)
 
 	A.power_light = light
 	A.updateicon()
@@ -1575,20 +1515,16 @@
 	if (severity < 4)
 		for(var/mob/M in src.loc)
 			M.buckled = null
-			//Foreach goto(28)
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
 			if (prob(5))
-				//SN src = null
 				del(src)
 				return
 		else
@@ -1599,7 +1535,6 @@
 	if (prob(50))
 		for(var/mob/M in src.loc)
 			M.buckled = null
-			//Foreach goto(28)
 	if(prob(50))
 		del(src)
 
@@ -1616,7 +1551,6 @@
 	for(var/mob/M in src.loc)
 		if (M.buckled == src)
 			M.buckled = null
-		//Foreach goto(17)
 	..()
 	return
 
@@ -1648,12 +1582,10 @@
 		for(var/mob/O in viewers(user, null))
 			if (O.hasClient() && (!( O.blinded )))
 				O.client_mob() << text("\blue [] buckles in!", user)
-			//Foreach goto(83)
 	else
 		for(var/mob/O in viewers(user, null))
 			if (O.hasClient() && (!( O.blinded )))
 				O.client_mob() << text("\blue [] is buckled in by []!", M, user)
-			//Foreach goto(137)
 	M.anchored = 1
 	M.buckled = src
 	M.loc = src.loc
@@ -1678,16 +1610,13 @@
 				for(var/mob/O in viewers(user, null))
 					if (O.hasClient() && (!( O.blinded )))
 						O.client_mob() << text("\blue [] is unbuckled by [].", M, user)
-					//Foreach goto(64)
 			else
 				for(var/mob/O in viewers(user, null))
 					if (O.hasClient() && (!( O.blinded )))
 						O.client_mob() << text("\blue [] unbuckles.", M)
-					//Foreach goto(123)
 			M.anchored = 0
 			M.buckled = null
 			src.add_fingerprint(user)
-		//Foreach goto(17)
 	return
 
 
@@ -1712,12 +1641,10 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		if(3.0)
@@ -1787,7 +1714,6 @@
 		else
 			if (src.health <= -10.0)
 				new /obj/item/weapon/rods( src.loc )
-				//SN src = null
 				del(src)
 				return
 	return
@@ -1817,7 +1743,6 @@
 
 		if(!reinf)
 			new /obj/item/weapon/shard( src.loc )
-			//SN src = null
 			src.density = 0
 			src.loc.buildlinks()
 
@@ -1838,13 +1763,11 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			new /obj/item/weapon/shard( src.loc )
 			if(reinf) new /obj/item/weapon/rods( src.loc)
-			//SN src = null
 			del(src)
 			return
 		if(3.0)
@@ -1852,7 +1775,6 @@
 				new /obj/item/weapon/shard( src.loc )
 				if(reinf) new /obj/item/weapon/rods( src.loc)
 
-				//SN src = null
 				del(src)
 				return
 		else
@@ -1908,7 +1830,6 @@
 		if(reinf) new /obj/item/weapon/rods( src.loc)
 		src.density = 0
 		src.loc.buildlinks()
-		//SN src = null
 		del(src)
 		return
 	..()
@@ -1952,7 +1873,6 @@
 			else
 				new /obj/item/weapon/shard( src.loc )
 				if(reinf) new /obj/item/weapon/rods( src.loc)
-			//SN src = null
 
 			src.density = 0
 			src.loc.buildlinks()
@@ -2058,7 +1978,6 @@
 
 	for(var/x in src.verbs)
 		src.verbs -= x
-		//Foreach goto(17)
 	return
 
 /turf/CheckPass(atom/O as mob|obj|turf|area)
@@ -2073,7 +1992,6 @@
 		spawn( 0 )
 			src.Entered(AM)
 			return
-		//Foreach goto(19)
 	return
 
 /turf/Enter(atom/movable/O as mob|obj, atom/forget as mob|obj|turf|area)
@@ -2085,20 +2003,17 @@
 			if (O)
 				O.Bump(A, 1)
 			return 0
-		//Foreach goto(34)
 	for(var/atom/A as mob|obj|turf|area in src)
 		if ((A.flags & 512 && get_dir(A, O) & A.dir))
 			if ((!( A.CheckPass(O, src) ) && A != src && A != forget))
 				if (O)
 					O.Bump(A, 1)
 				return 0
-		//Foreach goto(127)
 	for(var/atom/A as mob|obj|turf|area in src)
 		if ((!( A.CheckPass(O, src) ) && A != forget))
 			if (O)
 				O.Bump(A, 1)
 			return 0
-		//Foreach goto(244)
 	if (src != forget)
 		if (!( src.CheckPass(O, src) ))
 			if (O)
@@ -2115,13 +2030,11 @@
 			if ((A && M))
 				A.HasEntered(M, 1)
 			return
-		//Foreach goto(19)
 	for(var/atom/A as mob|obj|turf|area in range(1))
 		spawn( 0 )
 			if ((A && M))
 				A.HasProximity(M, 1)
 			return
-		//Foreach goto(86)
 	return
 
 
@@ -2190,7 +2103,6 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 
@@ -2403,7 +2315,6 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 			del(src)
@@ -2620,7 +2531,6 @@
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				var/turf/space/S = src.ReplaceWithSpace()
 				S.buildlinks()
 				levelupdate()
@@ -2714,7 +2624,6 @@
 			src.burnt = 1
 			src.intact = 0
 			levelupdate()
-			//SN src = null
 			del(src)
 			return
 		else

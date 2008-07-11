@@ -212,12 +212,10 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			del(src)
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				del(src)
 				return
 		else
@@ -271,9 +269,7 @@
 	src.occupant = usr
 	src.icon_state = "scanner_1"
 	for(var/obj/O in src)
-		//O = null
 		del(O)
-		//Foreach goto(124)
 	src.add_fingerprint(usr)
 	return
 
@@ -300,9 +296,7 @@
 	src.icon_state = "scanner_1"
 	for(var/obj/O in src)
 		O.loc = src.loc
-		//Foreach goto(154)
 	src.add_fingerprint(user)
-	//G = null
 	del(G)
 	return
 
@@ -711,7 +705,6 @@
 		src.add_fingerprint(usr)
 		src.updateDialog()
 
-			//Foreach goto(484)
 	return
 
 /obj/machinery/restruct/allow_drop()
@@ -744,9 +737,7 @@
 			if("5BDFE293BA5500F9FFFD500AAFFE")
 				if (!( istype(src.occupant, /mob/human) ))
 					for(var/obj/O in src.occupant)
-						//O = null
 						del(O)
-						//Foreach goto(78)
 					var/mob/human/O = new /mob/human( src )
 					var/mob/M = src.occupant
 					O.start = 1
@@ -774,9 +765,7 @@
 			if("2B6696D2B127E5A4")
 				if (!( istype(src.occupant, /mob/monkey) ))
 					for(var/obj/O in src.occupant)
-						//O = null
 						del(O)
-						//Foreach goto(337)
 					var/mob/monkey/O = new /mob/monkey( src )
 					var/mob/M = src.occupant
 					O.start = 1
@@ -915,9 +904,7 @@
 	src.occupant = usr
 	src.icon_state = "restruct_1"
 	for(var/obj/O in src)
-		//O = null
 		del(O)
-		//Foreach goto(124)
 	src.add_fingerprint(usr)
 	return
 
@@ -951,9 +938,7 @@
 	src.icon_state = "restruct_1"
 	for(var/obj/O in src)
 		O.loc = src.loc
-		//Foreach goto(154)
 	src.add_fingerprint(user)
-	//G = null
 	del(G)
 	return
 
@@ -963,7 +948,6 @@
 		return
 	for(var/obj/O in src)
 		O.loc = src.loc
-		//Foreach goto(30)
 	if (src.occupant.client)
 		src.occupant.client.eye = src.occupant.client.mob
 		src.occupant.client.perspective = MOB_PERSPECTIVE

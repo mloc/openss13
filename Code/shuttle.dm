@@ -27,7 +27,6 @@
 			NE_X = M.x
 		if (M.x < NW_X)
 			NW_X = M.y
-		//Foreach goto(75)
 	var/length = abs(NE_X - NW_X)
 	var/width = abs(NE_Y - SE_Y)
 	var/obj/random = pick(src.parts)
@@ -46,13 +45,11 @@
 						M.relocate(T)
 						M.ty =  -M.ty
 						M.tx += length
-						//Foreach goto(374)
 					for(var/obj/move/M in src.parts)
 						M.tx += tx
 						M.ty += ty
 						var/T = locate(M.tx, M.ty, t_z)
 						M.relocate(T, 90)
-						//Foreach goto(468)
 				if(-90.0)
 					var/tx = SE_X
 					var/ty = SE_Y
@@ -64,13 +61,11 @@
 						M.relocate(T)
 						M.ty =  -M.ty
 						M.ty += width
-						//Foreach goto(571)
 					for(var/obj/move/M in src.parts)
 						M.tx += tx
 						M.ty += ty
 						var/T = locate(M.tx, M.ty, t_z)
 						M.relocate(T, -90.0)
-						//Foreach goto(663)
 				else
 		else
 	return
@@ -144,7 +139,6 @@
 
 	switch(severity)
 		if(1.0)
-			//SN src = null
 			var/turf/space/S = src.ReplaceWithSpace()
 			S.buildlinks()
 
@@ -152,7 +146,6 @@
 			return
 		if(2.0)
 			if (prob(50))
-				//SN src = null
 				var/turf/space/S = src.ReplaceWithSpace()
 				S.buildlinks()
 

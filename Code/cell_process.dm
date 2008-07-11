@@ -56,11 +56,9 @@
 			//*****RM as 4.1beta
 			A.loc = T
 
-			//Foreach goto(25)
 	else
 		for(var/atom/movable/A as mob|obj in src.loc)
 			A.loc = T
-			//Foreach goto(73)
 	return
 
 /obj/move/proc/unburn()
@@ -86,7 +84,6 @@
 
 
 
-		//Foreach goto(36)
 
 	for(var/obj/window/D in src.loc)
 		if(!( D.density ))
@@ -96,7 +93,6 @@
 			L.len = null
 			return L
 
-		//Foreach goto(115)
 	return L
 
 /obj/move/proc/FindTurfs()
@@ -128,7 +124,6 @@
 					L -= T
 					goto Label_181
 			Label_181:
-			//Foreach goto(81)
 
 		for(var/obj/window/D in T)
 			if(!( D.density ))
@@ -143,7 +138,6 @@
 
 
 			Label_294:
-			//Foreach goto(199)
 
 		//*****
 		Label_299:
@@ -155,7 +149,6 @@
 		else
 			if ((isturf(T) && !( T.updatecell )))
 				L -= T
-		//Foreach goto(26)
 
 
 	return L
@@ -202,7 +195,6 @@
 						burn = 1
 					if ((config.air_pressure_flow) && istype(T, /turf/space))
 						space = 1
-					//Foreach continue //goto(158)
 			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
@@ -248,7 +240,6 @@
 					src.firelevel = 0
 				for(var/atom/movable/A in src)
 					A.burn(src.firelevel)
-					//Foreach goto(561)
 			else
 				src.firelevel = 0
 				if (src.icon_state == "burning")
@@ -285,7 +276,6 @@
 						burn = 1
 					if ((config.air_pressure_flow) && istype(T, /turf/space))
 						space = 1
-					//Foreach continue //goto(744)
 			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0
@@ -333,7 +323,6 @@
 					src.firelevel = 0
 				for(var/atom/movable/A as mob|obj in src)
 					A.burn(src.firelevel)
-					//Foreach goto(1153)
 			else
 				if (src.icon_state == "burning")
 					src.firelevel = 0
@@ -395,7 +384,6 @@
 						spawn( 0 )
 							step(AM, src.airdir)
 							return
-					//Foreach goto(1559)
 
 			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
@@ -476,7 +464,6 @@
 						spawn( 0 )
 							step(AM, src.airdir)
 							return
-					//Foreach goto(2130)
 
 
 			if (space && ((!config.air_pressure_flow) || (!burn)))
@@ -605,7 +592,6 @@
 			L -= EAST
 
 		Label_96
-		//Foreach goto(34)
 	for(var/obj/window/D in src)
 		if(!( D.density ))
 			goto Label_178 //continue
@@ -614,7 +600,6 @@
 			L.len = null
 			return L
 		Label_178
-		//Foreach goto(111)
 	return L
 
 
@@ -674,7 +659,6 @@
 					L -= T
 
 			Label_201:
-			//Foreach goto(101)
 
 		for(var/obj/window/D in T)
 			if(!( D.density ))
@@ -689,12 +673,10 @@
 
 			Label_312:
 
-			//Foreach goto(219)
 
 		//*****
 
 		Label_317:
-		//Foreach goto(40)
 
 	for(var/turf/T in L)
 		if (locate(/obj/move, T))
@@ -702,7 +684,6 @@
 			var/obj/move/O = locate(/obj/move, T)
 			if (O.updatecell)
 				L += O
-		//Foreach goto(333)
 	return L
 
 /turf/New()
@@ -846,7 +827,6 @@
 					setairlink(dir, null)
 					setcondlink(dir, 1)
 			Label_201:
-			//Foreach goto(101)
 
 		for(var/obj/window/D in T)
 			if(!( D.density ))
@@ -865,12 +845,10 @@
 
 			Label_312:
 
-			//Foreach goto(219)
 
 		//*****
 
 		Label_317:
-		//Foreach goto(40)
 
 
 
@@ -898,7 +876,6 @@
 			L -= T
 			if (O.updatecell)
 				L += O
-		//Foreach goto(333)
 */
 	return L
 
@@ -989,7 +966,6 @@ turf/proc/tot_old_gas()
 					totemp += T.otemp
 					if (T.firelevel >= config.min_gas_for_fire)
 						burn = 1
-					//Foreach continue //goto(113)
 			*/
 
 
@@ -1101,7 +1077,6 @@ turf/proc/tot_old_gas()
 					src.firelevel = 0
 				for(var/atom/movable/A in src)
 					A.burn(src.firelevel)
-					//Foreach goto(522)
 			else
 				src.firelevel = 0
 				if (src.icon_state == "burning")
@@ -1142,7 +1117,6 @@ turf/proc/tot_old_gas()
 					totemp += T.ttemp
 					if (T.firelevel >= config.min_gas_for_fire)
 						burn = 1
-					//Foreach continue //goto(705)
 			*/
 
 			if(airN)
@@ -1254,7 +1228,6 @@ turf/proc/tot_old_gas()
 					src.firelevel = 0
 				for(var/atom/movable/A as mob|obj in src)
 					A.burn(src.firelevel)
-					//Foreach goto(1114)
 			else
 				if (src.icon_state == "burning")
 					src.firelevel = 0
@@ -1307,7 +1280,6 @@ turf/proc/tot_old_gas()
 						src.airforce = adiff
 						src.airdir = get_dir(src, T)
 						airtemp = src.otemp
-					//Foreach continue //goto(1317)
 
 			*/
 			if(airN)
@@ -1414,7 +1386,6 @@ turf/proc/tot_old_gas()
 						spawn( 0 )
 							step(AM, src.airdir)
 							return
-					//Foreach goto(1518)
 
 			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
@@ -1486,7 +1457,6 @@ turf/proc/tot_old_gas()
 						src.airforce = adiff
 						src.airdir = get_dir(src, T)
 						airtemp = src.ttemp
-					//Foreach continue //goto(1872)
 
 			*/
 
@@ -1594,7 +1564,6 @@ turf/proc/tot_old_gas()
 						spawn( 0 )
 							step(AM, src.airdir)
 							return
-					//Foreach goto(2073)
 			if (space && ((!config.air_pressure_flow) || (!burn)))
 				src.oxygen = 0
 				src.poison = 0

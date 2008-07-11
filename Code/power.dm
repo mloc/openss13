@@ -176,7 +176,6 @@ atom/proc/electrocute(mob/user, prb, netnum)
 
 		user.stunned = 120/prot
 		user.weakened = 20/prot
-		//Foreach goto(72)
 		for(var/mob/M in hearers(src, null))
 			if(M == user)
 				continue

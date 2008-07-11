@@ -115,7 +115,6 @@ obj/machinery/power/solar
 	ex_act(severity)
 		switch(severity)
 			if(1.0)
-				//SN src = null
 				del(src)
 				return
 			if(2.0)

@@ -119,7 +119,6 @@ obj/machinery/freezer
 				for(var/obj/item/weapon/flasks/F in src)
 					d1 += text("<A href = '?src=\ref[];flask=[]'><B>Flask []</B></A>: [] / [] / []<BR>", src, counter, counter, F.oxygen, F.plasma, F.coolant)
 					counter++
-					//Foreach goto(78)
 				d1 += "Key:    Oxygen / Plasma / Coolant<BR>"
 			else
 				d1 = "<B>No flasks!</B>"
@@ -148,7 +147,6 @@ obj/machinery/freezer
 				for(var/obj/item/weapon/flasks/F in src)
 					d1 += text("<A href = '?src=\ref[];flask=[]'><B>[] []</B></A>: []<BR>", src, counter, stars("Flask"), counter, stars(text("[] / [] / []", F.oxygen, F.plasma, F.coolant)))
 					counter++
-					//Foreach goto(380)
 				d1 += "Key:    Oxygen / Plasma / Coolant<BR>"
 			else
 				d1 = "<B>No flasks!</B>"

@@ -33,7 +33,6 @@
 			p1.b_stat = 0
 			p2.status = 1
 			p3.gas.temperature = btemp + T0C
-			//SN src = null
 
 		if(1)			// prox
 			var/obj/item/weapon/assembly/m_i_ptank/R = new /obj/item/weapon/assembly/m_i_ptank( src.loc )

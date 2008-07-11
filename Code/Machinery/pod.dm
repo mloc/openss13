@@ -168,7 +168,6 @@ obj/machinery/pod
 			for(var/mob/O in viewers(src, null))
 				if (O.hasClient() && (!( O.blinded )))
 					O.client_mob() << text("\blue <B> [] unloads [] from []!</B>", usr, A, src)
-				//Foreach goto(54)
 			if (ismob(A))
 				var/mob/M = A
 				if (M.client)

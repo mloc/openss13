@@ -7,7 +7,6 @@
 			new_occupations[occupation] = 1
 		else
 			new_occupations[occupation] += 1
-		//Foreach goto(23)
 	occupations = new_occupations
 	return
 
@@ -25,7 +24,6 @@
 		occupations2[occupation] = list(  )
 		occupations3[occupation] = list(  )
 		final_occupations[occupation] = list(  )
-		//Foreach goto(78)
 	occupations1["Captain"] = list(  )
 	occupations2["Captain"] = list(  )
 	occupations3["Captain"] = list(  )
@@ -49,12 +47,10 @@
 					occupations2[M.occupation2] += M
 					if (M.occupation3 != "No Preference")
 						occupations3[M.occupation3] += M
-		//Foreach goto(187)
 	for(var/occupation in occupations)
 		occupations1[occupation] = shuffle(occupations1[occupation])
 		occupations2[occupation] = shuffle(occupations2[occupation])
 		occupations3[occupation] = shuffle(occupations3[occupation])
-		//Foreach goto(339)
 	occupations1["Captain"] = shuffle(occupations1["Captain"])
 	occupations2["Captain"] = shuffle(occupations2["Captain"])
 	occupations3["Captain"] = shuffle(occupations3["Captain"])
@@ -86,7 +82,6 @@
 			if (M.client)
 				if (M.start)
 					contenders += M
-			//Foreach goto(691)
 		if (contenders.len>1)
 			var/mob/human/M = pick(contenders)
 			final_occupations["Captain"] += M
@@ -104,7 +99,6 @@
 		if (assistant_occupations.Find(M.occupation1))
 			M.Assign_Rank(M.occupation1)
 			unassigned_mobs -= M
-		//Foreach goto(844)
 	for(var/occupation in occupation_choices)
 		var/list/L = occupations1[occupation]
 		if (L.len)
@@ -128,12 +122,10 @@
 						occupation_choices -= occupation
 		if ((!( occupation_choices.len ) || !( unassigned_mobs.len )))
 		else
-			//Foreach continue //goto(913)
 	for(var/mob/human/M in unassigned_mobs)
 		if (assistant_occupations.Find(M.occupation2))
 			M.Assign_Rank(M.occupation2)
 			unassigned_mobs -= M
-		//Foreach goto(1158)
 	for(var/occupation in occupation_choices)
 		var/list/L = occupations2[occupation]
 		if (L.len)
@@ -160,12 +152,10 @@
 						occupation_choices -= occupation
 		if ((!( occupation_choices.len ) || !( unassigned_mobs.len )))
 		else
-			//Foreach continue //goto(1227)
 	for(var/mob/human/M in unassigned_mobs)
 		if (assistant_occupations.Find(M.occupation3))
 			M.Assign_Rank(M.occupation3)
 			unassigned_mobs -= M
-		//Foreach goto(1502)
 	for(var/occupation in occupation_choices)
 		var/list/L = occupations3[occupation]
 		if (L.len)
@@ -190,7 +180,6 @@
 					unassigned_mobs -= M
 					if (eligible < 1)
 						occupation_choices -= occupation
-		//Foreach goto(1571)
 	if (unassigned_mobs.len)
 		unassigned_mobs = shuffle(unassigned_mobs)
 	for(var/mob/human/M in unassigned_mobs)
@@ -200,7 +189,6 @@
 			occupation_choices -= occupation
 			unassigned_mobs -= M
 			break ////
-		//Foreach goto(1846)
 	for(var/occupation in final_occupations)
 		var/mob/human/M = final_occupations[occupation]
 		if (ismob(M))
@@ -209,11 +197,8 @@
 			if (istype(M, /list))
 				for(var/mob/human/E in final_occupations[occupation])
 					E.Assign_Rank(occupation)
-					//Foreach goto(2003)
-		//Foreach goto(1931)
 	for(var/mob/human/M in unassigned_mobs)
 		M.Assign_Rank(pick("Research Assistant", "Technical Assistant", "Medical Assistant", "Staff Assistant"))
-		//Foreach goto(2051)
 	for (var/mob/ai/aiPlayer in world)
 		spawn(0)
 			var/newname = input(aiPlayer, "You are the AI. Would you like to change your name to something else?", "Name change", aiPlayer.rname)
@@ -329,7 +314,6 @@
 	for(var/job in uniquelist(occupations + assistant_occupations) )
 		if (job!="AI" || config.allowai)
 			HTML += text("<a href=\"byond://?src=\ref[];occ=[];job=[]\">[]</a><br>", src, occ, job, job)
-		//Foreach goto(105)
 	HTML += text("<a href=\"byond://?src=\ref[];occ=[];job=Captain\">Captain</a><br>", src, occ)
 	HTML += "<br>"
 	HTML += text("<a href=\"byond://?src=\ref[];occ=[];job=No Preference\">\[No Preference\]</a><br>", src, occ)
