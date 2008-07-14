@@ -1,6 +1,4 @@
-
 /obj/team/proc/process()
-
 	if (src.base)
 		var/obj/starting = locate(text("landmark*CTF-base-[]", src.base))
 		while(locate(text("landmark*CTF-supply-[]", src.base)))
@@ -29,7 +27,6 @@
 				else
 					P.color = "neutral"
 					P.icon_state = text("paint_[]", src.color)
-			//L = null
 			del(L)
 		while(locate(text("landmark*CTF-wardrobe-[]", src.base)))
 			var/obj/L = locate(text("landmark*CTF-wardrobe-[]", src.base))
@@ -47,7 +44,6 @@
 				if("red")
 					new /obj/closet/wardrobe/red( L.loc )
 				else
-			//L = null
 			del(L)
 		if (starting)
 			for(var/mob/human/H in src.members)
@@ -365,43 +361,33 @@
 			switch(A.name)
 				if("prison shuttle")
 					new /obj/machinery/computer/prison_shuttle( A.loc )
-					//A = null
 					del(A)
 				if("id computer")
 					new /obj/machinery/computer/card( A.loc )
-					//A = null
 					del(A)
 				if("Experimental Technology")
 					new /obj/secloset/highsec( A.loc )
-					//A = null
 					del(A)
 				if("Security Locker")
 					new /obj/secloset/security1( A.loc )
-					//A = null
 					del(A)
 				if("recharger")
 					new /obj/machinery/recharger( A.loc )
-					//A = null
 					del(A)
 				if("barrier")
 					new /obj/barrier( A.loc )
-					//A = null
 					del(A)
 		for(var/obj/closet/wardrobe/W in world)
-			//W = null
 			del(W)
 		for(var/obj/item/weapon/clothing/under/T in world)
-			//T = null
 			del(T)
 		if (src.ejectengine)
 			for(var/obj/machinery/computer/engine/T in world)
-				//T = null
 				del(T)
 		for(var/obj/landmark/alterations/A in world)
 			switch(A.name)
 				if("Prisoners Wardrobe")
 					new /obj/closet/wardrobe/orange( A.loc )
-					//A = null
 					del(A)
 		var/obj/rogue = locate("landmark*CTF-rogue")
 		for(var/mob/human/H in world)
@@ -424,17 +410,16 @@
 				F.name = "flag- 'NEUTRAL Team's Flag'"
 				F.icon_state = "flag_neutral"
 				F.info = "This is an authentic neutral flag!\n<font face=vivaldi>Capture the Flag</font>"
-				//L = null
 				del(L)
 		for(var/obj/begin/B in world)
 			if (locate(/obj/grille, B.loc))
 				for(var/obj/grille/G in B.loc)
 					del(G)
-		ticker = new /datum/control/gameticker(  )
-		spawn( 0 )
+		ticker = new /datum/control/gameticker()
+		spawn(0)
 			ticker.process()
 			return
-		data_core = new /obj/datacore(  )
+		data_core = new /obj/datacore()
 	src.show_screen(usr)
 	for(var/mob/human/H in world)
 		if (H.CanAdmin())
@@ -681,23 +666,6 @@
 		for(var/mob/M in world)
 			dat += "<A href='?src=\ref[usr];priv_msg=\ref[M]'>N:[M.name] R:[M.rname] (K:[(M.client ? M.client : "Formerly [M.lastKnownCKey]")])</A><BR>"
 		usr << browse(dat, "window=p_send")
-
-	/*
-	if (href_list["p_send2"])
-		if (locate(href_list["p_send2"]))
-			var/mob/M = locate(href_list["p_send2"])
-			if (!( ismob(M) ))
-				return
-			var/t = input("Message:", text("Private message to []", M.key), null, null)  as text
-			if (!( t ))
-				return
-			if (M.client && M.client.holder)
-				M.client_mob() << text("\blue Admin PM from-<B><A href='?src=\ref[];p_send2=\ref[]'>[]</A></B>: []", M.client.holder, usr, usr.key, t)
-			else
-				M.client_mob() << text("\blue Admin PM from-<B>[]</B>: []", usr.key, t)
-			usr.client_mob() << text("\blue Admin PM to-<B><A href='?src=\ref[];p_send2=\ref[]'>[]</A></B>: []", src, M, M.key, t)
-			if(config.logadmin) world.log << "ADMIN: PM: [usr.key]->[M.key] : [t]"
-	*/
 
 	if (href_list["m_item"])
 		var/X = typesof(/obj/item/weapon)
@@ -1041,9 +1009,6 @@
 
 	sun = new /datum/sun()
 
-
-	//name = "HN13"
-
 	// ****stuff for presistent mode picking
 	var/newmode = null
 
@@ -1054,14 +1019,10 @@
 
 		newmode = ML[1]
 
-		//world << "Savefile: [SF] ([SF["newmode"]])"
-
 		if(newmode)
 			master_mode = newmode
 			world.log << "Read default mode '[newmode]' from [persistent_file]"
 
-
-	// *****
 
 	var/motd = file2text("motd.txt")
 	if (motd)
@@ -1115,7 +1076,6 @@
 		var/list/CL = dd_text2list(config_text, "\n")
 		for(var/t in CL)
 			if(t)
-				//world.log << "CFG:[t]"
 				if(copytext(t,1,2) == "#")		// comment marker
 					continue
 				var/t1 = findtext(t," ")
@@ -1127,8 +1087,6 @@
 					cfgval = copytext(t, t1+1)
 				else
 					cfgvar = lowertext(t)
-
-				//world.log << "CFG: [t] : [cfgvar] [cfgval]"
 
 				switch(cfgvar)
 					if("")
@@ -1198,15 +1156,10 @@
 					else
 						world.log<<"Unknown setting in config.txt: [cfgvar]"
 
-
-	//for(var/M in config.modes)
-	//	world.log << "Mode [M] prob [config.pickprob[M]]"
 	vote = new /datum/vote()
-
-
 	main_hud = new /obj/hud(  )
 	main_hud2 = new /obj/hud/hud2(  )
-	SS13_airtunnel = new /datum/air_tunnel/air_tunnel1(  )
+	SS13_airtunnel = new /datum/air_tunnel/air_tunnel1()
 	..()
 	sleep(50)
 	nuke_code = text("[]", rand(10000, 99999.0))
@@ -1235,17 +1188,16 @@
 		cellcontrol.process()
 		return
 	src.update_stat()
-	spawn( 0 )
-		sleep(900)		//*****RM was 900
+	spawn(900)	
 		Label_482:
 		if (ctf)
 			return
 		if (going && (!ticker))
-			ticker = new /datum/control/gameticker(  )
+			ticker = new /datum/control/gameticker()
 			spawn( 0 )
 				ticker.process()
 				return
-			data_core = new /obj/datacore(  )
+			data_core = new /obj/datacore()
 		else
 			sleep(100)
 			goto Label_482
@@ -1253,9 +1205,6 @@
 	return
 
 /world/Topic(T, addr, master, key)
-
-	//world.log << "TOPIC: \"[T]\", from:[addr], master:[master], key:[key]"
-
 	if(T=="ping")
 		var/x = 1
 		for(var/client/C)
@@ -1275,11 +1224,7 @@
 				world.log << "[++n] : [M.name] ([CM.key]) at [M.loc.loc] ([M.x],[M.y],[M.z]) : [CM.client.inactivity/10.0]s"
 		return n
 
-
-
-
 /mob/proc/CanAdmin()
-
 	if (world.address == src.client.address)
 		return 1
 	if (src.client.address == "127.0.0.1")
@@ -1295,19 +1240,15 @@
 	return
 
 /atom/proc/Bumped(AM as mob|obj)
-
 	return
 
 /atom/movable/Bump(var/atom/A as mob|obj|turf|area, yes)
-
 	spawn( 0 )
 		if ((A && yes))
 			A.Bumped(src)
 		return
 	..()
 	return
-
-// **** Note in 40.93.4, split into obj/mob/turf point verbs, no area
 
 /atom/verb/point()
 	set src in oview()
@@ -1325,18 +1266,15 @@
 	return
 
 /turf/proc/updatecell()
-
 	return
 
 /turf/proc/conduction()
 	return
 
 /turf/proc/cachecell()
-
 	return
 
 /datum/control/proc/process()
-
 	return
 
 /datum/control/gameticker/proc/meteor_process()
@@ -1479,24 +1417,6 @@
 		return
 	return
 
-//*****RM
-/*
-
-/mob/verb/inv(var/mob/M)
-	set src = usr
-
-	var/list/L = list()
-	L += src.contents
-	for(var/obj/item/weapon/storage/S in src.contents)
-		L += S.return_inv()
-
-
-	for(var/obj/O in L)
-
-		world << "[O.name] - [O.type]"
-
-*/
-
 /datum/control/gameticker/proc/timeup()
 
 
@@ -1524,19 +1444,6 @@
 				del(T)
 		src.timeleft = 1800
 		src.shuttle_location = 1
-
-		// Fix for bug #1952749 as per shadowlord13
-		/*
-		switch(src.mode)
-			if("meteor")
-				spawn( 0 )
-					meteor_process()
-					return
-			else
-				spawn( 0 )
-					extend_process()
-					return
-		*/
 	else
 		world << "<B>The emergency shuttle is leaving!</B>"
 		check_win()
@@ -2025,11 +1932,9 @@
 						H.rname = "Syndicate Leader"
 						src.killer = H
 					H.already_placed = 1
-					//H.w_uniform = null
 					del(H.w_uniform)
 					H.w_uniform = new /obj/item/weapon/clothing/under/black( H )
 					H.w_uniform.layer = 20
-					//H.shoes = null
 					del(H.shoes)
 					H.shoes = new /obj/item/weapon/clothing/shoes/black( H )
 					H.shoes.layer = 20
@@ -2090,14 +1995,13 @@
 		
 	switch(src.mode)
 		if("traitor")
-			var/list/mobs = list(  )
-			Label_970:
-			for(var/mob/M in world)
-				if ((M.cliented() && M.start))
-					mobs += M
-			if (!( mobs.len ))
+			var/list/mobs = list()
+			do
+				for(var/mob/M in world)
+					if ((M.cliented() && M.start))
+						mobs += M
 				sleep(300)
-				goto Label_970
+			while (!mobs.len)
 			ticker.killer = pick(mobs)
 			mobs -= src.killer
 			if (istype(src.killer, /mob/ai))
@@ -2241,19 +2145,13 @@
 				world << "\red Summary downloaded and printed out at all communications consoles."
 				return
 			mobs += src.killer
-			spawn( 0 )
-				extend_process()
-				return
+			spawn(0) extend_process()
 		if("meteor")
-			spawn( 0 )
-				meteor_process()
-				return
+			spawn(0) meteor_process()
 		if("extended")
-			spawn( 0 )
-				extend_process()
-				return
+			spawn(0) extend_process()
 		if("monkey")
-			spawn( 50 )
+			spawn(50)
 				var/list/mobs = list(  )
 				for(var/mob/human/M in world)
 					if ((M.cliented() && M.start))
@@ -2267,22 +2165,16 @@
 						mobs -= H
 						amount--
 				return
-			spawn( 0 )
-				src.extend_process()
-				return
+			spawn(0) src.extend_process()
 		if("megamonkey")
-			spawn( 1 )
+			spawn(1)
 				for(var/mob/monkey/M in world)
 					del(M)
-
 				for(var/turf/T in monkeystart)
 					new /mob/megamonkey(T)
-
 				return
 
-			spawn( 50 )
-				src.megamonkey_process()
-				return
+			spawn(50) src.megamonkey_process()
 		if("blob")
 
 			spawn(10)
@@ -2291,50 +2183,10 @@
 
 			spawn(20)
 				var/turf/T = pick(blobstart)
-
 				blobs = list()
 				new /obj/blob(T)
-
 				blob_process()
 				return
-
-
-
-
-			/*spawn( rand(600, 1800) )
-				var/dat = "<FONT size = 2><B>Cent. Com. Update</B> Enemy communication intercept. Security Level Elevated</FONT><HR>"
-				switch(src.objective)
-					if("alone")
-						dat += "\red <B>Transmission suggests future attempts of hijacking of emergency shuttle.</B><BR>"
-					if("assassinate")
-						dat += "\red <B>Transmission suggests future attempts of assassinating of key personnel.</B><BR>"
-						if (prob(50))
-							var/t1 = null
-							for(var/datum/data/record/R in data_core.general)
-								if (R.fields["name"] == src.target.name)
-									t1 = text(" the []", R.fields["rank"])
-							if (prob(70))
-								dat += text("\red <B>Perceived target: [] - Position: [] ([]% certainty)</B><BR>", src.target.rname, t1, rand(30, 100))
-							else
-								var/mob/temp = pick(backup)
-								dat += text("\red <B>Perceived target: [] - Position: [] ([]% certainty)</B><BR>", temp.rname, t1, rand(10, 95))
-					if("theft")
-						dat += "\red <B>Transmission suggests future attempts of theft of critical items.</B><BR>"
-						if (prob(50))
-							dat += text("\red <B>Perceived target: []</B><BR>", item)
-					else
-						world << "unknown traitor objective"
-				if (prob(10))
-					dat += text("\red <B>Transmission names enemy operative: [] ([]% certainty)</B><BR>", src.killer.rname, rand(30, 100))
-				else
-					var/mob/M = pick(backup)
-					dat += text("\red <B>Transmission names enemy operative: [] ([]% certainty)</B><BR>", M.rname, rand(10, 95))
-				for(var/obj/machinery/computer/communications/C in world)
-					var/obj/item/weapon/paper/P = new /obj/item/weapon/paper( C.loc )
-					P.name = "paper- 'Cent. Com. Comm. Intercept Summary'"
-					P.info = dat
-				world << "<FONT size = 2><B>Cent. Com. Update</B> Enemy communication intercept. Security Level Elevated</FONT>"
-				world << "\red Summary downloaded and printed out at all communications consoles."*/
 
 		if("nuclear")
 			spawn (50)
@@ -2381,11 +2233,9 @@
 						del(A)
 						continue
 
-			spawn (0)
-				src.extend_process()
-				return
+			spawn(0) src.extend_process()
 		if("virus")
-			spawn( 50 )
+			spawn(50)
 				var/list/mobs = list(  )
 				for(var/mob/human/M in world)
 					if ((M.cliented() && M.start))
@@ -2399,12 +2249,9 @@
 						mobs -= H
 						amount--
 				return
-			spawn( 0 )
-				src.extend_process()
-				return
+			spawn(0) src.extend_process()
 		else
 	for(var/obj/start/S in world)
-		//S = null
 		del(S)
 	return
 
@@ -2417,66 +2264,33 @@
 	set invisibility = 0
 	set background =1
 
-	Label_6:
+	do
+		while(!(ticker))
+			for(var/mob/M in world)
+				spawn(0) M.UpdateClothing()
+			sleep(10)
 
-	//world << "World.contents.len [world.contents.len]"
-
-
-	while(!( ticker ))
+		time = (++time % 10)
+		sun.calc_position()
+		for(var/turf/station/T in world)
+			if (T.updatecell)
+				T.updatecell()
+				if(!time)
+					T.conduction()
+		sleep(3)
 		for(var/mob/M in world)
-			spawn( 0 )
-				M.UpdateClothing()
-				return
-		sleep(10)
-
-	time = (++time %10)
-
-	sun.calc_position()
-
-	//if(Debug)
-	//	world.log << "*** SoT ***"
-	//	Air()
-
-	for(var/turf/station/T in world)
-		if (T.updatecell)
-			T.updatecell()
-			if(!time)
-				T.conduction()
-		
-	//if(Debug)
-	//	world.log << "*** EoT ***"
-	//	Air()
-
-	sleep(3)
-	for(var/mob/M in world)
-		spawn( 0 )
-			M.Life()
-			return
-	sleep(3)
-	for(var/obj/move/S in world)
-		S.process()
-	sleep(2)
-
-	//if(Debug)
-	//	world.log << "*** SoP ***"
-	//	Air()
-
-
-	for(var/obj/machinery/M in machines)
-		M.process()
-
-	for(var/obj/machinery/M in gasflowlist)
-		M.gas_flow()
-
-	for(var/datum/powernet/P in powernets)
-		P.reset()
-
-	//if(Debug)
-	//	world.log << "*** EoP ***"
-	//	Air()
-
-	src.var_swap = !( src.var_swap )
-	if (src.processing)
+			spawn(0) M.Life()
+		sleep(3)
+		for(var/obj/move/S in world)
+			S.process()
 		sleep(2)
-		goto Label_6
+		for(var/obj/machinery/M in machines)
+			M.process()
+		for(var/obj/machinery/M in gasflowlist)
+			M.gas_flow()
+		for(var/datum/powernet/P in powernets)
+			P.reset()
+		src.var_swap = !src.var_swap
+		sleep(2)
+	while (src.processing)
 	return

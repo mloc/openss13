@@ -4,8 +4,9 @@
 
 // BEGIN_INTERNALS
 /*
-FILE: Code\items.dm
+FILE: ss13h_new.dmp
 DIR: Code Code\Effects Code\Item Code\Item\Weapon Code\Machinery Code\Machinery\Computer
+UPDATE_OBJ_TREE: ON
 MAP_ICON_TYPE: 0
 AUTO_FILE_DIR: ON
 */
@@ -13,6 +14,7 @@ AUTO_FILE_DIR: ON
 // BEGIN_FILE_DIR
 #define FILE_DIR .
 #define FILE_DIR "Code"
+#define FILE_DIR "Code/Admin"
 #define FILE_DIR "Code/CTF"
 #define FILE_DIR "Code/Effects"
 #define FILE_DIR "Code/Item"
@@ -145,4 +147,5 @@ AUTO_FILE_DIR: ON
 #include "Code\mob\ai.dm"
 #include "Code\mob\drone.dm"
 // END_INCLUDE
+
 
