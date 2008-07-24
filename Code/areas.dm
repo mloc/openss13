@@ -196,6 +196,25 @@
 /area/turret_protected/computer_core
 	name = "Computer Core"
 
+/area/medical_station/medical_dock
+	name = "dock"
+/area/medical_station/medical_station
+	name = "main deck"
+/area/medical_station/medical_engine
+	name = "engine control"
+/area/medical_station/medical_engine_storage
+	name = "engine storage"
+/area/medical_station/atmosphere_control_center
+	name = "atmosphere control center"
+/area/medical_station/equipment_storage
+	name = "equipment storage"
+/area/medical_station/chemical_storage
+	name = "chemical storage"
+/area/medical_station/atmosphere_experiment
+	name = "experimental atmospheric testing"
+/area/medical_station/ventilation_shaft
+	name = "ventilation shaft"
+
 /area/New()
 
 	..()

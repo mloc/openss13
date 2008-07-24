@@ -45,7 +45,7 @@
 
 		#ifdef VARSICON
 		var/rnd = rand(1,10000)					// use random number in filename to avoid conflicts
-		user.client_mob() << browse_rsc(val, "tmp\ref[val][rnd].png")	// precache the icon image file
+		user:client_mob() << browse_rsc(val, "tmp\ref[val][rnd].png")	// precache the icon image file
 		t+="<IMG SRC=\"tmp\ref[val][rnd].png\">"			// and add the icon to the HTML
 		#endif
 

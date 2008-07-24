@@ -3,12 +3,6 @@
 // New source code should be placed in .dm files: choose File/New --> Code File.
 
 // BEGIN_INTERNALS
-/*
-FILE: ss13h_new.dmp
-DIR: Code Code\Effects Code\Item Code\Item\Weapon Code\Machinery Code\Machinery\Computer
-MAP_ICON_TYPE: 0
-AUTO_FILE_DIR: ON
-*/
 // END_INTERNALS
 // BEGIN_FILE_DIR
 #define FILE_DIR .
@@ -28,12 +22,12 @@ AUTO_FILE_DIR: ON
 // END_FILE_DIR
 
 // BEGIN_PREFERENCES
-#define DEBUG
 // END_PREFERENCES
 
 // BEGIN_INCLUDE
 #include "ss13h_new.dmp"
 #include "Code\!atoms.dm"
+#include "Code\_debug.dm"
 #include "Code\aaaDefines.dm"
 #include "Code\ai_area_selection.dm"
 #include "Code\airtunnel.dm"

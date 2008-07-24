@@ -88,7 +88,7 @@ obj/machinery/atmoalter/canister
 					var/t = src.t_per
 					if (src.t_per > t2)
 						t = t2
-					
+
 					src.holding.gas.transfer_from(src.gas, t)
 				else								// If not holding a tank, release gas into the turf
 					if (T)
@@ -254,7 +254,7 @@ Pipe Valve Status: [ct]<BR>
 
 	Topic(href, href_list)
 		//debug message: //usr.client_mob() << "Topic on canister, usr is [usr], src is [src], usr.client_mob() is [usr.client_mob()], href is ([href]), href_list is ([href_list])."
-	
+
 		..()
 		if (usr.stat || usr.restrained())
 			return
@@ -441,4 +441,19 @@ Pipe Valve Status: [ct]<BR>
 			return
 
 
+	//Main Atmospheric Reservoir, starts with air mixture.  10x normal holding capacity/starting amount.  Anchored.
+	//This is just for testing, it's not permanent as the overlays don't look right and something a litttle more sophisticated
+	//Would be nice.
 
+	airreservoir
+		name = "Main Atmosphere Reservoir"
+		icon_state = "white"
+		color = "white"
+		anchored = 1
+		maximum = 1.3E9
+
+		New()
+			..()
+			src.gas.oxygen = 2.1e8*filled
+			src.gas.n2 = 7.9e8*filled
+			return

@@ -1353,6 +1353,53 @@ obj/item/weapon/clothing/suit/labcoat
 	icon_state = "fcardholder0"
 	s_istate = "clipboard"
 	w_class = 3.0
+
+/obj/item/weapon/filter  //New vent air filters
+	icon_state = "regulatorfilter1"
+	var/oftype		//Original filter type.  Used when repairing Malf. Filters
+	var/ftype		//Filter Type
+	var/cover = 1		//Starts covered.
+	var/oname		//Original name.  Used when repairing Malf. Filters
+	var/odesc		//Original desc.  Used when repairing Malf. Filters
+	w_class = 3.0
+	filtertype1
+		name = "Filter Type 1"
+		desc = "A type 1 Air Filter.  Filters all gasses except Nitrogen and Oxygen."
+		oname = "Filter Type 1"
+		odesc = "A type 1 Air Filter.  Filters all gasses except Nitrogen and Oxygen."
+		icon_state = "regulatorfilter1"
+		oftype = 1
+		ftype = 1
+	filtertype2
+		name = "Filter Type 2"
+		desc = "A type 2 Air Filter.  Filters all gasses except co2."
+		oname = "Filter Type 2"
+		odesc = "A type 2 Air Filter.  Filters all gasses except co2."
+		icon_state = "regulatorfilter2"
+		oftype = 2
+		ftype = 2
+	filtertype3
+		name = "Filter Type 3"
+		desc = "A type 3 Air Filter.  Filters co2."
+		oname = "Filter Type 3"
+		odesc = "A type 3 Air Filter.  Filters co2."
+		icon_state = "regulatorfilter3"
+		oftype = 3
+		ftype = 3
+	filtertype4
+		name = "Filter Type 4"
+		desc = "A type 4 Air Filter.  Filters Nitrogen and Oxygen."
+		oname = "Filter Type 4"
+		odesc = "A type 4 Air Filter.  Filters Nitrogen and Oxygen."
+		icon_state = "regulatorfilter4"
+		oftype = 4
+		ftype = 4
+	filtertype5
+		name = "Malfunctioning Filter"
+		desc = "A malfunctioning Air Filter.  Filters nothing."
+		icon_state = "regulatorfilter5"
+		ftype = 5
+
 /obj/item/weapon/flash
 	name = "flash"
 	icon_state = "flash"

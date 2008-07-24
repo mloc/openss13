@@ -317,6 +317,7 @@ heat is conserved between exchanges
 
 	return
 
+
 /obj/substance/gas/proc/turf_add_all_oxy(var/turf/target as turf)
 
 	var/t_gas = tot_gas()
@@ -326,7 +327,6 @@ heat is conserved between exchanges
 
 		var/heat_change = oxygen * temperature
 
-		//target.heat += heat_change
 		if( (t_turf + oxygen) >0 )
 			target.temp = ( target.temp * t_turf + heat_change ) / ( t_turf + oxygen )
 
@@ -345,6 +345,142 @@ heat is conserved between exchanges
 		target.res_vars()
 
 	return
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Gonna be honest, I was only 70% sure of anything I did here with these processes, but they SEEM to work in game correctly./
+//Most of it is honestly just copy over from above procs, after which I edited what I could decipher.						/
+//If there is something wrong with these, either scrap and redo them or edit what needs to be edited.						/
+//Just make sure to make appropriate changes to vent.dm if you change proc names.											/
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Gas specific addition procs
+
+
+/obj/substance/gas/proc/turf_add_oxy(var/turf/target as turf, amount)
+
+	if (((!( istype(target, /turf) ) && !( istype(target, /obj/move) )) || !( amount )))
+		return
+	if (locate(/obj/move, target))
+		target = locate(/obj/move, target)
+	var/t2 = src.oxygen
+	if (amount < 0)
+		amount = src.oxygen
+	if (!( t2 ))
+		return
+	var/t_oxy = amount * src.oxygen / t2
+
+	src.oxygen -= t_oxy
+
+	var/ttotal = target.tot_gas()
+
+	target.oxygen += t_oxy
+
+	target.temp = ( target.temp * ttotal + (amount * temperature)*TURF_ADD_FRAC ) /  (ttotal + amount)
+	target.res_vars()
+
+	return
+
+/obj/substance/gas/proc/turf_add_co2(var/turf/target as turf, amount)
+
+	if (((!( istype(target, /turf) ) && !( istype(target, /obj/move) )) || !( amount )))
+		return
+	if (locate(/obj/move, target))
+		target = locate(/obj/move, target)
+	var/t2 = src.co2
+	if (amount < 0)
+		amount = src.co2
+	if (!( t2 ))
+		return
+	var/t_co2 = amount * src.co2 / t2
+
+	src.co2 -= t_co2
+
+	var/ttotal = target.tot_gas()
+
+	target.co2 += t_co2
+
+	target.temp = ( target.temp * ttotal + (amount * temperature)*TURF_ADD_FRAC ) /  (ttotal + amount)
+	target.res_vars()
+
+	return
+
+/obj/substance/gas/proc/turf_add_n2(var/turf/target as turf, amount)
+
+	if (((!( istype(target, /turf) ) && !( istype(target, /obj/move) )) || !( amount )))
+		return
+	if (locate(/obj/move, target))
+		target = locate(/obj/move, target)
+	var/t2 = src.n2
+	if (amount < 0)
+		amount = src.n2
+	if (!( t2 ))
+		return
+	var/t_n2 = amount * src.n2 / t2
+
+	src.n2 -= t_n2
+
+	var/ttotal = target.tot_gas()
+
+	target.n2 += t_n2
+
+	target.temp = ( target.temp * ttotal + (amount * temperature)*TURF_ADD_FRAC ) /  (ttotal + amount)
+	target.res_vars()
+
+	return
+
+/obj/substance/gas/proc/turf_add_plasma(var/turf/target as turf, amount)
+
+	if (((!( istype(target, /turf) ) && !( istype(target, /obj/move) )) || !( amount )))
+		return
+	if (locate(/obj/move, target))
+		target = locate(/obj/move, target)
+	var/t2 = src.plasma
+	if (amount < 0)
+		amount = src.plasma
+	if (!( t2 ))
+		return
+	var/t_pla = amount * src.plasma / t2
+
+	src.plasma -= t_pla
+
+	var/ttotal = target.tot_gas()
+
+	target.poison += t_pla
+
+	target.temp = ( target.temp * ttotal + (amount * temperature)*TURF_ADD_FRAC ) /  (ttotal + amount)
+	target.res_vars()
+
+	return
+
+/obj/substance/gas/proc/turf_add_sl(var/turf/target as turf, amount)
+
+	if (((!( istype(target, /turf) ) && !( istype(target, /obj/move) )) || !( amount )))
+		return
+	if (locate(/obj/move, target))
+		target = locate(/obj/move, target)
+	var/t2 = src.sl_gas
+	if (amount < 0)
+		amount = src.sl_gas
+	if (!( t2 ))
+		return
+	var/t_sl_gas = amount * src.sl_gas / t2
+
+	src.sl_gas -= t_sl_gas
+
+	var/ttotal = target.tot_gas()
+
+	target.sl_gas += t_sl_gas
+
+	target.temp = ( target.temp * ttotal + (amount * temperature)*TURF_ADD_FRAC ) /  (ttotal + amount)
+	target.res_vars()
+
+	return
+
+//End gas specific addition procs
+
+
 
 /obj/substance/gas/proc/turf_take(var/turf/target as turf, amount)
 
