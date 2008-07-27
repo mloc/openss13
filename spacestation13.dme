@@ -3,6 +3,12 @@
 // New source code should be placed in .dm files: choose File/New --> Code File.
 
 // BEGIN_INTERNALS
+/*
+FILE: Code\globals.dm
+DIR: Code Code\Machinery Code\Machinery\Computer Code\Machinery\Power
+MAP_ICON_TYPE: 0
+AUTO_FILE_DIR: ON
+*/
 // END_INTERNALS
 // BEGIN_FILE_DIR
 #define FILE_DIR .

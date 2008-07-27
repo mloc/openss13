@@ -182,4 +182,3 @@ obj/machinery/valve
 			icon_state = "valve0"
 			sleep(10)
 		open = !open
-

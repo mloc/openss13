@@ -156,6 +156,7 @@ obj/machinery/circulator
 			ngas2.replace_by(gas2)
 
 
+
 		// now do standard gas flow process
 
 		var/delta_gt

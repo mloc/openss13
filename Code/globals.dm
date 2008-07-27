@@ -1,3 +1,36 @@
+/* Changes
+
+	Tobiasstrife
+
+		DONE:
+
+		Since Rev 106
+
+		Built redesigned medical satelite for testing new pipe atmo control.
+		Added filtered inlets and filtered/regulated vents.
+			Added 5 associated filters.
+			Gas specific turf_add procs.
+			Filter specifc turf_take procs.
+			Associated redesigned/new icons.
+		Added functional pumps.
+		Changed global FLOWFRAC from .05 to .99.
+		Added "white" canister, aka: atmosphere reservoir.  Contains air mixture.
+		Fixed typo somewhere in monkey mode win display
+
+		TODO:
+
+		Since Rev 106
+
+		Remap SS13 atmo system!!
+		Polish medical satelite.
+		Rethink atmo reservoir
+		Redesign some icons, especially for pump and reservoir
+		Add new items to pipe adding/removing systems when Hobnob gets it done.
+
+
+*/
+
+
 /* Most recent changes (Since H9.6)
 
 	Contining reorg of obj/machinery code
@@ -423,9 +456,9 @@ var
 	list/airlockIndexToWireColor
 	list/airlockWireColorToIndex
 	list/airlockFeatureNames = list("IdScan", "Main power In", "Main power Out", "Drop door bolts", "Backup power In", "Backup power Out", "Power assist", "AI Control", "Electrify")
-	
+
 	numDronesInExistance = 0
-	
+
 world
 	mob = /mob/human
 	turf = /turf/space

@@ -13,7 +13,7 @@
 #define NORMPIPERATE 40					//pipe-insulation rate divisor
 #define HEATPIPERATE 8					//heat-exch pipe insulation
 
-#define FLOWFRAC 0.5				// fraction of gas transfered per process
+#define FLOWFRAC 0.99				// fraction of gas transfered per process
 
 
 //FLAGS BITMASK

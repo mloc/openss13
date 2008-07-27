@@ -214,6 +214,8 @@
 	name = "experimental atmospheric testing"
 /area/medical_station/ventilation_shaft
 	name = "ventilation shaft"
+/area/medical_station/atmotestroom
+	name = "atmo test room"
 
 /area/New()
 

@@ -225,6 +225,7 @@ heat is conserved between exchanges
 	turf_add(T, src.co2 + src.oxygen + src.plasma + src.n2)
 	return
 
+
 /obj/substance/gas/proc/tot_gas()
 
 	return src.co2 + src.oxygen + src.plasma + src.sl_gas + src.n2
@@ -346,14 +347,7 @@ heat is conserved between exchanges
 
 	return
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Gonna be honest, I was only 70% sure of anything I did here with these processes, but they SEEM to work in game correctly./
-//Most of it is honestly just copy over from above procs, after which I edited what I could decipher.						/
-//If there is something wrong with these, either scrap and redo them or edit what needs to be edited.						/
-//Just make sure to make appropriate changes to vent.dm if you change proc names.											/
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 //Gas specific addition procs
 
@@ -546,6 +540,7 @@ heat is conserved between exchanges
 	//target.heat -= heat_gain			// no temp change; we just take a proportional amount of all gases
 	target.res_vars()
 	return
+
 
 /* original version
 /obj/substance/gas/proc/extract_toxs(var/turf/target as turf)

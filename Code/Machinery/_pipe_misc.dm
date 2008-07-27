@@ -165,6 +165,3 @@
 		sngas.turf_take(T, delta_gt)			// grab gas from turf and direcly add it to the new gas
 
 	T.res_vars()								// update turf gas vars for both cases
-
-
-
