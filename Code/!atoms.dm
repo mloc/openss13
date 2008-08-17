@@ -2187,16 +2187,7 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	flags = 322.0
 	w_class = 2.0
 	s_istate = "electronic"
-/obj/item/weapon/weldingtool
-	name = "weldingtool"
-	icon_state = "welder"
-	var/welding = 0.0
-	var/weldfuel = 20.0
-	flags = 322.0
-	force = 3.0
-	throwforce = 5.0
-	throwspeed = 5.0
-	w_class = 2.0
+
 /obj/item/weapon/wire
 	desc = "This is just a simple piece of regular insulated wire."
 	name = "wire"

@@ -1268,6 +1268,9 @@
 	return
 
 /obj/closet/attackby(obj/item/weapon/W as obj, mob/user as mob)
+	if(istype(W, /obj/item/weapon/card/id))
+		src.attack_hand(user)
+		return
 	if ((src.opened || W.damtype != "fire" || !( istype(W, /obj/item/weapon/weldingtool) )))
 		if (istype(W, /obj/item/weapon/grab))
 			src.MouseDrop_T(W:affecting, user)	//act like they were dragged onto the closet
@@ -1458,7 +1461,7 @@
 	if (result==0)
 		usr.client_mob() << "You can't reach [src]."
 		return
-	
+
 	if ((usr.stat || usr.restrained() || !( usr.canmove ) || usr.lying))
 		return
 	src.on = !( src.on )
@@ -1560,7 +1563,7 @@
 	if (result==0)
 		usr.client_mob() << "You can't reach [src]."
 		return
-	
+
 	src.dir = turn(src.dir, 90)
 	if (src.dir == NORTH)
 		src.layer = FLY_LAYER
@@ -1681,10 +1684,11 @@
 	if (istype(W, /obj/item/weapon/wirecutters))
 		if(!shock(user, 100))
 			src.health = 0
-	else if ((istype(W, /obj/item/weapon/screwdriver) && (istype(src.loc, /turf/station) || src.anchored)))
+	else if ((istype(W, /obj/item/weapon/screwdriver) && ( (istype(src.loc, /turf/station) || locate(src.loc, /obj/move) || locate(src.loc, /obj/machinery) || src.anchored)) ) )
 		if(!shock(user, 50))
 			src.anchored = !( src.anchored )
-			user.client_mob() << src.anchored ? "You have fastened the grille to the floor." : "You have unfastened the grill."
+			user << (src.anchored ? "You have fastened the grille to the floor." : "You have unfastened the grill.")
+			return
 	else if(istype(W, /obj/item/weapon/shard))	// can't get a shock by attacking with glass shard
 
 		src.health -= W.force * 0.1
@@ -1888,7 +1892,7 @@
 	if (result==0)
 		usr.client_mob() << "You can't reach [src]."
 		return
-	
+
 	if (src.anchored)
 		usr.client_mob() << "It is fastened to the floor; therefore, you can't rotate it!"
 		return 0

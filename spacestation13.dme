@@ -4,8 +4,8 @@
 
 // BEGIN_INTERNALS
 /*
-FILE: Code\globals.dm
-DIR: Code Code\Machinery Code\Machinery\Computer Code\Machinery\Power
+FILE: Code\Machinery\Door\airlock.dm
+DIR: Code Code\CTF Code\Effects Code\Item Code\Item\Weapon Code\Machinery Code\Machinery\Atmoalter Code\Machinery\Computer Code\Machinery\Door Code\Machinery\Power Code\mob
 MAP_ICON_TYPE: 0
 AUTO_FILE_DIR: ON
 */
@@ -25,6 +25,8 @@ AUTO_FILE_DIR: ON
 #define FILE_DIR "Code/mob"
 #define FILE_DIR "Icons"
 #define FILE_DIR "Interface"
+#define FILE_DIR "players"
+#define FILE_DIR "supporting-docs"
 // END_FILE_DIR
 
 // BEGIN_PREFERENCES
@@ -33,7 +35,6 @@ AUTO_FILE_DIR: ON
 // BEGIN_INCLUDE
 #include "ss13h_new.dmp"
 #include "Code\!atoms.dm"
-#include "Code\_debug.dm"
 #include "Code\aaaDefines.dm"
 #include "Code\ai_area_selection.dm"
 #include "Code\airtunnel.dm"
@@ -75,6 +76,7 @@ AUTO_FILE_DIR: ON
 #include "Code\Effects\water.dm"
 #include "Code\Item\Weapon\aimodules.dm"
 #include "Code\Item\Weapon\multitool.dm"
+#include "Code\Item\Weapon\weldingtool.dm"
 #include "Code\Machinery\_machinery.dm"
 #include "Code\Machinery\_pipe_misc.dm"
 #include "Code\Machinery\alarm.dm"

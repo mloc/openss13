@@ -1016,28 +1016,72 @@
 					return
 
 	if (src.item)
-		for(var/mob/O in viewers(src.target, null))
-			if ((O.hasClient() && !( O.blinded )))
-				O.show_message(text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target), 1)
-	else
-		var/message = null
+		src.item.add_fingerprint(src.source)
+	if (!( src.item ))
 		switch(src.place)
+			if("head")
+				if (!( src.target.wear_mask ))
+					//SN src = null
+					del(src)
+					return
 			if("l_hand")
-				message = text("\red <B>[] is trying to take off a [] from []'s left hand!</B>", src.source, src.target.l_hand, src.target)
+				if (!( src.target.l_hand ))
+					//SN src = null
+					del(src)
+					return
 			if("r_hand")
-				message = text("\red <B>[] is trying to take off a [] from []'s right hand!</B>", src.source, src.target.r_hand, src.target)
+				if (!( src.target.r_hand ))
+					//SN src = null
+					del(src)
+					return
 			if("back")
-				message = text("\red <B>[] is trying to take off a [] from []'s back!</B>", src.source, src.target.back, src.target)
+				if (!( src.target.back ))
+					//SN src = null
+					del(src)
+					return
 			if("handcuff")
-				message = text("\red <B>[] is trying to unhandcuff []!</B>", src.source, src.target)
+				if (!( src.target.handcuffed ))
+					//SN src = null
+					del(src)
+					return
 			if("internal")
-				if (src.target.internal)
-					message = text("\red <B>[] is trying to remove []'s internals</B>", src.source, src.target)
-				else
-					message = text("\red <B>[] is trying to set on []'s internals.</B>", src.source, src.target)
+				if ((!( (istype(src.target.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.target.back, /obj/item/weapon/tank) && !( src.target.internal )) ) && !( src.target.internal )))
+					//SN src = null
+					del(src)
+					return
+
+	var/message = null
+	switch(src.place)
+		if("l_hand")
+			if(src.target.l_hand)
+				message = text("\red <B>[] is trying to take off a [] from []'s left hand!</B>", src.source, src.target.l_hand, src.target)
 			else
-		for(var/mob/M in viewers(src.target, null))
-			M.show_message(message, 1)
+				message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+		if("r_hand")
+			if(src.target.r_hand)
+				message = text("\red <B>[] is trying to take off a [] from []'s right hand!</B>", src.source, src.target.r_hand, src.target)
+			else
+				message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+		if("back")
+			if(src.target.r_hand)
+				message = text("\red <B>[] is trying to take off a [] from []'s back!</B>", src.source, src.target.back, src.target)
+			else
+				message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+
+		if("handcuff")
+			if(src.target.handcuffed)
+				message = text("\red <B>[] is trying to unhandcuff []!</B>", src.source, src.target)
+			else
+				message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+		if("internal")
+			if (src.target.internal)
+				message = text("\red <B>[] is trying to remove []'s internals</B>", src.source, src.target)
+			else
+				message = text("\red <B>[] is trying to set on []'s internals.</B>", src.source, src.target)
+		else
+	for(var/mob/M in viewers(src.target, null))
+		M.show_message(message, 1)
+
 	spawn( 30 )
 		src.done()
 		return
@@ -1170,36 +1214,44 @@
 
 /obj/equip_e/human/process()
 
+
 	if (src.item)
 		src.item.add_fingerprint(src.source)
 	if (!( src.item ))
 		switch(src.place)
 			if("mask")
 				if (!( src.target.wear_mask ))
+					//SN src = null
 					del(src)
 					return
 			if("headset")
 				if (!( src.target.w_radio ))
+					//SN src = null
 					del(src)
 					return
 			if("l_hand")
 				if (!( src.target.l_hand ))
+					//SN src = null
 					del(src)
 					return
 			if("r_hand")
 				if (!( src.target.r_hand ))
+					//SN src = null
 					del(src)
 					return
 			if("suit")
 				if (!( src.target.wear_suit ))
+					//SN src = null
 					del(src)
 					return
 			if("uniform")
 				if (!( src.target.w_uniform ))
+					//SN src = null
 					del(src)
 					return
 			if("back")
 				if (!( src.target.back ))
+					//SN src = null
 					del(src)
 					return
 			if("syringe")
@@ -1208,77 +1260,126 @@
 				return
 			if("handcuff")
 				if (!( src.target.handcuffed ))
+					//SN src = null
 					del(src)
 					return
 			if("id")
 				if ((!( src.target.wear_id ) || !( src.target.w_uniform )))
+					//SN src = null
 					del(src)
 					return
 			if("internal")
 				if ((!( (istype(src.target.wear_mask, /obj/item/weapon/clothing/mask) && istype(src.target.back, /obj/item/weapon/tank) && !( src.target.internal )) ) && !( src.target.internal )))
+					//SN src = null
 					del(src)
 					return
 
 	var/list/L = list( "syringe", "pill" )
-	if ((src.item && !( L.Find(src.place) )))
-		for(var/mob/O in viewers(src.target, null))
-			O.show_message(text("\red <B>[] is trying to put \a [] on []</B>", src.source, src.item, src.target), 1)
+	if (!( L.Find(src.place) ))
+		var/message = null
+		switch(src.place)
+			if("mask")
+				if(src.target.wear_mask)
+					message = text("\red <B>[] is trying to take off \a [] from []'s head!</B>", src.source, src.target.wear_mask, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("headset")
+				if(src.target.w_radio)
+					message = text("\red <B>[] is trying to take off \a [] from []'s face!</B>", src.source, src.target.w_radio, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("l_hand")
+				if(src.target.l_hand)
+					message = text("\red <B>[] is trying to take off \a [] from []'s left hand!</B>", src.source, src.target.l_hand, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("r_hand")
+				if(src.target.r_hand)
+					message = text("\red <B>[] is trying to take off \a [] from []'s right hand!</B>", src.source, src.target.r_hand, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("gloves")
+				if(src.target.gloves)
+					message = text("\red <B>[] is trying to take off the [] from []'s hands!</B>", src.source, src.target.gloves, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("eyes")
+				if(src.target.glasses)
+					message = text("\red <B>[] is trying to take off the [] from []'s eyes!</B>", src.source, src.target.glasses, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("ears")
+				if(src.target.ears)
+					message = text("\red <B>[] is trying to take off the [] from []'s ears!</B>", src.source, src.target.ears, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("head")
+				if(src.target.head)
+					message = text("\red <B>[] is trying to take off the [] from []'s head!</B>", src.source, src.target.head, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("shoes")
+				if(src.target.shoes)
+					message = text("\red <B>[] is trying to take off the [] from []'s feet!</B>", src.source, src.target.shoes, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("belt")
+				if(src.target.belt)
+					message = text("\red <B>[] is trying to take off the [] from []'s belt!</B>", src.source, src.target.belt, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("suit")
+				if(src.target.wear_suit)
+					message = text("\red <B>[] is trying to take off \a [] from []'s body!</B>", src.source, src.target.wear_suit, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("back")
+				if(src.target.back)
+					message = text("\red <B>[] is trying to take off \a [] from []'s back!</B>", src.source, src.target.back, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("handcuff")
+				if(src.target.handcuffed)
+					message = text("\red <B>[] is trying to unhandcuff []!</B>", src.source, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("uniform")
+				if(src.target.w_uniform)
+					message = text("\red <B>[] is trying to take off \a [] from []'s body!</B>", src.source, src.target.w_uniform, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("pockets")
+				message = text("\red <B>[] is trying to empty []'s pockets!!</B>", src.source, src.target)
+			if("CPR")
+				if (src.target.cpr_time >= world.time + 3)
+				//SN src = null
+					del(src)
+					return
+				message = text("\red <B>[] is trying perform CPR on []!</B>", src.source, src.target)
+			if("id")
+				if(src.target.wear_id)
+					message = text("\red <B>[] is trying to take off [] from []'s uniform!</B>", src.source, src.target.wear_id, src.target)
+				else
+					message = text("\red <B>[] is trying to put a [] on []</B>", src.source, src.item, src.target)
+			if("internal")
+				if (src.target.internal)
+					message = text("\red <B>[] is trying to remove []'s internals</B>", src.source, src.target)
+				else
+					message = text("\red <B>[] is trying to set on []'s internals.</B>", src.source, src.target)
+			else
+		for(var/mob/M in viewers(src.target, null))
+			M.show_message(message, 1)
+
 	else
 		if (src.place == "syringe")
 			for(var/mob/O in viewers(src.target, null))
 				O.show_message(text("\red <B>[] is trying to inject []!</B>", src.source, src.target), 1)
+				//Foreach goto(466)
 		else
 			if (src.place == "pill")
 				for(var/mob/O in viewers(src.target, null))
 					O.show_message(text("\red <B>[] is trying to force [] to swallow []!</B>", src.source, src.target, src.item), 1)
-			else
-				var/message = null
-				switch(src.place)
-					if("mask")
-						message = text("\red <B>[] is trying to take off \a [] from []'s head!</B>", src.source, src.target.wear_mask, src.target)
-					if("headset")
-						message = text("\red <B>[] is trying to take off \a [] from []'s face!</B>", src.source, src.target.w_radio, src.target)
-					if("l_hand")
-						message = text("\red <B>[] is trying to take off \a [] from []'s left hand!</B>", src.source, src.target.l_hand, src.target)
-					if("r_hand")
-						message = text("\red <B>[] is trying to take off \a [] from []'s right hand!</B>", src.source, src.target.r_hand, src.target)
-					if("gloves")
-						message = text("\red <B>[] is trying to take off the [] from []'s hands!</B>", src.source, src.target.gloves, src.target)
-					if("eyes")
-						message = text("\red <B>[] is trying to take off the [] from []'s eyes!</B>", src.source, src.target.glasses, src.target)
-					if("ears")
-						message = text("\red <B>[] is trying to take off the [] from []'s ears!</B>", src.source, src.target.ears, src.target)
-					if("head")
-						message = text("\red <B>[] is trying to take off the [] from []'s head!</B>", src.source, src.target.head, src.target)
-					if("shoes")
-						message = text("\red <B>[] is trying to take off the [] from []'s feet!</B>", src.source, src.target.shoes, src.target)
-					if("belt")
-						message = text("\red <B>[] is trying to take off the [] from []'s belt!</B>", src.source, src.target.belt, src.target)
-					if("suit")
-						message = text("\red <B>[] is trying to take off \a [] from []'s body!</B>", src.source, src.target.wear_suit, src.target)
-					if("back")
-						message = text("\red <B>[] is trying to take off \a [] from []'s back!</B>", src.source, src.target.back, src.target)
-					if("handcuff")
-						message = text("\red <B>[] is trying to unhandcuff []!</B>", src.source, src.target)
-					if("uniform")
-						message = text("\red <B>[] is trying to take off \a [] from []'s body!</B>", src.source, src.target.w_uniform, src.target)
-					if("pockets")
-						message = text("\red <B>[] is trying to empty []'s pockets!!</B>", src.source, src.target)
-					if("CPR")
-						if (src.target.cpr_time >= world.time + 3)
-							del(src)
-							return
-						message = text("\red <B>[] is trying perform CPR on []!</B>", src.source, src.target)
-					if("id")
-						message = text("\red <B>[] is trying to take off [] from []'s uniform!</B>", src.source, src.target.wear_id, src.target)
-					if("internal")
-						if (src.target.internal)
-							message = text("\red <B>[] is trying to remove []'s internals</B>", src.source, src.target)
-						else
-							message = text("\red <B>[] is trying to set on []'s internals.</B>", src.source, src.target)
-					else
-				for(var/mob/M in viewers(src.target, null))
-					M.show_message(message, 1)
+					//Foreach goto(527)
 	spawn( 30 )
 		src.done()
 		return
@@ -2648,6 +2749,8 @@
 
 /* IMPORTANT NOTE: Both humans and drones have a copy of this code. If the code is modified to fix a bug or whatever, it will need to be modified in BOTH of them. Monkeys also have some of this code, but not all of it. (Moving the code into a shared method or two wasn't feasible because of where the ..() calls are and such) --shadowlord13 */
 /mob/human/Move(a, b, flag)
+	if ((!( src.buckled ) || src.buckled.loc != src.loc))
+		src.buckled = null
 	if (src.buckled)
 		return
 	if (src.restrained())

@@ -146,7 +146,7 @@ obj/machinery/power/apc
 	attackby(obj/item/weapon/W, mob/user)
 
 		if(stat & BROKEN) return
-		
+
 		if (istype(user, /mob/ai))
 			return src.attack_hand(user)
 
@@ -201,10 +201,10 @@ obj/machinery/power/apc
 
 
 	// Attack with hand - remove cell (if present and cover open) or interact with the APC
-	
+
 	attack_ai(mob/user)
 		return src.attack_hand(user)
-	
+
 	attack_hand(mob/user)
 
 		add_fingerprint(user)
@@ -215,16 +215,19 @@ obj/machinery/power/apc
 			if(cell)
 				cell.loc = usr
 				cell.layer = 20
+				//Added User.equipped() because apparently there is some bug where attach_hand gets called after attack_by().  --Zjm7891
 				if (user.hand )
-					user.l_hand = cell
+					if(!user.equipped())
+						user.l_hand = cell
 				else
-					user.r_hand = cell
+					if(!user.equipped())
+						user.r_hand = cell
 
 				cell.add_fingerprint(user)
 				cell.updateicon()
 
 				src.cell = null
-				user.client_mob() << "You remove the power cell."
+				user << "You remove the power cell."
 				charging = 0
 				src.updateicon()
 
@@ -267,7 +270,7 @@ obj/machinery/power/apc
 			t += "<HR>Cover lock: <B>[coverlocked ? "Engaged" : "Disengaged"]</B>"
 
 		else													// If interface is unlocked, show status and control links
-			if (!istype(user, /mob/ai))		
+			if (!istype(user, /mob/ai))
 				t += "<I>(Swipe ID card to lock interface.)</I><BR>"
 			t += "Main breaker: [operating ? "<B>On</B> <A href='?src=\ref[src];breaker=1'>Off</A>" : "<A href='?src=\ref[src];breaker=1'>On</A> <B>Off</B>" ]<BR>"
 			t += "External power : <B>[ main_status ? (main_status ==2 ? "<FONT COLOR=#004000>Good</FONT>" : "<FONT COLOR=#D09000>Low</FONT>") : "<FONT COLOR=#F00000>None</FONT>"]</B><BR>"
@@ -365,7 +368,7 @@ obj/machinery/power/apc
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			if (!istype(usr, /mob/ai))		
+			if (!istype(usr, /mob/ai))
 				usr.client_mob() << "\red You don't have the dexterity to do this!"
 				return
 

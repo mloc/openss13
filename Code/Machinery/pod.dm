@@ -83,10 +83,9 @@ obj/machinery/pod
 
 	verb/eject()
 		set src = usr.loc
-
-		var/result = src.canReach(usr, null, 1)
-		if (result==0)
-			usr << "You can't reach [src]."
+		if (!(usr in src) || usr.restrained())
+			return
+		if (usr.stat)
 			return
 		var/mob/M = usr
 		M.loc = src.loc

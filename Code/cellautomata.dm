@@ -143,6 +143,10 @@
 /obj/ctf_assist/New()
 
 	..()
+
+	if(ticker)
+		return
+
 	going = 0
 	master_mode = "extended"
 	world << "<B>Capture the Flag Mode activated!</B>"
@@ -157,7 +161,7 @@
 			del(M.primary)
 			for(var/obj/item/weapon/I in M)
 				//M = null
-				del(M)
+				del(I)
 			M.start = 0
 	world << "<B>All players have been pushed back!</B>"
 	return

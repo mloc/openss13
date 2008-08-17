@@ -138,8 +138,9 @@ Keycard: [src.scan ? "<A href='?src=\ref[src];card=1'>[src.scan.name]</A>" : "<A
 							return
 			if (href_list["em_cl"])
 				if (valid)
-					if (!( src.d1.density ))
-						src.d1.close()
+					spawn( 0 )
+						if (!( src.d1.density ))
+							src.d1.close()
 						return
 					sleep(1)
 					spawn( 0 )

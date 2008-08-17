@@ -3107,7 +3107,7 @@
 	screen += src.boxes
 	screen += src.closer
 	screen += src.contents
-	
+
 	user.s_active = src
 	return
 
@@ -5062,46 +5062,6 @@
 	src.pixel_x = rand(-8.0, 8)
 	return
 
-/obj/item/weapon/weldingtool/examine()
-	set src in usr
-
-	usr.client_mob() << text("\icon[] [] contains [] units of fuel left!", src, src.name, src.weldfuel)
-	return
-
-/obj/item/weapon/weldingtool/afterattack(obj/O, mob/user)
-
-	if (src.welding)
-		src.weldfuel--
-		if (src.weldfuel <= 0)
-			usr.client_mob() << "\blue Need more fuel!"
-			src.welding = 0
-			src.force = 3
-			src.damtype = "brute"
-			src.icon_state = "welder"
-		var/turf/location = user.loc
-		if (!( istype(location, /turf) ))
-			return
-		location.firelevel = location.poison + 1
-	return
-
-/obj/item/weapon/weldingtool/attack_self(mob/user)
-
-	src.welding = !( src.welding )
-	if (src.welding)
-		if (src.weldfuel <= 0)
-			user.client_mob() << "\blue Need more fuel!"
-			src.welding = 0
-			return 0
-		user.client_mob() << "\blue You will now weld when you attack."
-		src.force = 15
-		src.damtype = "fire"
-		src.icon_state = "welder1"
-	else
-		user.client_mob() << "\blue Not welding anymore."
-		src.force = 3
-		src.damtype = "brute"
-		src.icon_state = "welder"
-	return
 
 /obj/manifest/New()
 
@@ -5478,15 +5438,15 @@
 		usingWeapon - the weapon the mob is using to reach src. This is important if they're actually trying to *shoot* someone.
 		ignoreNextMoveTime - Normally this would be 0, and if world.time wasn't < next_time, the proc would return 0. If it was < next_time, prev_time and next_time would be changed (next_time being set to world.time + 10).
 			If, instead, ignoreNextMoveTime is 1, next_time, world.time, and prev_time will not be examined or changed.
-	
+
 	Return value:
 		This returns 0 if, for some reason, the user can't reach src. If not, the return value is a set of 3 bitflags:
 		1: CANREACH_USINGWEAPON: If set, user is using a "weapon" (passed in as usingWeapon) on src. (This is kind of semi-useless to check, since the only case currently where this would be 0 when you had passed in a weapon would be if the user was a drone, and the weapon was the AI interface, and the drone was controlled by the AI player, in which case if you cared you would already be checking for it anyways because you would need to be changing the user and setting the weapon to null yourself.)
 		2: CANREACH_CANTOUCH: If set, src can be touched by user (which was called t5 in DblClick). This is set if (get_dist(src, user) <= 1 || src.loc == user), or if the user is the AI, or if the user is a drone controlled by an AI using the AI interface tool.
 		4: CANREACH_ALLOWED: If set, src is reachable by user, or the attempt is allowed for another reason. This is always set if the return value is valid. This differs from cantouch because this will be set if the user is using a gun on someone distant, whereas cantouch will not be set in that case. It's also theoretically possible to have a return value which contains only 4 for some /obj/screen objects, if the code in /atom/DblClick wasn't just overly paranoid.
-		
+
 		Valid combinations of those are: 0, 4, 5, 6, or 7. (You won't ever have 1 or 2 set if 4 isn't set)
-	
+
 	Detail on what's checked:
 		The user has to be able to move unless they are an AI, and their stat has to be 0 (alive and awake).
 		If the src is not in user's inventory, we MIGHT return 0:
@@ -5496,7 +5456,7 @@
 				We return 0, it cannot be reached.
 			(Otherwise we continue)
 		And some other difficult to explain stuff is done here.
-	
+
 		Either CANREACH_CANTOUCH will be true, or the user must be using a weapon which has flag 16 set, or src is an /obj/screen.
 		Checks to determine if there are obstacles in the way (windows, etc) are done unless src is an /obj/screen.
 */
@@ -5545,7 +5505,7 @@
 			return 0
 	/* Suggested fix by shadowlord13 for Bug #1952091. --Stephen001 */
 	var/turf/turfLoc = (istype(src, /turf) ? src : src.loc)
-	
+
 	/* Seems like a pretty important expression. Dare I fathom what it checks? --Stephen001 */
 	/* flag 16 in this case apparently disables the distance check and the alternate 'is in contents' check in the var/t5 line.
 		It's used on guns, for instance. --shadowlord13 */
@@ -5634,7 +5594,7 @@
 			if (!(ok))
 				return 0
 		//user << "Debug message: usingWeapon [usingWeapon] t5 [t5] src [src] user [user]"
-		
+
 		return (((t5!=0)&1)<<1) | ((usingWeapon!=0)&1) | CANREACH_ALLOWED
 	else
 		if (istype(src, /obj/screen))
@@ -5656,7 +5616,7 @@
 		return
 	else
 		usr:lastDblClick = world.time
-	
+
 	..()
 	// I changed everything in this function from using usr to user before I found out that you can actually change the value of usr.
 	var/mob/user = usr
@@ -5689,40 +5649,49 @@
 			return
 
 	var/retval = src.canReach(user, W, 0)
-	
+
 	if (retval==0)
 		return
-	
+
 	if (istype(user, /mob/drone))
 		if (user:selectedTool == user:aiInterface)
 			if (istype(user:controlledBy, /mob/ai))
 				user = user:controlledBy
 				W = null
-	
+
 	if (!(retval & CANREACH_USINGWEAPON))
 		W = null
-	
+
 	//if (((t5 || (usingWeapon && (usingWeapon.flags & 16))) && !(istype(src, /obj/screen))))
-	
+
 	if (retval & CANREACH_ALLOWED)
-		if (!( user.restrained() ))
-			if ((W && !( istype(src, /obj/screen) )))
-				src.attackby(W, user)
-				if (W)
-					W.afterattack(src, user)
+		if (!( usr.restrained() ))
+			if ((W && !( istype(src, /obj/screen))))
+				if (retval & CANREACH_CANTOUCH)
+					src.attackby(W, usr)
+				if ((retval & CANREACH_USINGWEAPON) && !(retval & CANREACH_CANTOUCH))
+					W.afterattack(src, usr)
 			else
-				if (istype(user, /mob/human))
-					src.attack_hand(user, user.hand)
+				if (istype(usr, /mob/ai)) /*The AI couldn't activate computers, this should fix that problem*/
+					//The AI was also able to control objects when the AI didn't have power.. BAD
+					if(usr:aiRestorePowerRoutine == 0)
+						src.attack_ai(usr, usr.hand)
+					else
+						usr << "You currently do not have the power to preform this task"
 				else
-					if (istype(user, /mob/monkey))
-						src.attack_paw(user, user.hand)
+					if (istype(usr, /mob/human))
+						src.attack_hand(usr, usr.hand)
+					else
+						if (istype(usr, /mob/monkey))
+							src.attack_paw(usr, usr.hand)
 		else
-			if (istype(user, /mob/human))
-				src.hand_h(user, user.hand)
+			if (istype(usr, /mob/human))
+				src.hand_h(usr, usr.hand)
 			else
-				if (istype(user, /mob/monkey))
-					src.hand_p(user, user.hand)
-			
+				if (istype(usr, /mob/monkey))
+					src.hand_p(usr, usr.hand)
+
+
 
 /obj/proc/updateDialog()
 	var/list/nearby = viewers(1, src)

@@ -6,7 +6,7 @@
 /obj/machinery/computer/security/attack_ai(var/mob/user as mob)
 	return src.attack_hand(user)
 	return
-	
+
 /obj/machinery/computer/security/attack_paw(var/mob/user as mob)
 
 	return src.attack_hand(user)
@@ -21,7 +21,7 @@
 	var/i = 0
 	for (i=1, i<=A.len, i++)
 		B[A[i]] = A[A[i]]
-	
+
 	var/j = 0
 	var/temp = null
 	var/size = A.len
@@ -30,34 +30,34 @@
 		for (i = increment, i < size, i+=increment)
 			j = i
 			temp = A[1+i]
-			
+
 			var/other = A[1+j-increment]
 			var/sortval = -sorttext(other, temp) //The - is because sorttext(A,B) returns -1 if A > B, rather than 1, and I'd consider having A > B = 1 to be more natural (since you can then check if sortval > 0, using the same comparison operator that you would have if you were directly comparing A and B (If we think that (0 > sortval) isn't also acceptable)).  -Trafalgar
-			
+
 			while ((j >= increment) && (sortval > 0))
 				A[1+j] = A[1+j - increment]
 				j = j - increment;
 				if (j>=increment)
 					other = A[1+j-increment]
 					sortval = sorttext(temp, other)
-			
+
 			A[1+j] = temp
-		
-		
+
+
 		if (increment == 2)
 			increment = 1
 		else
 			increment = round(increment / 2.2)
-	
+
 	//Now we go through and assign names to cameras in a new list, but we do it in the order in which we had sorted the strings to
 	//The presumable un-speediness of this kind of defeats the point of doing the sorting the way we did it, though.
 	var/list/C = list()
 	for (i=1, i<=A.len, i++)
 		C[A[i]] = B[A[i]]
-	
-	
+
+
 	return C
-	
+
 /obj/machinery/computer/security/attack_hand(var/mob/user as mob)
 
 	if(stat & (NOPOWER|BROKEN) ) return
@@ -67,7 +67,7 @@
 	for(var/obj/machinery/camera/C in world)
 		if (C.network == src.network)
 			L[text("[][]", C.c_tag, (C.status ? null : " (Deactivated)"))] = C
-	
+
 	L = sortList(L)
 	L["Cancel"] = "Cancel"
 	var/t = input(user, "Which camera should you change to?") as null|anything in L
@@ -218,7 +218,29 @@
 				else
 					if (M.r_hand.w_class <= 2)
 						t1 -= 1
-			else if (locate(/obj/move/wall, oview(1, M)))	//characters 'grab' shuttle walls like regular walls now -shadowlord13
+			else if (locate(/obj/move/, oview(1, M)))	//characters 'grab' shuttle walls like regular walls now -shadowlord13
+				if (!( M.l_hand ))
+					t1 -= 1
+				else
+					if (M.l_hand.w_class <= 2)
+						t1 -= 0.5
+				if (!( M.r_hand ))
+					t1 -= 1
+				else
+					if (M.r_hand.w_class <= 2)
+						t1 -= 0.5
+			else if (locate(/obj/machinery/, oview(1, M)))	//characters 'grab' objects in space like a grille now -zjm7891 Thanks Shadowlord
+				if (!( M.l_hand ))
+					t1 -= 2
+				else
+					if (M.l_hand.w_class <= 2)
+						t1 -= 1
+				if (!( M.r_hand ))
+					t1 -= 2
+				else
+					if (M.r_hand.w_class <= 2)
+						t1 -= 1
+			else if (locate(/turf/station, oview(1, M)))
 				if (!( M.l_hand ))
 					t1 -= 1
 				else
@@ -244,15 +266,15 @@
 			t1 = round(t1)
 			if (t1 < 5)
 				if (prob(t1))
-					M.client_mob() << "\blue <B>You slipped!</B>"
+					M << "\blue <B>You slipped!</B>"
 				else
 					spawn( 5 )
 						if (src == A.loc)
 							spawn( 0 )
 								src.Entered(A)
-								return
-						return
-					return 0
+								return 1
+						return 1
+					return 1
 
 	if (src.x <= 2 && src.z < world.maxz)
 		A.z++
@@ -277,7 +299,7 @@
 /proc/call_shuttle_proc(var/mob/user)
 	if ((!( ticker ) || ticker.shuttle_location == 1))
 		return
-	
+
 	if( ticker.mode == "blob" )
 		user.client_mob() << "Under directive 7-10, SS13 is quarantined until further notice."
 		return
