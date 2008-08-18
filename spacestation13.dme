@@ -3,12 +3,6 @@
 // New source code should be placed in .dm files: choose File/New --> Code File.
 
 // BEGIN_INTERNALS
-/*
-FILE: Code\Machinery\Door\airlock.dm
-DIR: Code Code\CTF Code\Effects Code\Item Code\Item\Weapon Code\Machinery Code\Machinery\Atmoalter Code\Machinery\Computer Code\Machinery\Door Code\Machinery\Power Code\mob
-MAP_ICON_TYPE: 0
-AUTO_FILE_DIR: ON
-*/
 // END_INTERNALS
 // BEGIN_FILE_DIR
 #define FILE_DIR .
@@ -25,11 +19,10 @@ AUTO_FILE_DIR: ON
 #define FILE_DIR "Code/mob"
 #define FILE_DIR "Icons"
 #define FILE_DIR "Interface"
-#define FILE_DIR "players"
-#define FILE_DIR "supporting-docs"
 // END_FILE_DIR
 
 // BEGIN_PREFERENCES
+#define DEBUG
 // END_PREFERENCES
 
 // BEGIN_INCLUDE
@@ -103,6 +96,7 @@ AUTO_FILE_DIR: ON
 #include "Code\Machinery\pipeline.dm"
 #include "Code\Machinery\pipes.dm"
 #include "Code\Machinery\pod.dm"
+#include "Code\Machinery\pump.dm"
 #include "Code\Machinery\recharger.dm"
 #include "Code\Machinery\recon.dm"
 #include "Code\Machinery\sec_lock.dm"
