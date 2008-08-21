@@ -223,7 +223,7 @@ obj/machinery/pipes
 			if(!findbrokenpipe(T, dirs[1], level, 0))					// no broken pipe present
 				overlays += image('pipes.dmi', "discon[dirs[1]]", FLY_LAYER)
 
-		else if(!node2)														// node2 is not connected
+		if(!node2)														// node2 is not connected
 			if(!findbrokenpipe(T, dirs[2], level, 0))					// no broken pipe present
 				overlays += image('pipes.dmi', "discon[dirs[2]]", FLY_LAYER)
 
@@ -560,7 +560,7 @@ obj/machinery/pipes
 				if(!findbrokenpipe(T, dirs[1], level, 1))					// no broken pipe present
 					overlays += image('pipes.dmi', "discon-he[dirs[1]]", FLY_LAYER)
 
-			else if(!node2)														// node2 is not connected
+			if(!node2)														// node2 is not connected
 				if(!findbrokenpipe(T, dirs[2], level, 1))					// no broken pipe present
 					overlays += image('pipes.dmi', "discon-he[dirs[2]]", FLY_LAYER)
 
