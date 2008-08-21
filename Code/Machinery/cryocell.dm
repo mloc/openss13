@@ -65,7 +65,10 @@ obj/machinery/cryo_cell
 
 		line_in = get_machine(level, T, p_dir )
 
-		if(line_in) vnode = line_in.getline()
+		if(line_in)
+			vnode = line_in.getline()
+		else
+			vnode = null
 
 
 

@@ -895,6 +895,10 @@ turf/proc/tot_old_gas()
 /turf/proc/tot_tmp_gas()
 	return tmpco2 + tmpoxy + tmppoison + tsl_gas + tn2
 
+// return the "pressure" of a turf
+
+/turf/proc/pressure()
+	return src.tot_gas() * src.temp
 
 // return the gas contents of a turf as a gas obj
 

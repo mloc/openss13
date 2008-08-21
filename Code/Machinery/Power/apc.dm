@@ -29,6 +29,8 @@ obj/machinery/power/apc
 	anchored = 1
 	netnum = -1		// Always -1, set so that APCs aren't found as powernet nodes
 					// instead, all connections are done through the associated terminal object
+	layer = 3.1		// slightly above standard obj layer
+
 	var
 		area/area						// the area that this APC controls
 		obj/item/weapon/cell/cell		// the power cell object inserted in this APC (or null if none)

@@ -2610,6 +2610,10 @@
 	else if (istype(C, /obj/item/weapon/cable_coil) )
 		var/obj/item/weapon/cable_coil/coil = C
 		coil.turf_place(src, user)
+	else if (istype(C, /obj/item/weapon/pipe) )
+		var/obj/item/weapon/pipe/pipe = C
+		pipe.turf_place(src, user)
+
 	return
 
 /turf/station/floor/unburn()

@@ -472,4 +472,17 @@
 
 //Pops up the take-off / put-on dialog, but for yourself.
 /mob/human/proc/ShowMyInv()
+	set category = "Debug"
 	src.show_inv(src)
+
+// Show all admins
+/mob/verb/Admins()
+	set category = "Debug"
+
+	for(var/A in admins)
+		world << "[A] = [admins[A]]"
+
+/mob/verb/plasma()
+	set category = "Debug"
+
+	new /obj/machinery/atmoalter/canister/poisoncanister(src.loc)

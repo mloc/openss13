@@ -11,6 +11,7 @@ obj/machinery/sec_lock
 	icon = 'stationobjs.dmi'
 	icon_state = "sec_lock"
 	anchored = 1.0
+	layer = 3.1
 
 	var
 		obj/item/weapon/card/id/scan = null			// the inserted ID card

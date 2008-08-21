@@ -62,25 +62,21 @@ obj/machinery/circulator
 
 	buildnodes()
 
-		var/turf/TS = get_step(src, SOUTH)
-		var/turf/TN = get_step(src, NORTH)
+		var/turf/T = src.loc
 
-		for(var/obj/machinery/M in TS)
-
-			if(M && (M.p_dir & 1))
-				node1 = M
-				break
-
-		for(var/obj/machinery/M in TN)
-
-			if(M && (M.p_dir & 2))
-				node2 = M
-				break
+		node1 = get_machine(level, T, SOUTH)
+		node2 = get_machine(level, T, NORTH)
 
 
-		if(node1) vnode1 = node1.getline()
+		if(node1)
+			vnode1 = node1.getline()
+		else
+			vnode1 = null
 
-		if(node2) vnode2 = node2.getline()
+		if(node2)
+			vnode2 = node2.getline()
+		else
+			vnode2 = null
 
 
 	// Set the current status and pumping rate (as a percentage)

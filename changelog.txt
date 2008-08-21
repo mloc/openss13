@@ -1,0 +1,40 @@
+<FONT color='blue'><B>Changes from previous version.</B></FONT><BR>
+<HR><PRE>
+Features
+========
+Map changed to a version similar to GoonStation 13.
+Added an AI role to the station, with suitable equipment.
+
+Bug-fixes
+=========
+Submitted By	Fixed By	Description
+Stephen001	Stephen001	Fixed the Prison Station's map
+Zjm7891		Zjm7891		Fixed bug involving APC's without external power eating screwdriver
+Zjm7891		Zjm7891		Fixed bug #2002391
+Coral		Zjm7891		Fixed Emergency Close
+Animay3		Zjm7891		Fixed CTF mode crashing server.
+Nickr5		Zjm7891		Fixed closet/chair immobilisation bug
+Trafalgar	Hobnob		Made weldingtools ignite plasma when present.
+Zjm7891		Zjm7891		Attacking with certian items ignored range
+Cecilff2	Stephen001	Grab stages would not advance past passive.
+Zjm7891     Zjm7891		AI could no longer use equipment
+Cecilff2	Stephen001	Grab stages would not advance past passive.
+Kurper		Stephen001	DNA Add would not append data properly.
+Animay		Trafalgar	Attack delays were removed.
+Trafalgar	Trafalgar	Disconnecting cameras would not cut off viewers.
+Trafalgar	Trafalgar	Humans and AI could open each others inventory window.
+Murrawhip	Stephen001	You could move into many objects through obstacles.
+Darkman1920	Stephen001	Inventory Windows would not close on URL-unsafe names.
+Animay		Murrawhip	Monkeys could talk while sleeping.
+Animay		Trafalgar	Closets could be used to bypass window doors.
+Animay		Hobnob		Vote toggling provided misleading messages.
+Animay		Stephen001	Spawning 50 glass in Sandbox mode spawned 50 metal.
+Animay		Trafalgar	It was possible to attack through windows.
+Animay		Stephen001	World log would not trim say and OOC text.
+Trafalgar	Trafalgar	Game ticker would count at double the intended speed.
+Trafalgar	Trafalgar	Timers would not actually secure to igniters.
+Trafalgar	Trafalgar	Ranks were not always consistent with access numbers.
+Trafalgar	Trafalgar	Fixed bad grammar on some admin messages.
+Trafalgar	Trafalgar	The AI could perform all the actions a human could.
+Trafalgar	Trafalgar	The AI could not see it's APC if the APC was turned off.
+</PRE>

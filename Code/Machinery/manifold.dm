@@ -74,9 +74,9 @@ obj/machinery/manifold
 		node2 = get_machine( level, T , n2dir )
 
 
-		if(node1) vnode1 = node1.getline()
-		if(node2) vnode2 = node2.getline()
-		if(node3) vnode3 = node3.getline()
+		vnode1 = node1 ? node1.getline() : null
+		vnode2 = node2 ? node2.getline() : null
+		vnode3 = node3 ? node3.getline() : null
 
 		return
 
@@ -146,3 +146,13 @@ obj/machinery/manifold
 
 
 
+	// Attack by item
+	// If welder, make a fitting and delete self
+
+	attackby(obj/item/weapon/W, mob/user)
+
+		if(istype(W, /obj/item/weapon/weldingtool))
+			if(attack_welder(W, user))
+				del(src)
+		else
+			..()

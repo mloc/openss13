@@ -18,7 +18,7 @@ obj/machinery
 		capmult = 0		// used for gas flow - a capacity multiplier
 
 		stat = 0		// machinery status bitflags
-						// currently used values: 1 - BROKEN ; 2 - NOPOWER
+						// currently used values: 1 - BROKEN ; 2 - NOPOWER ; 8 - MAINT
 
 
 	// New() and Del() add and remove machines from the global "machines" list

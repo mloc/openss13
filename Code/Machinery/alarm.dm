@@ -8,7 +8,7 @@ obj/machinery/alarm
 	icon = 'stationobjs.dmi'
 	icon_state = "alarm:0"
 	anchored = 1.0
-
+	layer = 3.1
 
 	// Monitors location air quality and changes icon_state to reflect it
 

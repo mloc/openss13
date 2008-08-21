@@ -23,7 +23,7 @@
 		dat += variable(usr, V, D.vars[V])	 	//get the text for that variable
 
 	dat += "</BODY>"
-	usr.client_mob() << browse(dat, "window=\ref[D]")		// display the browser pop-up
+	usr << browse(dat, "window=\ref[D]")		// display the browser pop-up
 
 
 // return a HTML formatted string displaying a variable

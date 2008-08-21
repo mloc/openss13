@@ -59,7 +59,7 @@ obj/machinery/autolathe
 	attack_ai(mob/user)
 		return src.attack_hand(user)
 
-	
+
 	// Open interaction window
 	// Currenty only pipe pieces can be made
 	attack_hand(mob/user)
@@ -82,6 +82,7 @@ obj/machinery/autolathe
 			L["manif"] = "Pipe manifold (15000 cc)"
 			L["junct"] = "Pipe junction (10000 cc)"
 			L["vent"] = "Pipe vent (10000 cc)"
+			L["inlet"] = "Pipe inlet (10000 cc)"
 			if (config.enable_drones)
 				L["drone"] = "Robot drone (150,000 cc)"
 	/*		L["screwdriver"] = "Make Screwdriver {40 cc}"
@@ -135,6 +136,7 @@ obj/machinery/autolathe
 				C["manif"] = 15000
 				C["junct"] = 10000
 				C["vent"] = 10000
+				C["inlet"] = 10000
 				if (config.enable_drones)
 					C["drone"] = 150000
 
@@ -161,6 +163,8 @@ obj/machinery/autolathe
 							new /obj/item/weapon/pipe{ ptype = 6 }(src.loc)
 						if("vent")
 							new /obj/item/weapon/pipe{ ptype = 7 }(src.loc)
+						if("inlet")
+							new /obj/item/weapon/pipe{ ptype = 8 }(src.loc)
 						if("drone")
 							if (config.enable_drones)
 								var/mob/drone/drone = new /mob/drone(src.loc)

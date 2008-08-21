@@ -9,6 +9,7 @@ obj/machinery/firealarm
 	icon = 'items.dmi'
 	icon_state = "firealarm"
 	anchored = 1
+	layer = 3.1		// slightly above standard obj layer
 	var
 		detecting = 1			// true if the alarm is working, false if disabled
 		//working = 1			// unused

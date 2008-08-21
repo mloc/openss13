@@ -61,7 +61,10 @@ obj/machinery/freezer
 
 		line_out = get_machine(level, T, p_dir )
 
-		if(line_out) vnode = line_out.getline()			// the pipeline associated with the pipe
+		if(line_out)
+			vnode = line_out.getline()			// the pipeline associated with the pipe
+		else
+			vnode = null
 
 
 	// Update gas levels with the new levels calculated in process()
@@ -99,7 +102,7 @@ obj/machinery/freezer
 
 	attack_paw(mob/user)
 		return src.attack_hand(user)
-	
+
 	// AI interact
 	attack_ai(mob/user)
 		return src.attack_hand(user)
@@ -175,11 +178,11 @@ obj/machinery/freezer
 	Topic(href, href_list)
 		..()
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			if (!istype(usr, /mob/ai))		
+			if (!istype(usr, /mob/ai))
 				usr.client_mob() << "\red You don't have the dexterity to do this!"
 				return
 		if ((usr.stat || usr.restrained()))
-			if (!istype(usr, /mob/ai))		
+			if (!istype(usr, /mob/ai))
 				return
 		if ((usr.contents.Find(src) || (get_dist(src, usr) <= 1 && istype(src.loc, /turf))))
 			usr.machine = src

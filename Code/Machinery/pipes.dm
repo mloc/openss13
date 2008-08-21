@@ -4,16 +4,17 @@
  *  Pipes do not directly contain gas, but unbroken chains of pipes are assembled into /obj/machinery/pipeline objects
  *  Pipelines contain a single gas reservoir that encompass all the gas that would be each individual pipe.
  *
- *	TODO: Complete routines for pipe disassembly, damage, and exploding under pressure.
- *	TODO: Finalize method of showing broken pipes & pipe ends.
  *  TODO: Implement some method of capacity regulation
  */
+
+#define MAXPIPEHEALTH 10		// the starting health value of each pipe
 
 obj/machinery/pipes
 	name = "pipes"
 	icon = 'reg_pipe.dmi'
 	icon_state = "12"
 	anchored = 1
+	desc = "A regular pipe."
 
 	/* var/p_dir - inherited from /obj/machinery, is a bitfield of directions of pipe connections from this one */
 
@@ -25,7 +26,7 @@ obj/machinery/pipes
 		insulation = NORMPIPERATE			// lower insulation value means pipe temperature is exchanged with turf at a faster rate
 
 		obj/machinery/pipeline/pl			// the pipeline object which contains this pipe
-		health = 10							// the health of the pipe (not yet implemented)
+		health = MAXPIPEHEALTH				// the health of the pipe
 
 
 	// Create a new pipe, and update the p_dir according to the icon_state.
@@ -61,6 +62,9 @@ obj/machinery/pipes
 
 		node1 = get_machine(level, src.loc, dirs[1])
 		node2 = get_machine(level, src.loc, dirs[2])
+
+		if(!line)			// If no pipeline was specified, just needed to revalidate the local nodes
+			return
 
 		if(pl)				// If the pipeline is already set, there is no need to propagate anymore
 			return
@@ -162,6 +166,30 @@ obj/machinery/pipes
 					return list(dirs[2], dirs[1])	// otherwise swap order
 
 
+	// examine verb - show description and amount of damage
+
+	examine()
+		set src in view(1)
+		if(usr && !usr.stat)
+			usr.client_mob() << "[desc] The pipe is [damagetext()][(stat & MAINT)?" and the flanges are unfastened.":"."]"
+
+
+	// return text description of the damage state of the pipe
+	// used in examine verb and when repairing
+
+	proc/damagetext()
+		if(health == MAXPIPEHEALTH)
+			return "undamaged"
+		if(health > 0.7*MAXPIPEHEALTH)
+			return "slightly damaged"
+		if(health > 0.3*MAXPIPEHEALTH)
+			return "damaged"
+		else
+			return "badly damaged"
+
+
+
+
 	// Update the icon_state and overlays
 	// Depends on pipe level and visibility, broken status, and whether this is an unterminated end of a pipe
 
@@ -170,9 +198,6 @@ obj/machinery/pipes
 		var/turf/T = src.loc
 
 		var/is = "[p_dir]"
-
-		if(stat & BROKEN)
-			is += "-b"
 
 		// Set invisibility status depending on whether this pipe is below floor level
 		// Also sets a faded (alpha blended) icon_state for the pipe so it can be shown with a T-scanner
@@ -187,20 +212,21 @@ obj/machinery/pipes
 		src.icon_state = is
 
 		// If either node is null, this is an unterminated pipe
+		// unless a matching broken pipe is present
 		// Show special overlays to indicate this
 
 		var/list/dirs = get_node_dirs()
 
 		overlays = null
-		if(!node1 && !node2)												// neither end of pipe is connected
-			overlays += image('pipes.dmi', "discon", FLY_LAYER, dirs[1])
-			overlays += image('pipes.dmi', "discon", FLY_LAYER, dirs[2])
 
-		else if(!node1)														// node1 is not connected
-			overlays += image('pipes.dmi', "discon", FLY_LAYER, dirs[1])
+		if(!node1)														// node1 is not connected
+			if(!findbrokenpipe(T, dirs[1], level, 0))					// no broken pipe present
+				overlays += image('pipes.dmi', "discon[dirs[1]]", FLY_LAYER)
 
 		else if(!node2)														// node2 is not connected
-			overlays += image('pipes.dmi', "discon", FLY_LAYER, dirs[2])
+			if(!findbrokenpipe(T, dirs[2], level, 0))					// no broken pipe present
+				overlays += image('pipes.dmi', "discon[dirs[2]]", FLY_LAYER)
+
 
 		return
 
@@ -243,37 +269,257 @@ obj/machinery/pipes
 
 
 	// Routines to allow cutting and damage of pipes
-	// Not yet implemented
 
-	/*
 	attackby(obj/item/weapon/W, mob/user)
 
-		if (istype(W, /obj/item/weapon/weldingtool))
+		if (istype(W, /obj/item/weapon/wrench))
+			if(stat & MAINT)
+				stat &= ~MAINT
+				user.client_mob() << "\blue You fasten the pipe flanges."
+			else
+				stat |= MAINT
+				user.client_mob() << "\blue You unfasten the pipe flanges. The pipe can now be cut."
+
+		else if (istype(W, /obj/item/weapon/weldingtool))
 			var/obj/item/weapon/weldingtool/WT = W
-			if(WT.welding && WT.weldfuel > 3)
-				WT.weldfuel -=3
+			if(WT.welding)
 
-				user.client_mob() << "\blue Cutting the pipe. Stand still as this takes some time."
-				var/turf/T = user.loc
-				sleep(50)
+				if(stat & MAINT)
+					if(WT.weldfuel > 3)
+						WT.weldfuel -=3
 
-				if ((user.loc == T && user.equipped() == W))
+						user.client_mob() << "\blue Cutting the pipe. Stand still as this takes some time."
+						var/turf/T = user.loc
+						sleep(50)
 
-				// make pipe fitting
-					sleep(1)
+						if ((user.loc == T && user.equipped() == W))
+							// make pipe fitting
+
+							var/obj/item/weapon/pipe/P = new(src.loc)
+							P.settype(src)
+
+							del(src)
+					else
+						user.client_mob() << "\blue You need more welding fuel to cut the pipe."
+
+				else
+					if(health < MAXPIPEHEALTH)
+						if(WT.weldfuel > 1)
+							WT.weldfuel--
+
+							user.client_mob() << "\blue Repairing the pipe."
+							sleep(5)
+							health = min(health+MAXPIPEHEALTH/10, MAXPIPEHEALTH)
+							user.client_mob() << "\blue The pipe is now [damagetext()]."
+							healthcheck()
+							return
+						else
+							user.client_mob() << "\blue You need more welding fuel to repair the pipe."
+
+					else
+						user.client_mob() << "You cannot repair the pipe as it is undamaged."
+						return
+
 
 		else
-			var/aforce = W.force
+			var/aforce = round(W.force/10+0.5,1)
 
 			src.health = max(0, src.health - aforce)
 
 			healthcheck()
-
+			..()
 		return
 
-	proc/healthcheck()
-		//if(health<1)
+
+
+	// pipe effected by an explosion
+
+	ex_act(severity)
+
+		switch(severity)
+			if(1.0)
+				del(src)
+				return
+			if(2.0)
+				health -= rand(MAXPIPEHEALTH*0.5,MAXPIPEHEALTH*1.5)
+				healthcheck()
+				return
+			if(3.0)
+				health -= rand(0,MAXPIPEHEALTH*1.5)
+				healthcheck()
+				return
+
+
+	// pipe is in a fire
+
+
+	burn(fi_amount)
+
+		if(fi_amount > 1800000)
+			var/turf/T = src.loc
+			if(prob(5) && T.temp > 1600)		// if turf temp exceeds pipe melting point, take damage
+				health -= round( T.temp/1500)	// damage depends on the actual temperature
+				healthcheck()
+
+
+	/*
+	// test verb - destroy a pipe
+
+	verb/destroy()
+		set src in view()
+
+		health=0
+		healthcheck()
 	*/
+
+	// Check the pipe hp, and break it if low enough
+
+	proc/healthcheck()
+		if(health<=0)				// check health, if low enough
+			health = 0				// break the pipe
+			breakpipe()
+
+
+	// break a pipe
+	// create a broken pipe object in place, then delete this pipe
+	// pipe Del() proc handles updating of the containing pipeline
+
+	proc/breakpipe()
+
+		if(!isturf(src.loc))		// sanity check
+			return
+
+		// create the broken pipe object
+
+		var/obj/brokenpipe/BP = new(src.loc)		// in same loc as original
+		BP.update(src)						// update brokenpipe vars from this pipe
+
+		// deletes the pipe segement
+		del(src)
+
+
+	// Delete the pipe
+	// must handle updating of the containing pipeline object
+	// three possible cases:
+	// pipe is the only node in a line	-> delete the line
+	// pipe is at one end of a line		-> shorten the line
+	// pipe is in the middle of a line	-> split the line into two pieces
+	// also handle redistribution of gas in the pipeline(s)
+
+	Del()
+
+		var/obj/machinery/pipeline/line = pl
+		var/turf/T = src.loc
+
+		if(!pl || !isturf(T))		// sanity check
+			return ..()				// just delete
+
+		var/linepos = line.nodes.Find(src)	// the position of this pipe in the pipeline
+
+		if(linepos == 1 && line.numnodes == 1)	// single pipe pipeline
+			// no other nodes in the pipeline, so remove it completely
+			line.gas.leak(T)	// dump all gas in line into turf
+			src.pl = null
+
+
+			// update linked machines to reflect new status
+			if(line.vnode1)
+				line.vnode1.buildnodes()
+
+			if(line.vnode2)
+				line.vnode2.buildnodes()
+
+			line.nodes -= src	// remove reference to this pipe object (to prevent infinite loop)
+			del(line)			// remove the line
+
+		else if(linepos == 1 || linepos == line.numnodes)	// pipe was at one end of pipeline
+
+			var/obj/substance/gas/G = new()						// temporary holder for gas
+
+			G.transfer_from(line.gas, line.gas.tot_gas()  / line.numnodes)	// transfer gas from line to temp
+
+			G.leak(T)	// dump fraction of line gas into turf
+
+
+			line.nodes -= src
+			line.numnodes--
+			line.capmult = 1 + line.numnodes
+
+			src.loc = null
+
+			line.ngas.replace_by(line.gas)
+
+			// now update line and connected machines links between nodes
+
+			if(linepos == 1)						// pipe at start of pipeline
+				if(line.vnode1)	line.vnode1.buildnodes()
+				var/obj/machinery/pipes/P = line.nodes[1]
+
+				P.buildnodes(null)		// rebuild the local nodes of the next pipe
+				line.vnode1 = null
+			else									// pipe at end of pipeline
+				if(line.vnode2)	line.vnode2.buildnodes()
+				var/obj/machinery/pipes/P = line.nodes[line.numnodes]
+				P.buildnodes(null)		// rebuild the local nodes of the next pipeline
+				line.vnode2 = null
+
+
+		else	// pipe is somewhere in middle of pipeline	- split into two
+
+			//world << "total : [line.gas.tot_gas()]"
+
+			//world << "pos [linepos] of [line.numnodes]"
+
+			var/linenodes = line.numnodes
+
+			var/obj/machinery/pipeline/newline = new()
+
+			newline.nodes = line.nodes.Copy(linepos+1)
+
+			line.nodes.Cut(linepos)
+
+			line.numnodes = linepos-1
+
+			line.capmult = 1 + line.numnodes
+
+			newline.numnodes = newline.nodes.len
+
+			plines += newline
+
+			newline.name = "pipeline #[plines.len]"
+
+			newline.capmult = 1 + newline.numnodes
+
+			for(var/obj/machinery/pipes/P in newline.nodes)
+				P.pl = newline
+
+			src.loc = null
+
+			src.node1.buildnodes(null)
+			src.node2.buildnodes(null)
+
+			line.setterm()
+			newline.setterm()
+
+			// transfer fraction of gas which will be in second line
+			newline.gas.transfer_from(line.gas, line.gas.tot_gas() * (linenodes - linepos ) / linenodes)
+
+			//world << "in 1([line.name]): [line.gas.tot_gas()]"
+			//world << "in 2([newline.name]): [newline.gas.tot_gas()]"
+
+			var/obj/substance/gas/G = new()
+
+			G.transfer_from(line.gas, line.gas.tot_gas() / (line.numnodes+1))
+
+			//world << "to turf: [G.tot_gas()]"
+
+			G.leak(T)	// dump pipe's share of gas into the turf
+
+			line.ngas.replace_by(line.gas)
+			newline.ngas.replace_by(newline.gas)
+			//world << "in 1([line.name]): [line.gas.tot_gas()]"
+
+		..()		// perform actual deletion of pipe object
 
 
 	/*
@@ -300,25 +546,23 @@ obj/machinery/pipes
 
 		updateicon()
 
+			var/turf/T = src.loc
+
 			var/list/dirs = get_node_dirs()
 
 			var/is = "[h_dir]"
-
-			if(stat & BROKEN)
-				is += "-b"
 
 			src.icon_state = is
 
 			overlays = null
 
-			if(!node1 && !node2)
-				overlays += image('pipes.dmi', "discon-he", FLY_LAYER, dirs[1])
-				overlays += image('pipes.dmi', "discon-he", FLY_LAYER, dirs[2])
-			else if(!node1)
-				overlays += image('pipes.dmi', "discon-he", FLY_LAYER, dirs[1])
-			else if(!node2)
-				overlays += image('pipes.dmi', "discon-he", FLY_LAYER, dirs[2])
-			return
+			if(!node1)														// node1 is not connected
+				if(!findbrokenpipe(T, dirs[1], level, 1))					// no broken pipe present
+					overlays += image('pipes.dmi', "discon-he[dirs[1]]", FLY_LAYER)
+
+			else if(!node2)														// node2 is not connected
+				if(!findbrokenpipe(T, dirs[2], level, 1))					// no broken pipe present
+					overlays += image('pipes.dmi', "discon-he[dirs[2]]", FLY_LAYER)
 
 
 		// Return list of directions corresponding to h_dir bitflags
@@ -348,6 +592,9 @@ obj/machinery/pipes
 
 			node1 = get_he_machine(level, src.loc, dirs[1])
 			node2 = get_he_machine(level, src.loc, dirs[2])
+
+			if(!line)
+				return
 
 			if(pl)
 				return

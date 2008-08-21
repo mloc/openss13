@@ -63,12 +63,12 @@ obj/machinery/valve
 
 		var/turf/T = src.loc
 
-		node1 = get_machine(level, T, dir )		// the h/e pipe
+		node1 = get_machine(level, T, dir )
 
-		node2 = get_machine(level, T , turn(dir, 180) )	// the regular pipe
+		node2 = get_machine(level, T , turn(dir, 180) )
 
-		if(node1) vnode1 = node1.getline()
-		if(node2) vnode2 = node2.getline()
+		vnode1 = node1 ? node1.getline() : null
+		vnode2 = node2 ? node2.getline() : null
 
 		return
 

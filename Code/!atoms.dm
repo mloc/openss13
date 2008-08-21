@@ -15,6 +15,8 @@
 
 #define FLOWFRAC 0.99				// fraction of gas transfered per process
 
+#define PRESSURELIMIT	4E9			// maximum pressure (temp*content) excess before a pipe segment takes pressure damage
+
 
 //FLAGS BITMASK
 #define ONBACK 1			// can be put in back slot
@@ -439,7 +441,7 @@
 /obj
 	var/throwspeed = 0.0
 	var/throwing = null
-	var/datum/module/mod
+	//	var/datum/module/mod
 
 /obj/mark
 		var/mark = ""
@@ -1898,16 +1900,6 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	desc = "<B>Sleeping Pills</B>\nAdminister as required to calm person.\nCauses 10 minutes of drowsyness. MAY induce immediate sleep.\n<B>WARNING</B>: Neurodepressant! Do not overdose!\n<B>Warning</B>: Causes drowsiness!If drowsyness persists for over 15 minutes contact medical professional."
 	name = "Pill Canister- 'Sleeping Pills'"
 
-/obj/item/weapon/pipe
-	name = "pipe"
-	icon = 'pipe-item.dmi'
-	icon_state = "straight"
-	var/ptype = 0
-	flags = TABLEPASS|DRIVABLE|FPRINT
-	w_class = 4
-	s_istate = "pipe"
-	level = 2
-
 /obj/item/weapon/prox_sensor
 	name = "Proximity Sensor"
 	icon_state = "motion0"
@@ -1953,6 +1945,7 @@ Total SMES charging rate should not exceed total power generation rate, or an ov
 	name = "Station Intercom (Radio)"
 	icon_state = "intercom"
 	anchored = 1.0
+	layer = 3.1
 	var/number = 0
 /obj/item/weapon/radio/signaler
 	name = "Remote Signaling Device"

@@ -55,7 +55,7 @@ obj/machinery/power/solar_control
 		icon_state = "solar_con"
 		overlays = null
 		if(cdir > 0)
-			overlays += image('enginecomputer.dmi', "solcon-o", FLY_LAYER, cdir)
+			overlays += image('enginecomputer.dmi', "solcon-o[cdir]", FLY_LAYER)
 
 	// Attack by AI, open interaction window
 
@@ -168,7 +168,7 @@ obj/machinery/power/solar_control
 		if (usr.stat || usr.restrained() )
 			return
 		if ((!( istype(usr, /mob/human) ) && (!( ticker ) || (ticker && ticker.mode != "monkey"))))
-			if (!istype(usr, /mob/ai))		
+			if (!istype(usr, /mob/ai))
 				if (!istype(usr, /mob/drone))
 					usr.client_mob() << "\red You don't have the dexterity to do this!"
 					return

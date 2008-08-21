@@ -11,6 +11,7 @@ obj/machinery/light_switch
 	icon = 'power.dmi'
 	icon_state = "light1"
 	anchored = 1.0
+	layer = 3.1
 	var
 		on = 1					// true if currently switched on
 		area/area = null		// holds the area object that this switch controls

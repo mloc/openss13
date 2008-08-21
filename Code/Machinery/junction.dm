@@ -5,7 +5,7 @@
 
 obj/machinery/junction
 	name = "junction"
-	icon = 'junct-pipe.dmi'
+	icon = 'pipes.dmi'
 	icon_state = "junction"
 	desc = "A junction between regular and heat-exchanger pipework."
 	anchored = 1
@@ -49,8 +49,8 @@ obj/machinery/junction
 
 		node2 = get_machine(level, T , p_dir )			// the regular pipe
 
-		if(node1) vnode1 = node1.getline()
-		if(node2) vnode2 = node2.getline()
+		vnode1 = node1 ? node1.getline() : null
+		vnode2 = node2 ? node2.getline() : null
 
 		return
 
@@ -111,3 +111,13 @@ obj/machinery/junction
 		flow_to_turf(gas, ngas, T)
 
 
+	// Attack by item
+	// If welder, make a fitting and delete self
+
+	attackby(obj/item/weapon/W, mob/user)
+
+		if(istype(W, /obj/item/weapon/weldingtool))
+			if(attack_welder(W, user))
+				del(src)
+		else
+			..()
