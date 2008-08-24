@@ -4,9 +4,8 @@
 
 // BEGIN_INTERNALS
 /*
-FILE: Code\demo.dm
-DIR: Code
-UPDATE_OBJ_TREE: ON
+FILE: Code\Item\Weapon\weldingtool.dm
+DIR: Code Code\Item Code\Item\Weapon
 MAP_ICON_TYPE: 0
 AUTO_FILE_DIR: ON
 */
