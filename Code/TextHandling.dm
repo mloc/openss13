@@ -34,7 +34,7 @@
 
 	var/start = 1
 	var/end = length(prefix) + 1
-	return findText(text, prefix, start, end)
+	return findtextEx(text, prefix, start, end)
 	return
 
 /proc/dd_hassuffix(text, suffix)
@@ -48,7 +48,7 @@
 
 	var/start = length(text) - length(suffix)
 	if (start)
-		return findText(text, suffix, start, null)
+		return findtextEx(text, suffix, start, null)
 	return
 
 /proc/dd_text2list(text, separator)
@@ -79,7 +79,7 @@
 	var/searchPosition = 1
 	var/findPosition = 1
 	while(1)
-		findPosition = findText(text, separator, searchPosition, 0)
+		findPosition = findtextEx(text, separator, searchPosition, 0)
 		var/buggyText = copytext(text, searchPosition, findPosition)
 		textList += text("[]", buggyText)
 		searchPosition = findPosition + separatorlength

@@ -53,7 +53,7 @@ var/list/modules = list(			// global associative list
 	var/pos = 1
 
 	while(1)
-		pos = findText(modtext, ",", pos, 0)
+		pos = findtextEx(modtext, ",", pos, 0)
 		if(!pos)
 			break
 		else

@@ -4059,7 +4059,7 @@
 		if (istype(src.w_uniform, /obj/item/weapon/clothing/under))
 
 
-			var/t1 = src.w_uniform.color
+			var/t1 = src.w_uniform.item_color
 
 			if (!( t1 ))
 				t1 = src.icon_state
@@ -5238,10 +5238,10 @@
 /mob/proc/make_flag()
 	set category = "Admin"
 
-	var/color = input("Please select a color", null, null, null) in list( "red", "blue", "green", "yellow", "black", "white", "neutral" )
+	var/sel_color = input("Please select a color", null, null, null) in list( "red", "blue", "green", "yellow", "black", "white", "neutral" )
 	var/obj/item/weapon/paper/flag/F = new /obj/item/weapon/paper/flag( src.loc )
-	F.icon_state = text("flag_[]", color)
-	if(config.logadmin) world.log << text("ADMIN: [] made a [] flag.", src.key,color)
+	F.icon_state = text("flag_[]", sel_color)
+	if(config.logadmin) world.log << text("ADMIN: [] made a [] flag.", src.key,sel_color)
 	return
 
 /mob/proc/restart()
